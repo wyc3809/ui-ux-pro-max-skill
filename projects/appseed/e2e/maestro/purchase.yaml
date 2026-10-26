@@ -1,0 +1,21 @@
+# Browse → open template → preview story → buy (sandbox) → owned → send to email (§17)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "Pocket Ledger 記帳本"
+- tapOn: "製作經歷"
+- assertVisible: "購買後解鎖全部 6 個步驟"
+- tapOn: "購買"
+- assertVisible: "確認購買"
+- tapOn:
+    text: "確認付款.*"
+- assertVisible: "傳送到電腦"
+- tapOn: "傳送到電腦"
+- tapOn: "寄到我的電郵"
+- assertVisible: "已寄出，請查看電郵"
+# Re-opening an owned template must not offer "buy" again
+- back
+- tapOn: "Pocket Ledger 記帳本"
+- assertNotVisible: "購買"
+- assertVisible: "傳送到電腦"

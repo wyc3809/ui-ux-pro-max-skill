@@ -1,0 +1,94 @@
+import { router, useLocalSearchParams } from "expo-router";
+import { ChevronLeft, UserX } from "lucide-react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
+import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCreator } from "@/api/queries";
+import { TemplateCard } from "@/components/template/TemplateCard";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { HeaderButton } from "@/components/ui/HeaderButton";
+import { Section } from "@/components/ui/Section";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Txt } from "@/components/ui/Txt";
+import { useT } from "@/i18n";
+import { formatCount } from "@/lib/format";
+import { enterAt } from "@/theme/animations";
+import { useTheme } from "@/theme/ThemeProvider";
+import { space } from "@/theme/tokens";
+
+export default function CreatorScreen() {
+  const { handle } = useLocalSearchParams<{ handle: string }>();
+  const { data, isLoading } = useCreator(handle);
+  const { c } = useTheme();
+  const t = useT();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const colW = (Math.min(width, 1120) - space.gutter * 2 - 12) / 2;
+  const creator = data?.creator;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ paddingTop: insets.top, paddingHorizontal: space.gutter, height: insets.top + 52, justifyContent: "center" }}>
+        <HeaderButton icon={ChevronLeft} label={t("a11y.backBtn")} onPress={() => router.back()} />
+      </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32, gap: 24 }}>
+        {isLoading ? (
+          <View style={{ alignItems: "center", gap: 12, paddingTop: 12 }}>
+            <Skeleton width={84} height={84} radius={42} />
+            <Skeleton width={160} height={22} />
+          </View>
+        ) : !creator ? (
+          <EmptyState icon={UserX} title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
+        ) : (
+          <>
+            <Animated.View entering={enterAt(0)} style={{ alignItems: "center", gap: 8, paddingHorizontal: space.gutter }}>
+              <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
+                <Txt tone="accent" style={{ fontSize: 34, fontFamily: "DMSans_800ExtraBold" }}>
+                  {creator.name[0]}
+                </Txt>
+              </View>
+              <Txt variant="heroTitle">{creator.name}</Txt>
+              <Txt tone="fgSubtle">@{creator.handle}</Txt>
+              {creator.founding && (
+                <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 10, height: 24, justifyContent: "center" }}>
+                  <Txt style={{ fontSize: 12, fontFamily: "DMSans_700Bold", color: c.accent }}>{t("creator.founding")}</Txt>
+                </View>
+              )}
+              <Txt tone="fgMuted" style={{ textAlign: "center", marginTop: 4 }}>
+                {creator.bio}
+              </Txt>
+            </Animated.View>
+            <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter }}>
+              <Card style={{ flexDirection: "row" }}>
+                <Stat label={t("creator.templates")} value={String(data.templates.length)} />
+                <Stat label={t("creator.totalSales")} value={formatCount(creator.totalSales)} />
+                <Stat label={t("creator.avgRating")} value={creator.avgRating.toFixed(1)} />
+              </Card>
+            </Animated.View>
+            <Section title={t("creator.templates")} index={2}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, paddingHorizontal: space.gutter }}>
+                {data.templates.map((x) => (
+                  <TemplateCard key={x.slug} t={x} width={colW} />
+                ))}
+              </View>
+            </Section>
+          </>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={{ flex: 1, alignItems: "center", gap: 2 }}>
+      <Txt variant="price" tabular>
+        {value}
+      </Txt>
+      <Txt variant="caption" tone="fgSubtle">
+        {label}
+      </Txt>
+    </View>
+  );
+}

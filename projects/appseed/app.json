@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "AppSeed",
+    "slug": "appseed",
+    "scheme": "appseed",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#f5f6f3",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.appseed.mobile"
+    },
+    "android": {
+      "package": "app.appseed.mobile",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#5b3fd6",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-image",
+      "expo-font",
+      "expo-localization",
+      "expo-system-ui"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

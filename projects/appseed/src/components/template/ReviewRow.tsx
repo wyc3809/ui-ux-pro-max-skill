@@ -1,0 +1,48 @@
+import { CornerDownRight } from "lucide-react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
+import Animated from "react-native-reanimated";
+import type { Review } from "@/api/types";
+import { RatingStars } from "@/components/ui/RatingStars";
+import { Txt } from "@/components/ui/Txt";
+import { useT } from "@/i18n";
+import { formatDate } from "@/lib/format";
+import { reorder } from "@/theme/animations";
+import { useTheme } from "@/theme/ThemeProvider";
+import { radius } from "@/theme/tokens";
+
+export function ReviewRow({ r }: { r: Review }) {
+  const { c } = useTheme();
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  return (
+    <Animated.View layout={reorder} style={{ gap: 8, paddingVertical: 14 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
+          <Txt tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>{r.author[0]}</Txt>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Txt variant="bodyStrong">{r.author}</Txt>
+          <Txt variant="caption" tone="fgSubtle">
+            {formatDate(r.date, t.locale)} · <Txt variant="caption" tone="live">{t("template.verifiedBuyer")}</Txt>
+          </Txt>
+        </View>
+        <RatingStars value={r.rating} count={99} size={11} />
+      </View>
+      <Pressable onPress={() => setOpen((o) => !o)} accessibilityRole="button" accessibilityState={{ expanded: open }}>
+        <Txt numberOfLines={open ? undefined : 4}>{r.body}</Txt>
+      </Pressable>
+      {r.reply && (
+        <View style={{ flexDirection: "row", gap: 8, marginLeft: 12, padding: 12, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
+          <CornerDownRight size={15} color={c.fgSubtle} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Txt variant="caption" tone="fgSubtle" style={{ fontFamily: "DMSans_700Bold" }}>
+              {t("template.creatorReply")}
+            </Txt>
+            <Txt>{r.reply}</Txt>
+          </View>
+        </View>
+      )}
+    </Animated.View>
+  );
+}

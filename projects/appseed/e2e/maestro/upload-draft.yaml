@@ -1,0 +1,14 @@
+# Creator: start a draft → kill the app → draft is still there (§17)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "創作"
+- tapOn: "上載新模板"
+- tapOn: "名稱"
+- inputText: "Maestro Demo"
+- stopApp
+- launchApp
+- tapOn: "創作"
+- tapOn: "上載新模板"
+- assertVisible: "Maestro Demo"
