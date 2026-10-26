@@ -32,7 +32,8 @@
       "expo-image",
       "expo-font",
       "expo-localization",
-      "expo-system-ui"
+      "expo-system-ui",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": false

@@ -1,6 +1,7 @@
-import { ChevronRight } from "lucide-react-native";
+import { useState } from "react";
 import { View } from "react-native";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { NumberRoll } from "@/components/ui/NumberRoll";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
@@ -11,6 +12,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 export function PayoutCard({ amount, next }: { amount: number; next: string }) {
   const { c } = useTheme();
   const t = useT();
+  const [taps, setTaps] = useState(0);
   return (
     <Card style={{ gap: 6 }}>
       <Txt variant="eyebrow" tone="fgSubtle">
@@ -21,11 +23,11 @@ export function PayoutCard({ amount, next }: { amount: number; next: string }) {
         {t("studio.payoutNext", { date: formatDate(next, t.locale) })}
       </Txt>
       <View style={{ height: 1, backgroundColor: c.border, marginVertical: 8 }} />
-      <PressableScale scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", minHeight: 36 }}>
+      <PressableScale onPress={() => setTaps((n) => n + 1)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", minHeight: 36 }}>
         <Txt variant="bodyStrong" tone="accent" style={{ flex: 1 }}>
           {t("studio.payoutHistory")}
         </Txt>
-        <ChevronRight size={18} color={c.accent} />
+        <Icon name="chevronRight" size={18} color={c.accent} motion="nudge" trigger={taps} />
       </PressableScale>
     </Card>
   );

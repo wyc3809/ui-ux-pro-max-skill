@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { ImagePlus, Plus, X } from "lucide-react-native";
 import { ScrollView, TextInput, View, type TextInputProps } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,6 +7,7 @@ import type { CategoryKey } from "@/api/types";
 import { UploadStepper } from "@/components/studio/UploadStepper";
 import { Chip } from "@/components/ui/Chip";
 import { HeaderButton } from "@/components/ui/HeaderButton";
+import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { noOutline } from "@/components/ui/SearchBar";
 import { Switch } from "@/components/ui/Switch";
@@ -54,7 +54,7 @@ export default function UploadWizard() {
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 8 }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: space.gutter, paddingBottom: 12 }}>
         <Txt variant="section">{t("upload.title")}</Txt>
-        <HeaderButton icon={X} label={t("common.close")} onPress={() => router.back()} />
+        <HeaderButton icon="close" motion="spin" label={t("common.close")} onPress={() => router.back()} />
       </View>
       <UploadStepper
         step={step}
@@ -100,7 +100,7 @@ export default function UploadWizard() {
               ))}
               {d.screenshots < 8 && (
                 <PressableScale onPress={() => patch({ screenshots: d.screenshots + 1 })} hapticKind="tap" accessibilityLabel={t("upload.addShot")} style={{ width: 72, aspectRatio: 9 / 19.5, borderRadius: 12, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.fgSubtle, alignItems: "center", justifyContent: "center" }}>
-                  <ImagePlus size={20} color={c.fgSubtle} />
+                  <Icon name="image" size={20} color={c.fgSubtle} motion="bounce" trigger={d.screenshots} />
                 </PressableScale>
               )}
             </Group>
@@ -117,7 +117,7 @@ export default function UploadWizard() {
                 </Animated.View>
               ))}
               <PressableScale onPress={() => patch({ storySteps: [...d.storySteps, { title: "", body: "" }] })} hapticKind="tap" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: radius.control + 2, backgroundColor: c.bgMuted }}>
-                <Plus size={17} color={c.fg} />
+                <Icon name="plus" size={18} color={c.fg} motion="spin" trigger={d.storySteps.length} />
                 <Txt variant="bodyStrong">{t("upload.addStep")}</Txt>
               </PressableScale>
               <Group label={t("upload.freePreview")}>

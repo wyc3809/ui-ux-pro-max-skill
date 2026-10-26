@@ -2,11 +2,11 @@ import type { BottomTabBarProps } from "expo-router/js-tabs";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Compass, Library, PenTool, Search, UserRound, type LucideIcon } from "lucide-react-native";
 import { useEffect } from "react";
 import { Platform, View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
@@ -15,11 +15,11 @@ import { useUi } from "@/store/ui";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion } from "@/theme/tokens";
 
-const TABS: Record<string, { icon: LucideIcon; label: TKey }> = {
-  index: { icon: Compass, label: "tab.explore" },
-  library: { icon: Library, label: "tab.library" },
-  studio: { icon: PenTool, label: "tab.studio" },
-  me: { icon: UserRound, label: "tab.me" },
+const TABS: Record<string, { icon: IconName; label: TKey }> = {
+  index: { icon: "compass", label: "tab.explore" },
+  library: { icon: "library", label: "tab.library" },
+  studio: { icon: "pen", label: "tab.studio" },
+  me: { icon: "user", label: "tab.me" },
 };
 
 export const TAB_BAR_HEIGHT = 60;
@@ -90,7 +90,7 @@ export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   );
 }
 
-function TabItem({ icon: Icon, label, focused, onPress }: { icon: LucideIcon; label: string; focused: boolean; onPress: () => void }) {
+function TabItem({ icon, label, focused, onPress }: { icon: IconName; label: string; focused: boolean; onPress: () => void }) {
   const { c } = useTheme();
   const s = useSharedValue(1);
   useEffect(() => {
@@ -102,7 +102,8 @@ function TabItem({ icon: Icon, label, focused, onPress }: { icon: LucideIcon; la
   return (
     <PressableScale onPress={onPress} accessibilityRole="tab" accessibilityLabel={label} accessibilityState={{ selected: focused }} scaleTo={0.92} style={{ flex: 1, height: TAB_BAR_HEIGHT, alignItems: "center", justifyContent: "center", gap: 3 }}>
       <Animated.View style={a}>
-        <Icon size={23} color={color} strokeWidth={focused ? 2.4 : 2} />
+        {/* Outline → filled morph on selection, on top of the 1 → 1.18 → 1 pop. */}
+        <Icon name={icon} size={24} color={color} active={focused} motion="none" />
       </Animated.View>
       <Txt variant="tabLabel" style={{ color }}>
         {label}
@@ -130,7 +131,7 @@ function SearchFab({ label }: { label: string }) {
         end={{ x: 1, y: 1 }}
         style={{ flex: 1, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: c.accent, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 }}
       >
-        <Search size={24} color={c.accentFg} strokeWidth={2.6} />
+        <Icon name="search" size={25} color={c.accentFg} active enterDelay={200} />
       </LinearGradient>
     </PressableScale>
   );

@@ -1,6 +1,5 @@
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
-import { ChevronDown, Clock, SearchX, SlidersHorizontal } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, View, type TextInputInstance } from "react-native";
 import Animated from "react-native-reanimated";
@@ -12,6 +11,7 @@ import { TemplateRow } from "@/components/template/TemplateCard";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { SearchInput } from "@/components/ui/SearchBar";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
@@ -63,10 +63,10 @@ export default function SearchScreen() {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingHorizontal: space.gutter, paddingVertical: 12 }} style={{ flexGrow: 0 }}>
-        <Chip label={t("search.filters")} selected={active} onPress={() => setSheet(true)} trailing={<SlidersHorizontal size={14} color={active ? c.bg : c.fg} />} />
-        <Chip label={`${t("search.price")} · ${filters.price === "any" ? t("search.any") : filters.price === "free" ? t("common.free") : t("search.paid")}`} onPress={() => setSheet(true)} trailing={<ChevronDown size={14} color={c.fgSubtle} />} />
-        <Chip label={`${t("search.platform")} · ${filters.platform === "any" ? t("search.any") : filters.platform}`} onPress={() => setSheet(true)} trailing={<ChevronDown size={14} color={c.fgSubtle} />} />
-        <Chip label={`${t("search.sort")} · ${t(`search.sort${cap(filters.sort)}`)}`} onPress={() => setSheet(true)} trailing={<ChevronDown size={14} color={c.fgSubtle} />} />
+        <Chip label={t("search.filters")} selected={active} onPress={() => setSheet(true)} trailing={<Icon name="sliders" size={15} color={active ? c.bg : c.fg} active={active} motion="spin" />} />
+        <Chip label={`${t("search.price")} · ${filters.price === "any" ? t("search.any") : filters.price === "free" ? t("common.free") : t("search.paid")}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
+        <Chip label={`${t("search.platform")} · ${filters.platform === "any" ? t("search.any") : filters.platform}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
+        <Chip label={`${t("search.sort")} · ${t(`search.sort${cap(filters.sort)}`)}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
       </ScrollView>
 
       {showHistory ? (
@@ -84,7 +84,7 @@ export default function SearchScreen() {
           {history.queries.map((h) => (
             <Animated.View key={h} entering={rowIn} exiting={rowOut} layout={reorder}>
               <PressableScale onPress={() => setQ(h)} scaleTo={0.99} style={{ flexDirection: "row", alignItems: "center", gap: 10, height: 44 }}>
-                <Clock size={16} color={c.fgSubtle} />
+                <Icon name="clock" size={16} color={c.fgSubtle} />
                 <Txt>{h}</Txt>
               </PressableScale>
             </Animated.View>
@@ -94,7 +94,7 @@ export default function SearchScreen() {
         <View style={{ flex: 1 }}>
           {data && data.length === 0 ? (
             <EmptyState
-              icon={SearchX}
+              icon="search"
               title={t("search.emptyTitle")}
               body={t("search.emptyBody")}
               action={{

@@ -1,4 +1,3 @@
-import { Bell, FileText, Info, Languages, Moon, RotateCcw, Scale, ShieldCheck, Smartphone, Trash2, UserRound } from "lucide-react-native";
 import { useState } from "react";
 import { View } from "react-native";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
@@ -26,7 +25,7 @@ export default function MeScreen() {
         <View style={{ paddingHorizontal: space.gutter, gap: 24 }}>
           <Section index={0} inset={false}>
             <Card padded={false}>
-              <ListRow icon={UserRound} title={t("me.guest")} detail={t("me.signIn")} onPress={() => toast(t("common.done"))} />
+              <ListRow icon="user" title={t("me.guest")} detail={t("me.signIn")} onPress={() => toast(t("common.done"))} />
             </Card>
           </Section>
 
@@ -41,30 +40,30 @@ export default function MeScreen() {
               ]}
             />
             <Card padded={false}>
-              <ListRow icon={Languages} title={t("me.language")} trailing={<LangToggle />} />
+              <ListRow icon="language" title={t("me.language")} trailing={<LangToggle />} />
               <RowDivider />
-              <ListRow icon={Smartphone} title={t("me.haptics")} trailing={<Switch label={t("me.haptics")} value={s.haptics} onValueChange={s.setHaptics} />} />
+              <ListRow icon="phone" title={t("me.haptics")} trailing={<Switch label={t("me.haptics")} value={s.haptics} onValueChange={s.setHaptics} />} />
               <RowDivider />
-              <ListRow icon={Bell} title={t("me.notifications")} onPress={() => {}} />
+              <ListRow icon="bell" title={t("me.notifications")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon={Moon} title={t("me.clearHistory")} onPress={() => setConfirm("history")} />
+              <ListRow icon="moon" title={t("me.clearHistory")} onPress={() => setConfirm("history")} />
             </Card>
           </Section>
 
           <Section index={2} inset={false}>
             <Card padded={false}>
-              <ListRow icon={Scale} title={t("me.licenses")} onPress={() => {}} />
+              <ListRow icon="scale" title={t("me.licenses")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon={RotateCcw} title={t("me.refunds")} onPress={() => {}} />
+              <ListRow icon="refresh" title={t("me.refunds")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon={ShieldCheck} title={t("me.privacy")} onPress={() => {}} />
+              <ListRow icon="shield" title={t("me.privacy")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon={FileText} title={t("me.terms")} onPress={() => {}} />
+              <ListRow icon="file" title={t("me.terms")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon={Info} title={t("me.about")} value="0.1.0" />
+              <ListRow icon="info" title={t("me.about")} value="0.1.0" />
             </Card>
             <Card padded={false}>
-              <ListRow icon={Trash2} title={t("me.deleteAccount")} danger onPress={() => setConfirm("account")} />
+              <ListRow icon="trash" title={t("me.deleteAccount")} danger onPress={() => setConfirm("account")} />
             </Card>
           </Section>
         </View>

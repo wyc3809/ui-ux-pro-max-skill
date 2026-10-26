@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { BookOpen, Heart, Laptop, PackageOpen } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
@@ -8,6 +7,7 @@ import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
 import { TabScene } from "@/components/shell/TabScene";
 import { TemplateRow } from "@/components/template/TemplateCard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -58,9 +58,9 @@ export default function LibraryScreen() {
           </View>
         ) : items.length === 0 ? (
           seg === "owned" ? (
-            <EmptyState icon={PackageOpen} title={t("library.emptyOwnedTitle")} body={t("library.emptyOwnedBody")} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
+            <EmptyState icon="package" title={t("library.emptyOwnedTitle")} body={t("library.emptyOwnedBody")} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
           ) : (
-            <EmptyState icon={Heart} title={t("library.emptySavedTitle")} body={t("library.emptySavedBody")} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
+            <EmptyState icon="heart" title={t("library.emptySavedTitle")} body={t("library.emptySavedBody")} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
           )
         ) : (
           <Animated.View key={seg} entering={crossfadeIn} style={{ gap: 10 }}>
@@ -69,8 +69,8 @@ export default function LibraryScreen() {
                 <TemplateRow t={x} trailing={seg === "owned" && x.versions.length > 1 ? <UpdateBadge /> : undefined} />
                 {seg === "owned" && (
                   <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: space.gutter }}>
-                    <MiniAction icon={Laptop} label={t("cta.send")} onPress={() => router.push(`/template/${x.slug}`)} />
-                    <MiniAction icon={BookOpen} label={t("template.story")} onPress={() => router.push(`/template/${x.slug}/story`)} />
+                    <MiniAction icon="laptop" label={t("cta.send")} onPress={() => router.push(`/template/${x.slug}`)} />
+                    <MiniAction icon="book" label={t("template.story")} onPress={() => router.push(`/template/${x.slug}/story`)} />
                   </View>
                 )}
               </Animated.View>
@@ -92,11 +92,17 @@ function UpdateBadge() {
   );
 }
 
-function MiniAction({ icon: Icon, label, onPress }: { icon: typeof Laptop; label: string; onPress: () => void }) {
+function MiniAction({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
   const { c } = useTheme();
+  const [taps, setTaps] = useState(0);
   return (
-    <PressableScale onPress={onPress} hapticKind="selection" style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 40, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
-      <Icon size={15} color={c.fg} strokeWidth={2.2} />
+    <PressableScale
+      onPress={() => {
+        setTaps((n) => n + 1);
+        onPress();
+      }}
+      hapticKind="selection" style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 40, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
+      <Icon name={icon} size={16} color={c.fg} motion="bounce" trigger={taps} />
       <Txt variant="caption" style={{ fontFamily: "DMSans_700Bold" }}>
         {label}
       </Txt>

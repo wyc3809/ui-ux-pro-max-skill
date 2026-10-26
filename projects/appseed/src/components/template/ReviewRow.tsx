@@ -1,8 +1,8 @@
-import { CornerDownRight } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import Animated from "react-native-reanimated";
 import type { Review } from "@/api/types";
+import { Icon } from "@/components/ui/Icon";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
@@ -34,7 +34,7 @@ export function ReviewRow({ r }: { r: Review }) {
       </Pressable>
       {r.reply && (
         <View style={{ flexDirection: "row", gap: 8, marginLeft: 12, padding: 12, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
-          <CornerDownRight size={15} color={c.fgSubtle} />
+          <Icon name="reply" size={15} color={c.fgSubtle} enterDelay={120} />
           <View style={{ flex: 1, gap: 2 }}>
             <Txt variant="caption" tone="fgSubtle" style={{ fontFamily: "DMSans_700Bold" }}>
               {t("template.creatorReply")}

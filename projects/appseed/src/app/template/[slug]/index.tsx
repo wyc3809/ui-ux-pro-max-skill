@@ -1,7 +1,6 @@
 import { BlurView } from "expo-blur";
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
-import { BookOpen, ChevronLeft, Flag, GitBranch, Link2, Lock, Mail, PackageX, Scale, Share2, ShieldCheck } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { Platform, Share, View } from "react-native";
 import Animated, { Extrapolation, interpolate, ReduceMotion, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
@@ -20,6 +19,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { HeaderButton } from "@/components/ui/HeaderButton";
+import { Icon } from "@/components/ui/Icon";
 import { ListRow, RowDivider } from "@/components/ui/ListRow";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { RatingStars } from "@/components/ui/RatingStars";
@@ -34,7 +34,7 @@ import { formatBytes, formatCount, formatDate } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { tabEnterOffset } from "@/lib/motion";
 import { formatPrice } from "@/lib/price";
-import { enterAt } from "@/theme/animations";
+import { enterAt, popIn, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space } from "@/theme/tokens";
 
@@ -81,7 +81,7 @@ export default function TemplateScreen() {
   if (!isLoading && !tpl) {
     return (
       <View style={{ flex: 1, backgroundColor: c.bg, justifyContent: "center" }}>
-        <EmptyState icon={PackageX} title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
+        <EmptyState icon="closeCircle" title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
       </View>
     );
   }
@@ -121,13 +121,13 @@ export default function TemplateScreen() {
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingTop: insets.top }}>
         <Animated.View style={[{ position: "absolute", inset: 0, backgroundColor: c.bg, borderBottomWidth: 1, borderBottomColor: c.border }, headerBg]} />
         <View style={{ height: 52, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
-          <HeaderButton icon={ChevronLeft} label={t("a11y.backBtn")} onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
+          <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
           <Animated.View style={[{ flex: 1 }, headerBg]}>
             <Txt variant="section" numberOfLines={1} style={{ textAlign: "center" }}>
               {tpl?.name}
             </Txt>
           </Animated.View>
-          <HeaderButton icon={Share2} label="Share" onPress={() => tpl && Share.share({ message: `${tpl.name} https://appseed.app/t/${tpl.slug}` })} />
+          <HeaderButton icon="share" motion="bounce" label="Share" onPress={() => tpl && Share.share({ message: `${tpl.name} https://appseed.app/t/${tpl.slug}` })} />
           {tpl && <FavoriteButton slug={tpl.slug} onSurface />}
         </View>
       </View>
@@ -217,8 +217,8 @@ function Overview({ t: tpl, onLicense }: { t: Template; onLicense: () => void })
     <View style={{ gap: 14 }}>
       <Card style={{ gap: 10 }}>
         <Txt variant="section">{t("template.features")}</Txt>
-        {tpl.features.map((f) => (
-          <Bullet key={f} text={f} />
+        {tpl.features.map((f, i) => (
+          <Bullet key={f} text={f} index={i} />
         ))}
       </Card>
       <Card style={{ gap: 8 }}>
@@ -227,26 +227,26 @@ function Overview({ t: tpl, onLicense }: { t: Template; onLicense: () => void })
       </Card>
       <Card style={{ gap: 10 }}>
         <Txt variant="section">{t("template.requirements")}</Txt>
-        {tpl.requirements.map((f) => (
-          <Bullet key={f} text={f} />
+        {tpl.requirements.map((f, i) => (
+          <Bullet key={f} text={f} index={i} />
         ))}
       </Card>
       <Card padded={false}>
         <ListRow title={t("template.testedOn")} value={tpl.platforms.join(" · ")} />
         <RowDivider />
-        <ListRow icon={Scale} title={t("template.license")} detail={t(`license.${tpl.license}`)} onPress={onLicense} />
+        <ListRow icon="scale" title={t("template.license")} detail={t(`license.${tpl.license}`)} onPress={onLicense} />
       </Card>
     </View>
   );
 }
 
-function Bullet({ text }: { text: string }) {
+function Bullet({ text, index }: { text: string; index: number }) {
   const { c } = useTheme();
   return (
-    <View style={{ flexDirection: "row", gap: 10 }}>
-      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent, marginTop: 7 }} />
+    <Animated.View entering={slideInAt(index)} style={{ flexDirection: "row", gap: 10 }}>
+      <Animated.View entering={popIn(index, 60)} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent, marginTop: 7 }} />
       <Txt style={{ flex: 1 }}>{text}</Txt>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -268,13 +268,13 @@ function StoryPreview({ t: tpl, owned }: { t: Template; owned: boolean }) {
           </View>
           <BlurView intensity={Platform.OS === "ios" ? 22 : 40} tint={isDark ? "dark" : "light"} style={{ position: "absolute", inset: 0, alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: Platform.OS === "android" ? c.bgElevated : undefined }}>
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-              <Lock size={18} color={c.accent} strokeWidth={2.4} />
+              <Icon name="lock" size={19} color={c.accent} active loop="breathe" />
             </View>
             <Txt variant="bodyStrong">{t("template.unlockAll", { n: tpl.story.length })}</Txt>
           </BlurView>
         </View>
       )}
-      <Button label={t("template.readStory")} variant="secondary" icon={<BookOpen size={17} color={c.fg} />} onPress={() => router.push(`/template/${tpl.slug}/story`)} style={{ marginTop: 12 }} />
+      <Button label={t("template.readStory")} variant="secondary" icon={<Icon name="book" size={18} color={c.fg} />} onPress={() => router.push(`/template/${tpl.slug}/story`)} style={{ marginTop: 12 }} />
     </Card>
   );
 }
@@ -356,16 +356,23 @@ function DistBar({ label, frac, delay }: { label: string; frac: number; delay: n
 function Footer({ t: tpl }: { t: Template }) {
   const { c } = useTheme();
   const t = useT();
+  const [reports, setReports] = useState(0);
   return (
     <View style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-        <ShieldCheck size={15} color={c.live} />
+        <Icon name="shield" size={15} color={c.live} active />
         <Txt variant="caption" tone="fgSubtle">
           {t("template.footer", { date: formatDate(tpl.updatedAt, t.locale) })}
         </Txt>
       </View>
-      <PressableScale onPress={() => toast(t("common.done"))} style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44 }}>
-        <Flag size={14} color={c.fgSubtle} />
+      <PressableScale
+        onPress={() => {
+          setReports((n) => n + 1);
+          toast(t("common.done"));
+        }}
+        style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44 }}
+      >
+        <Icon name="flag" size={14} color={c.fgSubtle} motion="wiggle" trigger={reports} />
         <Txt variant="caption" tone="fgSubtle" style={{ textDecorationLine: "underline" }}>
           {t("template.report")}
         </Txt>
@@ -404,12 +411,12 @@ function SendSheet({ t: tpl, open, onClose }: { t: Template; open: boolean; onCl
     <Sheet open={open} onClose={onClose} title={t("send.title")}>
       <Txt tone="fgMuted">{t("send.body")}</Txt>
       <Card padded={false} style={{ shadowOpacity: 0, elevation: 0 }}>
-        <ListRow icon={Mail} title={t("send.email")} detail={t("send.emailHint")} onPress={() => done(t("send.sent"))} />
+        <ListRow icon="mail" title={t("send.email")} detail={t("send.emailHint")} onPress={() => done(t("send.sent"))} />
         <RowDivider />
-        <ListRow icon={GitBranch} title={t("send.github")} detail={t("send.githubHint")} onPress={() => done(t("common.done"))} />
+        <ListRow icon="git" title={t("send.github")} detail={t("send.githubHint")} onPress={() => done(t("common.done"))} />
         <RowDivider />
         <ListRow
-          icon={Link2}
+          icon="link"
           title={t("send.link")}
           detail={t("send.linkHint")}
           onPress={async () => {

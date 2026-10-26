@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { Settings } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type SharedValue } from "react-native-reanimated";
@@ -40,7 +39,7 @@ export default function Explore() {
 
   return (
     <TabScene index={0}>
-      <LargeTitleScreen title={t("explore.title")} right={<HeaderButton icon={Settings} label={t("a11y.settings")} onPress={() => router.navigate("/me")} />} onRefresh={refetch}>
+      <LargeTitleScreen title={t("explore.title")} right={<HeaderButton icon="settings" motion="spin" label={t("a11y.settings")} onPress={() => router.navigate("/me")} />} onRefresh={refetch}>
         <Animated.View entering={enterAt(0)} style={{ paddingHorizontal: space.gutter, gap: 14 }}>
           <SearchBarButton placeholder={t("explore.searchPlaceholder")} label={t("a11y.search")} onPress={() => router.push("/search")} />
         </Animated.View>

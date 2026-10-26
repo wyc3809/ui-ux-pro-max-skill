@@ -1,4 +1,3 @@
-import { CircleAlert, CircleCheck } from "lucide-react-native";
 import { useEffect } from "react";
 import Animated, { FadeOutUp, ReduceMotion, SlideInUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -6,6 +5,7 @@ import { create } from "zustand";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
 import { dark, light } from "@/theme/tokens";
+import { Icon } from "./Icon";
 import { Txt } from "./Txt";
 
 type ToastKind = "success" | "warning";
@@ -37,7 +37,6 @@ export function ToastHost() {
     return () => clearTimeout(timer);
   }, [id, message, hide]);
   if (!message) return null;
-  const Icon = kind === "success" ? CircleCheck : CircleAlert;
   return (
     <Animated.View
       key={id}
@@ -50,7 +49,7 @@ export function ToastHost() {
         soft,
       ]}
     >
-      <Icon size={18} color={kind === "success" ? inv.live : inv.warn} strokeWidth={2.4} />
+      <Icon name={kind === "success" ? "checkCircle" : "alert"} size={19} color={kind === "success" ? inv.live : inv.warn} active enterDelay={120} motion={kind === "success" ? "pop" : "wiggle"} />
       <Txt variant="bodyStrong" style={{ color: c.bg }}>
         {message}
       </Txt>

@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft, UserX } from "lucide-react-native";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,11 +7,11 @@ import { TemplateCard } from "@/components/template/TemplateCard";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { HeaderButton } from "@/components/ui/HeaderButton";
+import { NumberRoll } from "@/components/ui/NumberRoll";
 import { Section } from "@/components/ui/Section";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { formatCount } from "@/lib/format";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { space } from "@/theme/tokens";
@@ -30,7 +29,7 @@ export default function CreatorScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View style={{ paddingTop: insets.top, paddingHorizontal: space.gutter, height: insets.top + 52, justifyContent: "center" }}>
-        <HeaderButton icon={ChevronLeft} label={t("a11y.backBtn")} onPress={() => router.back()} />
+        <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => router.back()} />
       </View>
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32, gap: 24 }}>
         {isLoading ? (
@@ -39,7 +38,7 @@ export default function CreatorScreen() {
             <Skeleton width={160} height={22} />
           </View>
         ) : !creator ? (
-          <EmptyState icon={UserX} title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
+          <EmptyState icon="userX" title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
         ) : (
           <>
             <Animated.View entering={enterAt(0)} style={{ alignItems: "center", gap: 8, paddingHorizontal: space.gutter }}>
@@ -61,8 +60,8 @@ export default function CreatorScreen() {
             </Animated.View>
             <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter }}>
               <Card style={{ flexDirection: "row" }}>
-                <Stat label={t("creator.templates")} value={String(data.templates.length)} />
-                <Stat label={t("creator.totalSales")} value={formatCount(creator.totalSales)} />
+                <Stat label={t("creator.templates")} value={<NumberRoll value={data.templates.length} />} />
+                <Stat label={t("creator.totalSales")} value={<NumberRoll value={creator.totalSales} />} />
                 <Stat label={t("creator.avgRating")} value={creator.avgRating.toFixed(1)} />
               </Card>
             </Animated.View>
@@ -80,12 +79,16 @@ export default function CreatorScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <View style={{ flex: 1, alignItems: "center", gap: 2 }}>
-      <Txt variant="price" tabular>
-        {value}
-      </Txt>
+      {typeof value === "string" ? (
+        <Txt variant="price" tabular>
+          {value}
+        </Txt>
+      ) : (
+        value
+      )}
       <Txt variant="caption" tone="fgSubtle">
         {label}
       </Txt>

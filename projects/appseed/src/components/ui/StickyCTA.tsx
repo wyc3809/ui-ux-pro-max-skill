@@ -1,6 +1,5 @@
-import { Check, Laptop } from "lucide-react-native";
 import { useEffect } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -17,8 +16,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space } from "@/theme/tokens";
+import { Icon } from "./Icon";
 import { PressableScale } from "./PressableScale";
 import { PriceTag } from "./PriceTag";
+import { Spinner } from "./Spinner";
 import { Txt } from "./Txt";
 
 export type CtaPhase = "buy" | "processing" | "success" | "send" | "unavailable";
@@ -98,13 +99,13 @@ export function StickyCTA({ phase, price, onBuy, onSend, reason }: Props) {
         >
           <Animated.View style={[{ height: 48, borderRadius: radius.control + 2, alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: phase === "unavailable" ? 0.45 : 1 }, btn]}>
             <Animated.View key={phase} entering={swap.in} exiting={swap.out} style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              {phase === "processing" && <ActivityIndicator color={c.accentFg} size="small" />}
+              {phase === "processing" && <Spinner color={c.accentFg} />}
               {phase === "success" && (
                 <Animated.View entering={ZoomIn.springify().damping(10).stiffness(260).reduceMotion(ReduceMotion.System)}>
-                  <Check size={20} color={fg} strokeWidth={3} />
+                  <Icon name="checkCircle" size={21} color={fg} active enterDelay={80} />
                 </Animated.View>
               )}
-              {phase === "send" && <Laptop size={18} color={c.accentFg} strokeWidth={2.2} />}
+              {phase === "send" && <Icon name="laptop" size={19} color={c.accentFg} active motion="bounce" enterDelay={120} />}
               <Txt variant="bodyStrong" style={{ color: fg, fontSize: 15 }}>
                 {label}
               </Txt>

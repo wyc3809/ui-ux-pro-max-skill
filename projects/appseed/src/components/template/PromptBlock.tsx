@@ -1,8 +1,8 @@
 import * as Clipboard from "expo-clipboard";
-import { Check, Copy } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import Animated, { LinearTransition, ReduceMotion, ZoomIn } from "react-native-reanimated";
+import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
@@ -35,7 +35,7 @@ export function PromptBlock({ tool, text }: { tool: string; text: string }) {
         </Txt>
         <PressableScale onPress={copy} accessibilityLabel={t("common.copy")} style={{ height: 36, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 10 }}>
           <Animated.View key={copied ? "y" : "n"} entering={ZoomIn.duration(180)}>
-            {copied ? <Check size={15} color={c.live} strokeWidth={2.6} /> : <Copy size={15} color={c.fgMuted} strokeWidth={2.2} />}
+            {copied ? <Icon name="checkCircle" size={16} color={c.live} active /> : <Icon name="copy" size={15} color={c.fgMuted} />}
           </Animated.View>
           <Txt variant="caption" tone={copied ? "live" : "fgMuted"} style={{ fontFamily: "DMSans_700Bold" }}>
             {copied ? t("common.copied") : t("common.copy")}

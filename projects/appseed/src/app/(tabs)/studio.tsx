@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { Plus } from "lucide-react-native";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useStudio } from "@/api/queries";
@@ -10,6 +9,7 @@ import { PayoutCard } from "@/components/studio/PayoutCard";
 import { SalesChart } from "@/components/studio/SalesChart";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { RowDivider } from "@/components/ui/ListRow";
 import { NumberRoll } from "@/components/ui/NumberRoll";
 import { Section } from "@/components/ui/Section";
@@ -57,7 +57,7 @@ export default function StudioScreen() {
               </Section>
               <Animated.View entering={enterAt(2)} style={{ gap: 16 }}>
                 <PayoutCard amount={data.payout} next={data.nextPayout} />
-                <Button label={t("studio.upload")} icon={<Plus size={18} color={c.accentFg} strokeWidth={2.6} />} onPress={() => router.push("/studio/new")} />
+                <Button label={t("studio.upload")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} />} onPress={() => router.push("/studio/new")} />
               </Animated.View>
             </>
           )}

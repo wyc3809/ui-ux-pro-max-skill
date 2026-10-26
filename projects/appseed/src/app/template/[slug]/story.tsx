@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft, ListOrdered, Lock } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import Animated, { useAnimatedRef, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, scrollTo } from "react-native-reanimated";
@@ -9,6 +8,7 @@ import { useOwned, useTemplate } from "@/api/queries";
 import { StoryStep } from "@/components/template/StoryStep";
 import { Button } from "@/components/ui/Button";
 import { HeaderButton } from "@/components/ui/HeaderButton";
+import { Icon } from "@/components/ui/Icon";
 import { ListRow } from "@/components/ui/ListRow";
 import { Sheet } from "@/components/ui/Sheet";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -60,11 +60,11 @@ export default function StoryScreen() {
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <View style={{ paddingTop: insets.top, backgroundColor: c.bg, zIndex: 2 }}>
         <View style={{ height: 52, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
-          <HeaderButton icon={ChevronLeft} label={t("a11y.backBtn")} onPress={() => router.back()} />
+          <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => router.back()} />
           <Txt variant="section" numberOfLines={1} style={{ flex: 1, textAlign: "center" }}>
             {t("template.story")}
           </Txt>
-          <HeaderButton icon={ListOrdered} label={t("template.toc")} onPress={() => setToc(true)} />
+          <HeaderButton icon="list" motion="bounce" label={t("template.toc")} onPress={() => setToc(true)} />
         </View>
         <View style={{ height: 3, backgroundColor: c.bgMuted }}>
           <Animated.View style={[{ height: 3, backgroundColor: c.accent, transformOrigin: "left" }, bar]} />
@@ -108,7 +108,7 @@ export default function StoryScreen() {
             ))}
             {!owned && tpl.story.length > visible && (
               <Animated.View entering={enterAt(2)} style={{ marginTop: 28, padding: 20, borderRadius: 22, backgroundColor: c.accentSoft, alignItems: "center", gap: 12 }}>
-                <Lock size={22} color={c.accent} />
+                <Icon name="lock" size={24} color={c.accent} active motion="wiggle" loop="breathe" />
                 <Txt variant="bodyStrong" style={{ textAlign: "center" }}>
                   {t("template.unlockAll", { n: tpl.story.length })}
                 </Txt>
@@ -121,7 +121,7 @@ export default function StoryScreen() {
 
       <Sheet open={toc} onClose={() => setToc(false)} title={t("template.toc")}>
         {tpl?.story.map((s, i) => (
-          <ListRow key={i} title={`${i + 1}. ${s.title}`} onPress={i < visible ? () => jump(i) : undefined} trailing={i >= visible ? <Lock size={15} color={c.fgSubtle} /> : undefined} />
+          <ListRow key={i} title={`${i + 1}. ${s.title}`} onPress={i < visible ? () => jump(i) : undefined} trailing={i >= visible ? <Icon name="lock" size={15} color={c.fgSubtle} enterDelay={i * 40} /> : undefined} />
         ))}
       </Sheet>
     </View>

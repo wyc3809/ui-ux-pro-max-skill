@@ -11,6 +11,10 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   src/theme/tokens.ts; reuse components in src/components/ui and src/components/template.
 - Motion: layout presets live in src/theme/animations.ts, direction/stagger rules in
   src/lib/motion.ts. Every animation passes `ReduceMotion.System`.
+- No SVG anywhere (no react-native-svg / lucide). Icons are the Ionicons font via
+  src/components/ui/Icon.tsx, which animates every glyph (outline↔filled morph, enter pop,
+  replayed motion on state change). Loading = `Spinner`, never ActivityIndicator.
+  A test fails if an SVG dependency or import comes back.
 - Tap targets ≥44; skeletons instead of full-screen spinners; haptics via lib/haptic.ts;
   respect reduced motion.
 - UI copy: all strings in i18n; Chinese UI is written Chinese (書面語). Creator content is exempt.

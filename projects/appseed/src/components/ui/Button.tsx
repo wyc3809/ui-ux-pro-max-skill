@@ -1,7 +1,8 @@
-import { ActivityIndicator, StyleSheet, View, type ViewStyle } from "react-native";
+import { StyleSheet, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { hit, radius } from "@/theme/tokens";
 import { PressableScale } from "./PressableScale";
+import { Spinner } from "./Spinner";
 import { Txt } from "./Txt";
 
 type Props = {
@@ -29,7 +30,7 @@ export function Button({ label, onPress, variant = "primary", loading, disabled,
       hapticKind="tap"
       style={[styles.base, { backgroundColor: bg, opacity: disabled ? 0.45 : 1 }, style]}
     >
-      {loading ? <ActivityIndicator color={variant === "primary" ? c.accentFg : c.fg} /> : null}
+      {loading ? <Spinner color={variant === "primary" ? c.accentFg : c.fg} /> : null}
       {!loading && icon ? <View>{icon}</View> : null}
       <Txt variant="bodyStrong" tone={fg} style={{ fontSize: 15 }}>
         {label}

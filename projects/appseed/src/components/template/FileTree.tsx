@@ -1,8 +1,8 @@
-import { ChevronRight, FileText, Folder } from "lucide-react-native";
 import { useState } from "react";
 import { View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import type { FileNode } from "@/api/types";
+import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
 import { formatBytes } from "@/lib/format";
@@ -33,12 +33,13 @@ function Node({ node, depth, defaultOpen = false }: { node: FileNode; depth: num
     <View style={{ flexDirection: "row", alignItems: "center", gap: 8, minHeight: 34, paddingLeft: 12 + depth * 16, paddingRight: 12 }}>
       {isDir ? (
         <Animated.View style={chevron}>
-          <ChevronRight size={14} color={c.fgSubtle} strokeWidth={2.4} />
+          <Icon name="chevronRight" size={14} color={c.fgSubtle} enter={false} />
         </Animated.View>
       ) : (
         <View style={{ width: 14 }} />
       )}
-      {isDir ? <Folder size={15} color={c.accent} strokeWidth={2.2} /> : <FileText size={15} color={c.fgSubtle} strokeWidth={2} />}
+      {/* Folders fill in when opened. */}
+      {isDir ? <Icon name="folder" size={15} color={c.accent} active={open} motion="bounce" /> : <Icon name="file" size={15} color={c.fgSubtle} />}
       <Txt variant="code" style={{ flex: 1 }} numberOfLines={1}>
         {node.name}
       </Txt>

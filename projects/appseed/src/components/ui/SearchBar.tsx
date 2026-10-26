@@ -1,9 +1,9 @@
-import { Search, X } from "lucide-react-native";
 import { forwardRef } from "react";
 import { Platform, TextInput, View, type TextInputInstance, type TextStyle } from "react-native";
 import Animated, { ZoomIn, ZoomOut } from "react-native-reanimated";
 import { useTheme } from "@/theme/ThemeProvider";
 import { font, radius } from "@/theme/tokens";
+import { Icon } from "./Icon";
 import { PressableScale } from "./PressableScale";
 import { Txt } from "./Txt";
 
@@ -17,7 +17,7 @@ export function SearchBarButton({ placeholder, onPress, label }: { placeholder: 
   const { c, card } = useTheme();
   return (
     <PressableScale onPress={onPress} accessibilityLabel={label} hapticKind="tap" scaleTo={0.98} style={[shell, { backgroundColor: c.bgElevated }, card]}>
-      <Search size={18} color={c.fgSubtle} strokeWidth={2.2} />
+      <Icon name="search" size={18} color={c.fgSubtle} />
       <Txt tone="fgSubtle" style={{ fontSize: 15 }}>
         {placeholder}
       </Txt>
@@ -31,7 +31,8 @@ export const SearchInput = forwardRef<TextInputInstance, InputProps>(function Se
   const { c } = useTheme();
   return (
     <View style={[shell, { backgroundColor: c.bgMuted, flex: 1 }]}>
-      <Search size={18} color={c.fgSubtle} strokeWidth={2.2} />
+      {/* The glass tilts while typing and settles when the field is cleared. */}
+      <Icon name="search" size={18} color={value ? c.accent : c.fgSubtle} motion="wiggle" trigger={value.length > 0} enter={false} />
       <TextInput
         ref={ref}
         value={value}
@@ -47,7 +48,7 @@ export const SearchInput = forwardRef<TextInputInstance, InputProps>(function Se
       {value.length > 0 && (
         <Animated.View entering={ZoomIn.duration(160)} exiting={ZoomOut.duration(120)}>
           <PressableScale onPress={() => onChangeText("")} accessibilityLabel="clear" hitSlop={12} style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: c.fgSubtle, alignItems: "center", justifyContent: "center" }}>
-            <X size={13} color={c.bgElevated} strokeWidth={3} />
+            <Icon name="close" size={14} color={c.bgElevated} enter={false} />
           </PressableScale>
         </Animated.View>
       )}

@@ -1,5 +1,6 @@
 import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold, DMSans_800ExtraBold } from "@expo-google-fonts/dm-sans";
 import { JetBrainsMono_400Regular, JetBrainsMono_700Bold } from "@expo-google-fonts/jetbrains-mono";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -8,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { LaunchMark } from "@/components/shell/LaunchMark";
 import { ToastHost } from "@/components/ui/Toast";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 
@@ -42,13 +44,14 @@ export default function RootLayout() {
     DMSans_800ExtraBold,
     JetBrainsMono_400Regular,
     JetBrainsMono_700Bold,
+    ...Ionicons.font,
   });
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <BottomSheetModalProvider>{loaded ? <Shell /> : null}</BottomSheetModalProvider>
+            <BottomSheetModalProvider>{loaded ? <Shell /> : <LaunchMark />}</BottomSheetModalProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

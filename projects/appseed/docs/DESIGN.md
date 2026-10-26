@@ -48,8 +48,8 @@
 | 震動 | expo-haptics | |
 | 模糊 | expo-blur | 分頁列 |
 | 字體 | DM Sans；代碼用 JetBrains Mono；中文用系統字（PingFang／Noto Sans CJK） | |
-| 圖示 | lucide-react-native（stroke 2，選中時 2.4） | |
-| 圖表（少量） | react-native-svg + victory-native | 只用於創作者銷售統計 |
+| 圖示 | Ionicons 字型（`@expo/vector-icons`），**不用 SVG** | 全部經 `Icon` 元件：outline ↔ filled 變形、進場彈出、狀態改變時播放動畫 |
+| 圖表（少量） | Reanimated + View 長條（不用 SVG） | 只用於創作者銷售統計，長條逐條長出 |
 | 通知 | expo-notifications | 審核結果、新銷售、已購模板有新版本 |
 | 測試 | Jest + @testing-library/react-native + Maestro + MSW | |
 | 建置及上架 | EAS Build、EAS Submit；EAS Update 只用於修正 bug；網頁版用 `expo export -p web` 部署 | |

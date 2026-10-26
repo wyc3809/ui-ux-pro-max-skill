@@ -17,6 +17,16 @@
 
 所有數值集中在 `src/theme/tokens.ts` 的 `motion`，全部在 UI thread 執行，並跟隨系統「減少動態效果」。
 
+**全 App 不用 SVG。** 圖示是 Ionicons 字型，全部經 `src/components/ui/Icon.tsx`：
+
+- 每個圖示由 0.4× 彈性進場，可以用 `enterDelay` 錯開（例如評分星星逐粒出現）
+- 狀態改變時 outline → filled 縮放交叉變形（分頁、收藏、資料夾展開、已購）
+- 狀態改變時播放 `pop`／`wiggle`／`spin`／`nudge`／`bounce`（返回鍵向左推、設定齒輪轉一圈、警告搖一搖）
+- `loop="breathe"／"spin"` 用於鎖定內容和空白狀態
+- 載入一律用 `Spinner`（三粒跳動圓點），開 App 時顯示彈出的品牌標誌
+- 封面的手機畫面以彈性升起，介面方塊逐個出現；時間軸直線向下畫出；標籤、要點逐個彈入
+- `src/components/ui/__tests__/icon.test.tsx` 會在 SVG 套件或 import 重新出現時失敗
+
 - **頁面進場**：區塊淡入上移 10px，第 2、3 個區塊延遲 80ms（`enterAt`）
 - **切換分頁／分段**：按方向從左或右滑入 18px（`tabEnterOffset`，有單元測試）
 - **分頁圖示**：選中時 1 → 1.18 → 1 彈性；**收藏**心形 1 → 1.3 → 1 並填色
@@ -32,7 +42,7 @@
 
 ```bash
 npm install
-npm test             # 38 個測試
+npm test             # 42 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不支援 Expo Go）

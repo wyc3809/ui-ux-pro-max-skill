@@ -3,6 +3,7 @@ import { interpolateColor, ReduceMotion, useAnimatedStyle, useSharedValue, withT
 import Animated from "react-native-reanimated";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
+import { popIn } from "@/theme/animations";
 import { PressableScale } from "./PressableScale";
 
 type Props = { label: string; selected?: boolean; onPress?: () => void; trailing?: React.ReactNode };
@@ -36,10 +37,10 @@ export function Chip({ label, selected = false, onPress, trailing }: Props) {
 }
 
 /** Non-selectable tag (StackChips). */
-export function Tag({ label }: { label: string }) {
+export function Tag({ label, index = 0 }: { label: string; index?: number }) {
   const { c } = useTheme();
   return (
-    <Animated.View style={{ paddingHorizontal: 10, height: 26, borderRadius: radius.chip, backgroundColor: c.bgMuted, justifyContent: "center" }}>
+    <Animated.View entering={popIn(index)} style={{ paddingHorizontal: 10, height: 26, borderRadius: radius.chip, backgroundColor: c.bgMuted, justifyContent: "center" }}>
       <Animated.Text maxFontSizeMultiplier={1.3} style={{ fontFamily: "DMSans_600SemiBold", fontSize: 12, color: c.fgMuted }}>
         {label}
       </Animated.Text>
