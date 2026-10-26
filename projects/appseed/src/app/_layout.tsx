@@ -29,6 +29,12 @@ function Shell() {
         <Stack.Screen name="template/[slug]/story" />
         <Stack.Screen name="creator/[handle]" />
         <Stack.Screen name="studio/new" options={{ presentation: "modal" }} />
+        <Stack.Screen name="studio/new-prompt" options={{ presentation: "modal" }} />
+        <Stack.Screen name="studio/new-buyout" options={{ presentation: "modal" }} />
+        <Stack.Screen name="studio/new-launch" options={{ presentation: "modal" }} />
+        <Stack.Screen name="prompt/[slug]" />
+        <Stack.Screen name="buyout/[slug]" />
+        <Stack.Screen name="launch/[slug]" />
       </Stack>
       <ToastHost />
     </View>

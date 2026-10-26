@@ -527,3 +527,52 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Every feature ships with Jest tests; user-facing flows also need a Maestro flow.
 - Test data uses fictional templates, creators and buyers only.
 ```
+
+---
+
+## 22. 擴展市集：新作推廣、買斷 App、Prompt 買賣
+
+在原有「模板」之外加入三個市集，同一套 token、元件、動效和測試規則。探索頁頂部用 `SegmentedControl` 切換：**新作推廣｜模板｜Prompt｜買斷 App**（預設「新作推廣」），切換時內容按方向滑入（`DirectionalSwap`）。
+
+### 22.1 新作推廣（AI vibe coding App 展示）
+
+| 項目 | 規格 |
+|---|---|
+| 目的 | 創作者展示用 AI（Claude Code、Cursor、v0…）做出來的 App，帶動模板和 Prompt 銷售 |
+| 排名 | `hotScore = (票數 + 1) / (小時 + 2)^1.5`，新作有公平曝光（`lib/launch.ts`，有測試） |
+| 付費推廣 | 最多一個「贊助」位置，固定在第二位，**必須標示「贊助」**，不顯示排名數字 |
+| 首頁 | 今日第一名用大卡（hero），其餘從第 2 名開始列出 |
+| 推薦 | 每人一票，可取消；樂觀更新（即時變色和數字滾動），伺服器拒絕時還原 |
+| 詳情頁 | 製作故事、使用的 AI 工具和日數、試用連結、**相關模板／Prompt**（由推廣導向購買） |
+| 動效 | 推薦鍵：箭頭 outline → filled 並向上彈、數字滾動、8 粒粒子向外散開 |
+
+### 22.2 買斷 App（整個 App 轉讓）
+
+| 項目 | 規格 |
+|---|---|
+| 與模板的分別 | 模板是授權（可賣多次）；買斷是**獨家轉讓**：原始碼、上架帳戶、網域、用戶，賣出後下架 |
+| 付款 | **不經 App 內購買**。屬業務轉讓，款項經托管在網頁版處理；App 只顯示資料、收報價、說明流程 |
+| 托管流程 | 雙方同意條款 → 買家付款到托管 → 賣家轉移 → 買家確認 → 發放款項（`EscrowSteps`，有次序意義所以用編號） |
+| 數據 | 每月收入、每月活躍用戶、總下載、叫價、約幾倍年收入（`revenueMultiple`）；收入核實後顯示「收入已核實」 |
+| 報價 | 最少為叫價一半（`validateOffer`）；步進按叫價大小調整（`offerStep`）；錯誤時數字搖動並提示 |
+| 狀態 | 出售中＝`live`、洽談中＝`pending`、已售出＝`ended`；已售出列表沉到底部並蓋上「已售出」印章動畫 |
+| 托管費 | 顯示為「預計」（5%，最低 HK$500），實際由伺服器決定 |
+
+### 22.3 Prompt 市集
+
+| 項目 | 規格 |
+|---|---|
+| 定價 | 固定級別 `PROMPT_TIERS = 0／8／18／38／78`（IAP 不可動態新增商品） |
+| 預覽 | 創作者設定免費預覽行數；**伺服器只把完整內容傳給已購用戶**，App 只顯示「購買後顯示其餘 N 行」 |
+| 變數 | 用 `{{變數}}` 標示；購買後可逐個填入並「複製完成的 prompt」（`fillPrompt`，未填的保留原樣） |
+| 解鎖動效 | 購買成功後，餘下內容以打字機效果逐字出現（減少動態效果時即時顯示） |
+| 授權 | 同模板：禁止轉售或公開 prompt 本身 |
+
+### 22.4 上架
+
+創作頁的「上架」按鈕打開 Sheet，四個選項逐個滑入：模板、Prompt、出售整個 App、推廣 App。每個表單都用 `ListingWizard`（進度條、方向滑動、缺欄位時搖動），草稿自動儲存到 MMKV（`useFormDraft`），驗證在 `lib/listing.ts` 並有測試。
+
+### 22.5 已購與搜尋
+
+- 已購分頁：**已購（模板）｜Prompt｜報價｜收藏**；收藏同時支援模板、Prompt 和買斷列表。
+- 搜尋可按類型篩選：不限／新作推廣／模板／Prompt／買斷 App；命中字以 `accent` 加粗。

@@ -7,7 +7,25 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
 
-const icons: Record<CoverIcon, IconName> = { wallet: "wallet", building: "building", chef: "chef", grid: "grid", ticket: "ticket", sprout: "sprout", bus: "bus", receipt: "receipt" };
+const icons: Record<CoverIcon, IconName> = {
+  wallet: "wallet",
+  building: "building",
+  chef: "chef",
+  grid: "grid",
+  ticket: "ticket",
+  sprout: "sprout",
+  bus: "bus",
+  receipt: "receipt",
+  sparkles: "sparkles",
+  code: "code",
+  chat: "chat",
+  camera: "camera",
+  rocket: "rocket",
+  game: "game",
+  megaphone: "megaphone",
+  hammer: "hammer",
+  globe: "globe",
+};
 
 const RM = ReduceMotion.System;
 
@@ -17,7 +35,7 @@ const RM = ReduceMotion.System;
  * Creator-supplied gradients are content, not UI chrome, so they are exempt from tokens.
  * Motion: the phone rises into frame on a spring and its UI blocks build up one by one.
  */
-export function Cover({ t, style, screen = 0, rounded = radius.media }: { t: Template; style?: ViewStyle; screen?: number; rounded?: number }) {
+export function Cover({ t, style, screen = 0, rounded = radius.media }: { t: { cover: Template["cover"] }; style?: ViewStyle; screen?: number; rounded?: number }) {
   const { c } = useTheme();
   const angle = screen % 2 === 0 ? { start: { x: 0, y: 0 }, end: { x: 1, y: 1 } } : { start: { x: 1, y: 0 }, end: { x: 0, y: 1 } };
   return (

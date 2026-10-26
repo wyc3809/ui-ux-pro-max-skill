@@ -17,6 +17,7 @@ import { StoryStep } from "@/components/template/StoryStep";
 import { VersionTimeline } from "@/components/template/VersionTimeline";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { DirectionalSwap } from "@/components/ui/DirectionalSwap";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
@@ -32,7 +33,6 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { formatBytes, formatCount, formatDate } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
-import { tabEnterOffset } from "@/lib/motion";
 import { formatPrice } from "@/lib/price";
 import { enterAt, popIn, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -98,7 +98,7 @@ export default function TemplateScreen() {
               <SegmentedControl value={seg} onChange={setSeg} options={SEGS.map((s) => ({ value: s, label: t(`template.${s}`) }))} />
             </Animated.View>
             <Animated.View entering={enterAt(2)} style={{ paddingHorizontal: space.gutter }}>
-              <SegmentBody seg={seg}>
+              <DirectionalSwap value={seg} order={SEGS}>
                 {seg === "overview" && <Overview t={tpl} onLicense={() => setSheet("license")} />}
                 {seg === "story" && <StoryPreview t={tpl} owned={owned} />}
                 {seg === "files" && <Files t={tpl} />}
@@ -108,7 +108,7 @@ export default function TemplateScreen() {
                     <VersionTimeline versions={tpl.versions} />
                   </Card>
                 )}
-              </SegmentBody>
+              </DirectionalSwap>
               <Footer t={tpl} />
             </Animated.View>
           </>
@@ -143,24 +143,6 @@ export default function TemplateScreen() {
       )}
     </View>
   );
-}
-
-/** Segment content slides 18px from the side of the newly selected tab and fades in (same rule as tab switching). */
-function SegmentBody({ seg, children }: { seg: Seg; children: React.ReactNode }) {
-  const [prev, setPrev] = useState(seg);
-  const x = useSharedValue(0);
-  const o = useSharedValue(1);
-  useEffect(() => {
-    if (prev === seg) return;
-    const cfg = { duration: motion.tab.duration, easing: motion.tab.easing, reduceMotion: ReduceMotion.System };
-    x.value = tabEnterOffset(SEGS.indexOf(prev), SEGS.indexOf(seg), motion.tab.offset);
-    o.value = 0;
-    x.value = withTiming(0, cfg);
-    o.value = withTiming(1, cfg);
-    setPrev(seg);
-  }, [seg, prev, x, o]);
-  const a = useAnimatedStyle(() => ({ opacity: o.value, transform: [{ translateX: x.value }] }));
-  return <Animated.View style={a}>{children}</Animated.View>;
 }
 
 function Hero({ t: tpl }: { t: Template }) {

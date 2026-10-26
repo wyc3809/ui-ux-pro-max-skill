@@ -19,6 +19,12 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   respect reduced motion.
 - UI copy: all strings in i18n; Chinese UI is written Chinese (書面語). Creator content is exempt.
 
+## Markets (docs/DESIGN.md §22)
+- Four markets share one design system: templates, prompts, whole-app buyouts, launches.
+- Buyouts are business transfers paid via web escrow, never IAP; the app only takes offers.
+- Prompt full text is only sent to owners by the server; the client shows preview + locked count.
+- Sponsored launches must be labelled 贊助 and never carry an organic rank.
+
 ## Payments & access
 - Purchase state comes from the server only; never grant access on the client.
 - In-app purchases use fixed price tiers via RevenueCat; web uses Stripe Checkout.

@@ -5,6 +5,8 @@
 
 ## 已完成
 
+> 第 22 節擴展：**新作推廣**（AI vibe coding App 展示和推薦排名）、**買斷 App**（整個 App 轉讓、報價、托管流程）、**Prompt 市集**（預覽、購買解鎖、變數填寫）。規則見 [`docs/DESIGN.md` §22](docs/DESIGN.md)。
+
 | 範圍 | 內容 |
 |---|---|
 | 外殼 | 自訂分頁列（iOS 模糊、Android／Web 94% 底色）、浮起的漸變搜尋鍵、大標題捲動收起、下拉重新整理 |
@@ -42,7 +44,7 @@
 
 ```bash
 npm install
-npm test             # 42 個測試
+npm test             # 57 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

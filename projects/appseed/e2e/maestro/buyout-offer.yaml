@@ -1,0 +1,21 @@
+# Buyout: open listing → offer below the minimum is rejected → valid offer → appears under Library › 報價 (§22.2)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "買斷 App"
+- tapOn: "Pomodoro Garden"
+- tapOn: "提出報價"
+- repeat:
+    times: 13
+    commands:
+      - tapOn: "−"
+- tapOn: "送出報價"
+- assertVisible: "報價最少為叫價的一半.*"
+- tapOn: "85%"
+- tapOn: "送出報價"
+- assertVisible: "報價已送出.*"
+- back
+- tapOn: "已購"
+- tapOn: "報價"
+- assertVisible: "Pomodoro Garden"

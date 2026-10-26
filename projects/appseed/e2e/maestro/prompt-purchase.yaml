@@ -1,0 +1,14 @@
+# Prompt: locked preview → buy (sandbox) → full text unlocks → copy filled prompt (§22.3)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "Prompt"
+- tapOn: "Expo + Supabase 一鍵起 App"
+- assertVisible: "購買後顯示其餘 4 行"
+- tapOn: "購買"
+- tapOn:
+    text: "確認付款.*"
+- assertVisible: "填入變數"
+- tapOn: "複製完成的 prompt"
+- assertVisible: "已複製"

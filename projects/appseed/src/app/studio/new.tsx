@@ -1,15 +1,15 @@
 import { router } from "expo-router";
-import { ScrollView, TextInput, View, type TextInputProps } from "react-native";
+import { ScrollView, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import type { CategoryKey } from "@/api/types";
+import { Field, Group, Note } from "@/components/studio/FormFields";
 import { UploadStepper } from "@/components/studio/UploadStepper";
 import { Chip } from "@/components/ui/Chip";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
-import { noOutline } from "@/components/ui/SearchBar";
 import { Switch } from "@/components/ui/Switch";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
@@ -21,7 +21,7 @@ import { missingFields, UPLOAD_STEPS } from "@/lib/upload";
 import { useUploadDraft } from "@/store/uploadDraft";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { font, radius, space } from "@/theme/tokens";
+import { radius, space } from "@/theme/tokens";
 
 const CATS: CategoryKey[] = ["tools", "finance", "ai", "games", "hk", "merchant"];
 
@@ -147,59 +147,6 @@ export default function UploadWizard() {
           )}
         </ScrollView>
       </UploadStepper>
-    </View>
-  );
-}
-
-function Field({ label, ...rest }: TextInputProps & { label: string }) {
-  const { c } = useTheme();
-  const [focused, setFocused] = useState(false);
-  return (
-    <View style={{ gap: 6 }}>
-      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
-        {label}
-      </Txt>
-      <TextInput
-        {...rest}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholderTextColor={c.fgSubtle}
-        maxFontSizeMultiplier={1.4}
-        style={{
-          minHeight: rest.multiline ? 96 : 48,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
-          borderRadius: radius.control + 2,
-          backgroundColor: c.bgMuted,
-          borderWidth: 1.5,
-          borderColor: focused ? c.accent : "transparent",
-          color: c.fg,
-          fontFamily: font.medium,
-          fontSize: 15,
-          textAlignVertical: rest.multiline ? "top" : "center",
-          ...noOutline,
-        }}
-      />
-    </View>
-  );
-}
-
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View style={{ gap: 8 }}>
-      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
-        {label}
-      </Txt>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{children}</View>
-    </View>
-  );
-}
-
-function Note({ text }: { text: string }) {
-  const { c } = useTheme();
-  return (
-    <View style={{ padding: 12, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
-      <Txt tone="fg">{text}</Txt>
     </View>
   );
 }

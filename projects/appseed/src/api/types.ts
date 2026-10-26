@@ -3,7 +3,7 @@ import type { TemplateStatus } from "@/lib/status";
 
 export type CategoryKey = "tools" | "finance" | "ai" | "games" | "hk" | "merchant";
 export type Platform = "iOS" | "Android" | "Web";
-export type CoverIcon = "wallet" | "building" | "chef" | "grid" | "ticket" | "sprout" | "bus" | "receipt";
+export type CoverIcon = "wallet" | "building" | "chef" | "grid" | "ticket" | "sprout" | "bus" | "receipt" | "sparkles" | "code" | "chat" | "camera" | "rocket" | "game" | "megaphone" | "hammer" | "globe";
 
 export type Creator = {
   handle: string;
@@ -66,3 +66,71 @@ export type Template = {
 };
 
 export type Listing = { slug: string; status: TemplateStatus; monthSales: number; monthRevenue: number };
+
+/** Prompt marketplace listing. `text` is only sent to owners by the real server. */
+export type PromptListing = {
+  slug: string;
+  title: string;
+  summary: string;
+  tool: string;
+  category: CategoryKey;
+  creator: string;
+  price: number;
+  rating: number;
+  reviewCount: number;
+  sales: number;
+  updatedAt: string;
+  previewLines: number;
+  /** Full line count, sent by the server even when `text` is redacted. */
+  lineCount?: number;
+  text: string;
+  sampleOutput: string[];
+  tags: string[];
+  cover: { from: string; to: string; icon: CoverIcon };
+};
+
+/** Whole-app buyout listing (business transfer via escrow, not IAP). */
+export type BuyoutListing = {
+  slug: string;
+  name: string;
+  tagline: string;
+  seller: string;
+  category: CategoryKey;
+  asking: number;
+  monthlyRevenue: number;
+  monthlyActive: number;
+  downloads: number;
+  rating: number;
+  ageMonths: number;
+  stack: string[];
+  platforms: Platform[];
+  included: string[];
+  reason: string;
+  status: "open" | "negotiating" | "sold";
+  offers: number;
+  revenueSeries: number[];
+  cover: { from: string; to: string; icon: CoverIcon };
+  verified: boolean;
+};
+
+/** "新作推廣": a vibe-coded app its maker is promoting. */
+export type Launch = {
+  slug: string;
+  name: string;
+  tagline: string;
+  maker: string;
+  aiTools: string[];
+  buildDays: number;
+  platforms: Platform[];
+  upvotes: number;
+  comments: number;
+  launchedAt: string;
+  boosted: boolean;
+  story: string;
+  links: { label: string; url: string }[];
+  relatedTemplate?: string;
+  relatedPrompt?: string;
+  cover: { from: string; to: string; icon: CoverIcon };
+};
+
+export type Offer = { slug: string; amount: number; message: string; createdAt: string; status: "sent" | "countered" | "accepted" };

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -12,12 +12,12 @@ import Animated, {
   withTiming,
   ZoomIn,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useT } from "@/i18n";
 import { startFrom } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius, space } from "@/theme/tokens";
-import { Icon } from "./Icon";
+import { motion, radius } from "@/theme/tokens";
+import { BottomBar } from "./BottomBar";
+import { Icon, type IconName } from "./Icon";
 import { PressableScale } from "./PressableScale";
 import { PriceTag } from "./PriceTag";
 import { Spinner } from "./Spinner";
@@ -25,7 +25,8 @@ import { Txt } from "./Txt";
 
 export type CtaPhase = "buy" | "processing" | "success" | "send" | "unavailable";
 
-type Props = { phase: CtaPhase; price: number; onBuy: () => void; onSend: () => void; reason?: string };
+/** `owned` overrides the label/icon of the owned state (templates: send to computer; prompts: copy). */
+type Props = { phase: CtaPhase; price: number; onBuy: () => void; onSend: () => void; reason?: string; owned?: { label: string; icon: IconName } };
 
 const swap = {
   in: startFrom(FadeInDown.duration(220), { opacity: 0, transform: [{ translateY: 8 }] }).reduceMotion(ReduceMotion.System),
@@ -37,10 +38,9 @@ const swap = {
  * the button melts from brand purple into `live` green over 600ms, the label lifts away
  * and a check springs in; then it settles into "send to computer".
  */
-export function StickyCTA({ phase, price, onBuy, onSend, reason }: Props) {
+export function StickyCTA({ phase, price, onBuy, onSend, reason, owned }: Props) {
   const { c, isDark } = useTheme();
   const t = useT();
-  const insets = useSafeAreaInsets();
   const p = useSharedValue(phase === "success" ? 1 : 0);
   const pulse = useSharedValue(1);
 
@@ -58,62 +58,43 @@ export function StickyCTA({ phase, price, onBuy, onSend, reason }: Props) {
   }));
 
   const label =
-    phase === "buy" ? (price === 0 ? t("cta.getFree") : t("cta.buy")) : phase === "processing" ? t("cta.processing") : phase === "success" ? t("common.purchased") : phase === "send" ? t("cta.send") : t("cta.unavailable");
+    phase === "buy" ? (price === 0 ? t("cta.getFree") : t("cta.buy")) : phase === "processing" ? t("cta.processing") : phase === "success" ? t("common.purchased") : phase === "send" ? owned?.label ?? t("cta.send") : t("cta.unavailable");
   const fg = phase === "success" && !isDark ? "#ffffff" : c.accentFg;
 
   return (
-    <View
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        paddingBottom: insets.bottom,
-        paddingHorizontal: space.gutter,
-        backgroundColor: c.bgElevated,
-        borderTopWidth: Platform.OS === "web" ? 1 : 0.5,
-        borderTopColor: c.border,
-        shadowColor: "#0f1412",
-        shadowOpacity: isDark ? 0 : 0.08,
-        shadowRadius: 16,
-        shadowOffset: { width: 0, height: -6 },
-        elevation: 12,
-      }}
-    >
-      <View style={{ height: 64, flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <View style={{ flex: 1 }}>
-          {phase === "unavailable" && reason ? (
-            <Txt variant="caption" tone="fgSubtle" numberOfLines={2}>
-              {reason}
-            </Txt>
-          ) : (
-            <PriceTag amount={price} owned={phase === "send" || phase === "success"} />
-          )}
-        </View>
-        <PressableScale
-          onPress={phase === "buy" ? onBuy : phase === "send" ? onSend : undefined}
-          disabled={phase === "processing" || phase === "success" || phase === "unavailable"}
-          accessibilityLabel={label}
-          accessibilityState={{ busy: phase === "processing", disabled: phase === "unavailable" }}
-          hapticKind="tap"
-          style={{ width: "60%" }}
-        >
-          <Animated.View style={[{ height: 48, borderRadius: radius.control + 2, alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: phase === "unavailable" ? 0.45 : 1 }, btn]}>
-            <Animated.View key={phase} entering={swap.in} exiting={swap.out} style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              {phase === "processing" && <Spinner color={c.accentFg} />}
-              {phase === "success" && (
-                <Animated.View entering={ZoomIn.springify().damping(10).stiffness(260).reduceMotion(ReduceMotion.System)}>
-                  <Icon name="checkCircle" size={21} color={fg} active enterDelay={80} />
-                </Animated.View>
-              )}
-              {phase === "send" && <Icon name="laptop" size={19} color={c.accentFg} active motion="bounce" enterDelay={120} />}
-              <Txt variant="bodyStrong" style={{ color: fg, fontSize: 15 }}>
-                {label}
-              </Txt>
-            </Animated.View>
-          </Animated.View>
-        </PressableScale>
+    <BottomBar>
+      <View style={{ flex: 1 }}>
+        {phase === "unavailable" && reason ? (
+          <Txt variant="caption" tone="fgSubtle" numberOfLines={2}>
+            {reason}
+          </Txt>
+        ) : (
+          <PriceTag amount={price} owned={phase === "send" || phase === "success"} />
+        )}
       </View>
-    </View>
+      <PressableScale
+        onPress={phase === "buy" ? onBuy : phase === "send" ? onSend : undefined}
+        disabled={phase === "processing" || phase === "success" || phase === "unavailable"}
+        accessibilityLabel={label}
+        accessibilityState={{ busy: phase === "processing", disabled: phase === "unavailable" }}
+        hapticKind="tap"
+        style={{ width: "60%" }}
+      >
+        <Animated.View style={[{ height: 48, borderRadius: radius.control + 2, alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: phase === "unavailable" ? 0.45 : 1 }, btn]}>
+          <Animated.View key={phase} entering={swap.in} exiting={swap.out} style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {phase === "processing" && <Spinner color={c.accentFg} />}
+            {phase === "success" && (
+              <Animated.View entering={ZoomIn.springify().damping(10).stiffness(260).reduceMotion(ReduceMotion.System)}>
+                <Icon name="checkCircle" size={21} color={fg} active enterDelay={80} />
+              </Animated.View>
+            )}
+            {phase === "send" && <Icon name={owned?.icon ?? "laptop"} size={19} color={c.accentFg} active motion="bounce" enterDelay={120} />}
+            <Txt variant="bodyStrong" style={{ color: fg, fontSize: 15 }}>
+              {label}
+            </Txt>
+          </Animated.View>
+        </Animated.View>
+      </PressableScale>
+    </BottomBar>
   );
 }

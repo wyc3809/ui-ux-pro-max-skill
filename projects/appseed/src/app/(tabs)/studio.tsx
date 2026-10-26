@@ -1,9 +1,10 @@
-import { router } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useStudio } from "@/api/queries";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
 import { TabScene } from "@/components/shell/TabScene";
+import { ListingChooser } from "@/components/studio/ListingChooser";
 import { ListingRow } from "@/components/studio/ListingRow";
 import { PayoutCard } from "@/components/studio/PayoutCard";
 import { SalesChart } from "@/components/studio/SalesChart";
@@ -24,6 +25,7 @@ export default function StudioScreen() {
   const t = useT();
   const { c } = useTheme();
   const { data, refetch } = useStudio();
+  const [chooser, setChooser] = useState(false);
   return (
     <TabScene index={2}>
       <LargeTitleScreen title={t("studio.title")} onRefresh={refetch}>
@@ -57,11 +59,12 @@ export default function StudioScreen() {
               </Section>
               <Animated.View entering={enterAt(2)} style={{ gap: 16 }}>
                 <PayoutCard amount={data.payout} next={data.nextPayout} />
-                <Button label={t("studio.upload")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} />} onPress={() => router.push("/studio/new")} />
+                <Button label={t("listing.choose")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} motion="spin" trigger={chooser} />} onPress={() => setChooser(true)} />
               </Animated.View>
             </>
           )}
         </View>
+        <ListingChooser open={chooser} onClose={() => setChooser(false)} />
       </LargeTitleScreen>
     </TabScene>
   );

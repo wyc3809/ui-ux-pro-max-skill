@@ -5,8 +5,9 @@ import { ScrollView, View, type TextInputInstance } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { SearchParams } from "@/api/mockServer";
-import { useSearch } from "@/api/queries";
-import type { Platform as Plat } from "@/api/types";
+import { useBuyouts, useLaunches, usePrompts, useSearch } from "@/api/queries";
+import type { BuyoutListing, Launch, Platform as Plat, PromptListing, Template } from "@/api/types";
+import { BuyoutCard, LaunchRow, PromptRow } from "@/components/market/Cards";
 import { TemplateRow } from "@/components/template/TemplateCard";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -18,12 +19,20 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Sheet } from "@/components/ui/Sheet";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { matches } from "@/lib/search";
 import { useHistory } from "@/store/history";
 import { crossfadeIn, rowIn, rowOut, reorder } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { space } from "@/theme/tokens";
 
 type Filters = Required<Omit<SearchParams, "q" | "category">>;
+type Kind = "all" | "templates" | "prompts" | "buyouts" | "launches";
+const KINDS: Kind[] = ["all", "launches", "templates", "prompts", "buyouts"];
+type Result =
+  | { kind: "templates"; key: string; t: Template }
+  | { kind: "prompts"; key: string; p: PromptListing }
+  | { kind: "buyouts"; key: string; b: BuyoutListing }
+  | { kind: "launches"; key: string; l: Launch & { voted?: boolean } };
 const DEFAULT: Filters = { price: "any", platform: "any", sort: "relevance" };
 
 export default function SearchScreen() {
@@ -36,7 +45,18 @@ export default function SearchScreen() {
   const [filters, setFilters] = useState<Filters>(DEFAULT);
   const [sheet, setSheet] = useState(false);
   const history = useHistory();
+  const [kind, setKind] = useState<Kind>("all");
   const { data } = useSearch({ q: debounced, ...filters });
+  const prompts = usePrompts().data;
+  const buyouts = useBuyouts().data;
+  const launches = useLaunches().data;
+  // Templates come from the server search (with sheet filters); the other markets are matched on the client.
+  const results: Result[] | undefined = data && [
+    ...(kind === "all" || kind === "templates" ? data.map((x): Result => ({ kind: "templates", key: x.slug, t: x })) : []),
+    ...(kind === "all" || kind === "prompts" ? (prompts ?? []).filter((p) => matches(debounced, [p.title, p.summary, p.tool, ...p.tags])).map((p): Result => ({ kind: "prompts", key: `p:${p.slug}`, p })) : []),
+    ...(kind === "all" || kind === "buyouts" ? (buyouts ?? []).filter((b) => matches(debounced, [b.name, b.tagline, ...b.stack])).map((b): Result => ({ kind: "buyouts", key: `b:${b.slug}`, b })) : []),
+    ...(kind === "all" || kind === "launches" ? (launches ?? []).filter((l) => matches(debounced, [l.name, l.tagline, ...l.aiTools])).map((l): Result => ({ kind: "launches", key: `l:${l.slug}`, l })) : []),
+  ];
 
   useEffect(() => {
     // Raise the keyboard once the push transition settles so the two motions don't fight.
@@ -63,6 +83,10 @@ export default function SearchScreen() {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 8, paddingHorizontal: space.gutter, paddingVertical: 12 }} style={{ flexGrow: 0 }}>
+        {KINDS.map((k) => (
+          <Chip key={k} label={k === "all" ? t("search.any") : t(`hub.${k}`)} selected={kind === k} onPress={() => setKind(k)} />
+        ))}
+        <View style={{ width: 1, alignSelf: "stretch", marginVertical: 6, backgroundColor: c.border }} />
         <Chip label={t("search.filters")} selected={active} onPress={() => setSheet(true)} trailing={<Icon name="sliders" size={15} color={active ? c.bg : c.fg} active={active} motion="spin" />} />
         <Chip label={`${t("search.price")} · ${filters.price === "any" ? t("search.any") : filters.price === "free" ? t("common.free") : t("search.paid")}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
         <Chip label={`${t("search.platform")} · ${filters.platform === "any" ? t("search.any") : filters.platform}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
@@ -92,7 +116,7 @@ export default function SearchScreen() {
         </Animated.View>
       ) : (
         <View style={{ flex: 1 }}>
-          {data && data.length === 0 ? (
+          {results && results.length === 0 ? (
             <EmptyState
               icon="search"
               title={t("search.emptyTitle")}
@@ -101,28 +125,38 @@ export default function SearchScreen() {
                 label: t("search.clearFilters"),
                 onPress: () => {
                   setFilters(DEFAULT);
+                  setKind("all");
                   setQ("");
                 },
               }}
             />
           ) : (
             <FlashList
-              data={data ?? []}
-              keyExtractor={(x) => x.slug}
+              data={results ?? []}
+              keyExtractor={(x) => x.key}
+              getItemType={(x) => x.kind}
               keyboardDismissMode="on-drag"
               keyboardShouldPersistTaps="handled"
               ListHeaderComponent={
-                data ? (
+                results ? (
                   <Txt variant="caption" tone="fgSubtle" style={{ paddingHorizontal: space.gutter, paddingBottom: 8 }}>
-                    {t("search.results", { n: data.length })}
+                    {t("search.results", { n: results.length })}
                   </Txt>
                 ) : null
               }
               ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
-              renderItem={({ item }) => (
-<TemplateRow t={item} query={debounced} onOpen={() => history.add(q)} />
-              )}
+              renderItem={({ item }) =>
+                item.kind === "templates" ? (
+                  <TemplateRow t={item.t} query={debounced} onOpen={() => history.add(q)} />
+                ) : item.kind === "prompts" ? (
+                  <PromptRow p={item.p} query={debounced} />
+                ) : item.kind === "buyouts" ? (
+                  <BuyoutCard b={item.b} query={debounced} />
+                ) : (
+                  <LaunchRow l={item.l} query={debounced} />
+                )
+              }
             />
           )}
         </View>
