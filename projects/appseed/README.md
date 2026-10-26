@@ -45,6 +45,7 @@ npm install
 npm test             # 42 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
+npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）
 npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不支援 Expo Go）
 ```
 
@@ -52,5 +53,6 @@ npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不�
 
 - `@gorhom/bottom-sheet` 的 modal 在 react-native-web 上不會掛載，所以網頁版使用 `Sheet.web.tsx`（相同 API、token 和曲線）；iOS／Android 仍用 gorhom。
 - Reanimated 在網頁版的 layout animation 不支援自訂 bezier，會退回 linear；原生平台不受影響。
+- Reanimated 4.7 網頁版會在自訂起始值（`withInitialValues`／`Keyframe`）的進場動畫結束後，把元素設為 `position: absolute`，令版面重疊。所以網頁版經 `startFrom()` 改用預設動畫，原生平台照用自訂起始值。
 - 未有後端：登入、付款、傳送到電腦、檢舉均為模擬；Maestro 流程（`e2e/maestro/`）已寫好，需要在模擬器上執行。
 - 封面為漸變佔位圖，創作者上載真實截圖後改用 `expo-image` + blurhash。

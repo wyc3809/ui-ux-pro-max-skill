@@ -14,6 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useT } from "@/i18n";
+import { startFrom } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space } from "@/theme/tokens";
 import { Icon } from "./Icon";
@@ -27,7 +28,7 @@ export type CtaPhase = "buy" | "processing" | "success" | "send" | "unavailable"
 type Props = { phase: CtaPhase; price: number; onBuy: () => void; onSend: () => void; reason?: string };
 
 const swap = {
-  in: FadeInDown.duration(220).withInitialValues({ opacity: 0, transform: [{ translateY: 8 }] }).reduceMotion(ReduceMotion.System),
+  in: startFrom(FadeInDown.duration(220), { opacity: 0, transform: [{ translateY: 8 }] }).reduceMotion(ReduceMotion.System),
   out: FadeOutUp.duration(160).reduceMotion(ReduceMotion.System),
 };
 
