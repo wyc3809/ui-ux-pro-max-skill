@@ -155,3 +155,8 @@ export type User = {
 
 /** Sign-in either lands a known user, or hands back a ticket to finish a new account's profile. */
 export type AuthResult = { status: "signedIn"; user: User } | { status: "needsProfile"; ticket: string; email: string | null; name: string };
+
+/** Public counters for any item plus the viewer's own like. Bookmark state lives in favourites. */
+export type Engagement = { likes: number; views: number; shares: number; comments: number; bookmarks: number; liked: boolean };
+
+export type Comment = { id: string; userId: string; author: string; handle: string; body: string; createdAt: string };

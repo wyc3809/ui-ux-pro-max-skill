@@ -5,10 +5,10 @@ import { formatCount } from "@/lib/format";
 import { motion } from "@/theme/tokens";
 import { Txt, type TxtVariant } from "./Txt";
 
-type Props = { value: number; prefix?: string; variant?: TxtVariant };
+type Props = { value: number; prefix?: string; variant?: TxtVariant; format?: (n: number) => string };
 
 /** Counts up/down to a new value over 480ms with tabular digits so width stays put (§8). */
-export function NumberRoll({ value, prefix = "", variant = "price" }: Props) {
+export function NumberRoll({ value, prefix = "", variant = "price", format = formatCount }: Props) {
   const v = useSharedValue(0);
   const [shown, setShown] = useState(0);
   useEffect(() => {
@@ -21,9 +21,9 @@ export function NumberRoll({ value, prefix = "", variant = "price" }: Props) {
     },
   );
   return (
-    <Txt variant={variant} tabular accessibilityLabel={`${prefix}${formatCount(value)}`}>
+    <Txt variant={variant} tabular accessibilityLabel={`${prefix}${format(value)}`}>
       {prefix}
-      {formatCount(shown)}
+      {format(shown)}
     </Txt>
   );
 }

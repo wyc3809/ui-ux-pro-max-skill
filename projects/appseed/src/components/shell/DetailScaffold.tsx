@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { View } from "react-native";
-import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { Extrapolation, interpolate, useAnimatedRef, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type AnimatedRef } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Txt } from "@/components/ui/Txt";
@@ -8,16 +8,17 @@ import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 import { space } from "@/theme/tokens";
 
-type Props = { title?: string; right?: React.ReactNode; bottom?: React.ReactNode; children: React.ReactNode };
+type Props = { title?: string; right?: React.ReactNode; bottom?: React.ReactNode; scrollRef?: AnimatedRef<Animated.ScrollView>; children: React.ReactNode };
 
 /**
  * Pushed detail page: content scrolls under a floating header whose solid bar and title
  * fade in once the hero has scrolled away. `bottom` is a BottomBar / StickyCTA.
  */
-export function DetailScaffold({ title, right, bottom, children }: Props) {
+export function DetailScaffold({ title, right, bottom, scrollRef, children }: Props) {
   const { c } = useTheme();
   const t = useT();
   const insets = useSafeAreaInsets();
+  const ownRef = useAnimatedRef<Animated.ScrollView>();
   const y = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((e) => {
     y.value = e.contentOffset.y;
@@ -26,6 +27,7 @@ export function DetailScaffold({ title, right, bottom, children }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <Animated.ScrollView
+        ref={scrollRef ?? ownRef}
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}

@@ -6,7 +6,7 @@ import { haptic } from "@/lib/haptic";
 import { useFavorites } from "@/store/favorites";
 import { useTheme } from "@/theme/ThemeProvider";
 
-/** Heart morphs outline → filled while popping 1 → 1.3 → 1 (§8 收藏); un-saving deflates back to outline. */
+/** Bookmark (收藏) morphs outline → filled while popping; un-saving deflates back to outline. Likes use the heart. */
 export function FavoriteButton({ slug, size = 40, onSurface = false }: { slug: string; size?: number; onSurface?: boolean }) {
   const { c, soft } = useTheme();
   const t = useT();
@@ -23,7 +23,7 @@ export function FavoriteButton({ slug, size = 40, onSurface = false }: { slug: s
       }}
       style={[{ width: size, height: size, borderRadius: size / 2, alignItems: "center", justifyContent: "center", backgroundColor: onSurface ? c.bgElevated : c.bgMuted }, onSurface && soft]}
     >
-      <Icon name="heart" size={size * 0.5} color={c.fg} activeColor={c.danger} active={on} motion="pop" />
+      <Icon name="bookmark" size={size * 0.48} color={c.fg} activeColor={c.accent} active={on} motion="pop" />
     </PressableScale>
   );
 }

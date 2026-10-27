@@ -6,7 +6,10 @@ import { Platform, Share, View } from "react-native";
 import Animated, { Extrapolation, interpolate, ReduceMotion, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { findCreator } from "@/api/mockServer";
-import { useOwned, usePurchase, useTemplate } from "@/api/queries";
+import { useLaunches, useOwned, usePurchase, useTemplate } from "@/api/queries";
+import { CommentsSection } from "@/components/engage/CommentsSection";
+import { EngagementPanel } from "@/components/engage/EngagementPanel";
+import { useJumpTo } from "@/components/engage/useJumpTo";
 import type { Template } from "@/api/types";
 import { countFiles, FileTree } from "@/components/template/FileTree";
 import { FavoriteButton } from "@/components/template/FavoriteButton";
@@ -51,6 +54,8 @@ export default function TemplateScreen() {
   const owned = useOwned(slug);
   const purchase = usePurchase();
   const [seg, setSeg] = useState<Seg>("overview");
+  const jumpTo = useJumpTo();
+  const { data: launches } = useLaunches();
   const [transient, setTransient] = useState<"processing" | "success" | null>(null);
   const [sheet, setSheet] = useState<"checkout" | "send" | "license" | null>(null);
 
@@ -89,11 +94,20 @@ export default function TemplateScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: 64 + insets.bottom + 32 }}>
+      <Animated.ScrollView ref={jumpTo.ref} onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: 64 + insets.bottom + 32 }}>
         {tpl ? (
           <>
             <Animated.View entering={enterAt(0)} style={{ paddingHorizontal: space.gutter }}>
               <Hero t={tpl} />
+            </Animated.View>
+            <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
+              <EngagementPanel
+                kind="template"
+                slug={tpl.slug}
+                title={tpl.name}
+                extra={{ icon: "remix", label: t("engage.remixes"), value: (launches ?? []).filter((l) => l.relatedTemplate === tpl.slug).length }}
+                onComments={jumpTo.jump}
+              />
             </Animated.View>
             <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter, paddingTop: 20, paddingBottom: 16 }}>
               <SegmentedControl value={seg} onChange={setSeg} options={SEGS.map((s) => ({ value: s, label: t(`template.${s}`) }))} />
@@ -110,8 +124,11 @@ export default function TemplateScreen() {
                   </Card>
                 )}
               </DirectionalSwap>
-              <Footer t={tpl} />
             </Animated.View>
+            <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
+              <CommentsSection kind="template" slug={tpl.slug} />
+              <Footer t={tpl} />
+            </View>
           </>
         ) : (
           <HeroSkeleton />

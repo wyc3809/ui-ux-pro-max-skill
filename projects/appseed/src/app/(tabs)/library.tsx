@@ -77,7 +77,7 @@ export default function LibraryScreen() {
     owned: { icon: "package", title: t("library.emptyOwnedTitle"), body: t("library.emptyOwnedBody") },
     prompts: { icon: "terminal", title: t("mine.emptyPromptsTitle"), body: t("mine.emptyPromptsBody") },
     offers: { icon: "hand", title: t("mine.emptyOffersTitle"), body: t("mine.emptyOffersBody") },
-    saved: { icon: "heart", title: t("library.emptySavedTitle"), body: t("library.emptySavedBody") },
+    saved: { icon: "bookmark", title: t("library.emptySavedTitle"), body: t("library.emptySavedBody") },
   } as const;
 
   return (

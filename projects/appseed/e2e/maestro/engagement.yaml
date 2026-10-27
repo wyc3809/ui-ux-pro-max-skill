@@ -1,0 +1,18 @@
+# Signed-in user likes, saves, copies the link and comments on a template (§24)
+appId: app.appseed.mobile
+---
+- launchApp
+- tapOn: "模板"
+- tapOn: "Pocket Ledger 記帳本"
+- scrollUntilVisible:
+    element: "讚好.*"
+- tapOn: "讚好.*"
+- tapOn: "收藏"
+- assertVisible: "取消收藏"
+- tapOn: "複製連結"
+- assertVisible: "已複製連結"
+- tapOn: "查看 .* 則留言"
+- tapOn: "寫下你的留言"
+- inputText: "跟著 README 一次成功"
+- tapOn: "發佈"
+- assertVisible: "跟著 README 一次成功"

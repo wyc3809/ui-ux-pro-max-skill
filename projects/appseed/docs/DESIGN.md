@@ -611,3 +611,23 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 完成 | 勾號和擴散圓環動畫，顯示「歡迎／歡迎回來」，Sheet 關閉後繼續原本的操作 |
 | 我的 | 已登入顯示頭像、名稱、@用戶名、登入方式；登出和**刪除帳戶**都用 ConfirmSheet（App Store 5.1.1(v) 要求 App 內可刪除帳戶；刪除時伺服器同時撤銷 Apple token） |
 | 後端 | Supabase Auth：Apple 用 `signInWithIdToken`、Google 用 OAuth、電郵用 `signInWithOtp`；token 存安全儲存，App 的 session store 只驅動介面 |
+
+---
+
+## 24. 互動數據：讚好、瀏覽、分享、留言、收藏
+
+模板、Prompt、買斷 App、新作四種詳情頁都在主卡下方顯示 `EngagementPanel`（3 × 2 數據格）和分享列，頁尾有 `CommentsSection`。
+
+| 數據格 | 規格 |
+|---|---|
+| 讚好（心形） | 可以按：心形 outline → filled（`danger` 色）、數字滾動、樂觀更新；需要登入，登入後自動完成。新作用「推薦」代替讚好（同一個推薦狀態） |
+| 瀏覽 | 每部裝置每個項目 30 分鐘只計一次（`shouldCountView`），伺服器再按用戶去重 |
+| 分享 | 每次交出分享（複製連結、各平台、系統分享）都即時 +1 |
+| 留言 | 按下會平滑捲動到留言區 |
+| 收藏（書籤） | 與「已購 › 收藏」同一份資料；書籤 outline → filled（`accent` 色）。心形只用於讚好，書籤只用於收藏 |
+| 第六格 | 模板／Prompt：衍生作品（引用它的新作數量）；買斷：報價數；新作：製作日數 |
+
+- 數字用簡寫：英文 21.5K、中文 2.2萬（`formatCompact`）；仍然逐位滾動到新值。
+- **分享列**：複製連結、X、LinkedIn、Threads、WhatsApp、更多（系統分享），六個按鈕平均分配一行，逐個彈出。分享用公開網址 `https://appseed.app/{t|p|b|l}/{slug}`，沒有安裝 App 的人也可以打開；平台 logo 是字型圖示，LinkedIn 和 WhatsApp 保留品牌色。
+- **留言**：未登入時輸入框會先打開登入。新留言從頂部滑入，自己的留言可以刪除（淡出並收起空位）。超過 400 字顯示字數，上限 500 字（`validateComment`）。時間顯示「剛剛／3 分鐘前／5 小時前／2 日前」，一星期後顯示日期。
+- 讚好、留言、刪除留言都是樂觀更新，伺服器拒絕時還原。

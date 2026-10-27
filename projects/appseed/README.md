@@ -5,7 +5,7 @@
 
 ## 已完成
 
-> 第 22 節擴展：**新作推廣**（AI vibe coding App 展示和推薦排名）、**買斷 App**（整個 App 轉讓、報價、托管流程）、**Prompt 市集**（預覽、購買解鎖、變數填寫）。規則見 [`docs/DESIGN.md` §22](docs/DESIGN.md)。上架模板和出售 App 時可以連接 GitHub（推薦）或在網頁版上載 zip，兩者都要通過上架前檢查（§22.6）。註冊和登入支援 Apple、Google 和電郵驗證碼，需要帳戶的操作會先打開登入 Sheet，完成後自動繼續（§23）。
+> 第 22 節擴展：**新作推廣**（AI vibe coding App 展示和推薦排名）、**買斷 App**（整個 App 轉讓、報價、托管流程）、**Prompt 市集**（預覽、購買解鎖、變數填寫）。規則見 [`docs/DESIGN.md` §22](docs/DESIGN.md)。上架模板和出售 App 時可以連接 GitHub（推薦）或在網頁版上載 zip，兩者都要通過上架前檢查（§22.6）。註冊和登入支援 Apple、Google 和電郵驗證碼，需要帳戶的操作會先打開登入 Sheet，完成後自動繼續（§23）。每個詳情頁都有讚好、瀏覽、分享、留言、收藏數據和分享列（§24）。
 
 | 範圍 | 內容 |
 |---|---|
@@ -44,7 +44,7 @@
 
 ```bash
 npm install
-npm test             # 72 個測試
+npm test             # 78 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

@@ -5,6 +5,9 @@ import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSequence,
 import { findCreator } from "@/api/mockServer";
 import { useBuyout, useMakeOffer, useOffers } from "@/api/queries";
 import type { BuyoutListing } from "@/api/types";
+import { CommentsSection } from "@/components/engage/CommentsSection";
+import { EngagementPanel } from "@/components/engage/EngagementPanel";
+import { useJumpTo } from "@/components/engage/useJumpTo";
 import { TonePill } from "@/components/market/Cards";
 import { EscrowSteps } from "@/components/market/EscrowSteps";
 import { SoldStamp } from "@/components/market/UpvoteButton";
@@ -47,6 +50,7 @@ export default function BuyoutScreen() {
   const t = useT();
   const [sheet, setSheet] = useState<"offer" | "buy" | null>(null);
   const myOffer = offers?.find((o) => o.slug === slug);
+  const jumpTo = useJumpTo();
 
   if (!isLoading && !b) {
     return (
@@ -59,6 +63,7 @@ export default function BuyoutScreen() {
   const sold = b?.status === "sold";
   return (
     <DetailScaffold
+      scrollRef={jumpTo.ref}
       title={b?.name}
       right={b ? <FavoriteButton slug={`buyout:${b.slug}`} onSurface /> : undefined}
       bottom={
@@ -111,6 +116,8 @@ export default function BuyoutScreen() {
               {sold && <SoldStamp label={t("buyout.sold")} />}
             </Card>
           </Animated.View>
+
+          <EngagementPanel kind="buyout" slug={b.slug} title={b.name} extra={{ icon: "hand", label: t("engage.offers"), value: b.offers + (myOffer ? 1 : 0) }} onComments={jumpTo.jump} />
 
           {myOffer && (
             <Animated.View entering={enterAt(1)} style={{ flexDirection: "row", gap: 10, alignItems: "center", padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
@@ -169,6 +176,10 @@ export default function BuyoutScreen() {
               </Txt>
             </Card>
           </Section>
+
+          <View onLayout={jumpTo.onLayout}>
+            <CommentsSection kind="buyout" slug={b.slug} />
+          </View>
 
           <OfferSheet b={b} open={sheet === "offer"} onClose={() => setSheet(null)} />
           <BuyNowSheet b={b} open={sheet === "buy"} onClose={() => setSheet(null)} />

@@ -5,7 +5,7 @@ import { rankLaunches, toggleVote } from "@/lib/launch";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { AuthResult, BuyoutListing, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
+import type { AuthResult, BuyoutListing, Comment, Engagement, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
 import { normalizeEmail, type AuthProvider } from "@/lib/auth";
 
 /**
@@ -32,6 +32,40 @@ function redactPrompt(p: PromptListing, owned: boolean): PromptListing {
 const GITHUB_KEY = "mock-server:github";
 const USERS_KEY = "mock-server:users";
 const TICKETS_KEY = "mock-server:signup-tickets";
+
+const LIKES_KEY = "mock-server:likes";
+const VIEWS_KEY = "mock-server:views";
+const SHARES_KEY = "mock-server:shares";
+const COMMENTS_KEY = "mock-server:comments";
+
+/** Deterministic fictional starting counts per item, so numbers are stable across reloads and screenshots. */
+function seeded(key: string) {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) h = Math.imul(h ^ key.charCodeAt(i), 16777619) >>> 0;
+  const r = (min: number, max: number, salt: number) => min + (((h >>> salt) ^ (h * (salt + 3))) >>> 0) % (max - min);
+  return { likes: r(40, 420, 3), views: r(2_000, 32_000, 7), shares: r(4, 60, 11), bookmarks: r(20, 260, 5) };
+}
+
+const SEED_COMMENTS: Omit<Comment, "id" | "createdAt">[] = [
+  { userId: "seed-1", author: "Jamie L.", handle: "jamie-l", body: "README 寫得很清楚，20 分鐘就跑起來了。" },
+  { userId: "seed-2", author: "Wing", handle: "wingdev", body: "請問 Android 上有測試過鍵盤遮擋的問題嗎？" },
+  { userId: "seed-3", author: "Alex T.", handle: "alex-t", body: "製作經歷的踩坑部分最有用，已收藏。" },
+  { userId: "seed-4", author: "Mei", handle: "mei-builds", body: "想知道之後會不會加入 Web 版的支援？" },
+];
+
+function readComments(key: string): Comment[] {
+  const all = readJson<Record<string, Comment[]>>(COMMENTS_KEY, {});
+  if (all[key]) return all[key]!;
+  // First read: 2–3 seeded comments, a few hours to days old.
+  const n = 2 + (key.length % 2);
+  const start = key.length % SEED_COMMENTS.length;
+  return Array.from({ length: n }, (_, i) => {
+    const c = SEED_COMMENTS[(start + i) % SEED_COMMENTS.length]!;
+    return { ...c, id: `${key}-seed-${i}`, createdAt: new Date(Date.now() - (i + 1) * 9 * 3_600_000).toISOString() };
+  });
+}
+const writeComments = (key: string, list: Comment[]) => mmkv.set(COMMENTS_KEY, JSON.stringify({ ...readJson<Record<string, Comment[]>>(COMMENTS_KEY, {}), [key]: list }));
+const bump = (store: string, key: string) => mmkv.set(store, JSON.stringify({ ...readJson<Record<string, number>>(store, {}), [key]: (readJson<Record<string, number>>(store, {})[key] ?? 0) + 1 }));
 
 /** Demo-only: the code every email "receives" until a real email provider is connected. */
 export const DEMO_OTP = "123456";
@@ -178,6 +212,48 @@ export const api = {
   deleteAccount: async (id: string) => {
     await wait(null, 900);
     mmkv.set(USERS_KEY, JSON.stringify(readJson<StoredUser[]>(USERS_KEY, []).filter((u) => u.id !== id)));
+    return { ok: true as const };
+  },
+  engagement: (key: string): Promise<Engagement> => {
+    const base = seeded(key);
+    const liked = readJson<string[]>(LIKES_KEY, []).includes(key);
+    return wait(
+      {
+        likes: base.likes + (liked ? 1 : 0),
+        views: base.views + (readJson<Record<string, number>>(VIEWS_KEY, {})[key] ?? 0),
+        shares: base.shares + (readJson<Record<string, number>>(SHARES_KEY, {})[key] ?? 0),
+        comments: readComments(key).length,
+        bookmarks: base.bookmarks,
+        liked,
+      },
+      200,
+    );
+  },
+  toggleLike: async (key: string) => {
+    const likes = readJson<string[]>(LIKES_KEY, []);
+    const liked = !likes.includes(key);
+    mmkv.set(LIKES_KEY, JSON.stringify(liked ? [key, ...likes] : likes.filter((k) => k !== key)));
+    return wait({ liked }, 150);
+  },
+  /** The client already de-dupes (shouldCountView); the real server de-dupes again per viewer. */
+  recordView: async (key: string) => {
+    bump(VIEWS_KEY, key);
+    return wait({ ok: true as const }, 100);
+  },
+  recordShare: async (key: string) => {
+    bump(SHARES_KEY, key);
+    return wait({ ok: true as const }, 100);
+  },
+  comments: (key: string) => wait(readComments(key), 300),
+  postComment: async ({ key, body, user }: { key: string; body: string; user: { id: string; name: string; handle: string } }) => {
+    await wait(null, 500);
+    const c: Comment = { id: `c_${Date.now().toString(36)}`, userId: user.id, author: user.name, handle: user.handle, body: body.trim(), createdAt: new Date().toISOString() };
+    writeComments(key, [c, ...readComments(key)]);
+    return c;
+  },
+  deleteComment: async ({ key, id }: { key: string; id: string }) => {
+    await wait(null, 300);
+    writeComments(key, readComments(key).filter((c) => c.id !== id));
     return { ok: true as const };
   },
   /** GitHub App installation: read-only access to repos the creator picks. */

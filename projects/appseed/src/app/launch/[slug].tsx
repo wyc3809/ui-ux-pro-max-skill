@@ -3,7 +3,10 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Linking, Platform, Share, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { findCreator } from "@/api/mockServer";
-import { useLaunch, usePrompt, useTemplate, useVote } from "@/api/queries";
+import { useEngagement, useLaunch, usePrompt, useTemplate, useVote } from "@/api/queries";
+import { CommentsSection } from "@/components/engage/CommentsSection";
+import { EngagementPanel } from "@/components/engage/EngagementPanel";
+import { useJumpTo } from "@/components/engage/useJumpTo";
 import { PromptRow } from "@/components/market/Cards";
 import { UpvoteButton } from "@/components/market/UpvoteButton";
 import { DetailScaffold } from "@/components/shell/DetailScaffold";
@@ -23,7 +26,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { itemKey } from "@/lib/engagement";
 import { formatDate } from "@/lib/format";
+import { requireAuth } from "@/store/authGate";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
@@ -33,6 +38,9 @@ export default function LaunchScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { data: l, isLoading } = useLaunch(slug);
   const vote = useVote();
+  const jumpTo = useJumpTo();
+  // Header and stats share one live comment count.
+  const { data: engagement } = useEngagement(itemKey("launch", slug));
   const { c } = useTheme();
   const t = useT();
 
@@ -56,6 +64,7 @@ export default function LaunchScreen() {
 
   return (
     <DetailScaffold
+      scrollRef={jumpTo.ref}
       title={l?.name}
       right={l ? <HeaderButton icon="share" motion="bounce" label="Share" onPress={() => Share.share({ message: `${l.name} https://appseed.app/l/${l.slug}` })} /> : undefined}
       bottom={
@@ -99,7 +108,7 @@ export default function LaunchScreen() {
                     {maker.name}
                   </Txt>
                   <Txt variant="caption" tone="fgSubtle">
-                    {t("launch.comments", { n: l.comments })}
+                    {t("launch.comments", { n: engagement?.comments ?? 0 })}
                   </Txt>
                 </PressableScale>
               )}
@@ -114,6 +123,15 @@ export default function LaunchScreen() {
               </View>
             </Card>
           </Animated.View>
+
+          <EngagementPanel
+            kind="launch"
+            slug={l.slug}
+            title={l.name}
+            like={{ label: t("engage.upvotes"), icon: "upvote", count: l.upvotes, active: l.voted, onToggle: () => requireAuth("auth.reasonUpvote", () => vote.mutate(l.slug)) }}
+            extra={{ icon: "timer", label: t("engage.buildDays"), value: l.buildDays }}
+            onComments={jumpTo.jump}
+          />
 
           <Section title={t("launch.story")} index={1} inset={false}>
             <Card style={{ flexDirection: "row", gap: 12 }}>
@@ -137,6 +155,9 @@ export default function LaunchScreen() {
 
           {l.relatedTemplate && <RelatedTemplate slug={l.relatedTemplate} />}
           {l.relatedPrompt && <RelatedPrompt slug={l.relatedPrompt} />}
+          <View onLayout={jumpTo.onLayout}>
+            <CommentsSection kind="launch" slug={l.slug} />
+          </View>
         </>
       )}
     </DetailScaffold>

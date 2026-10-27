@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toggleVote } from "@/lib/launch";
 import { api, type SearchParams } from "./mockServer";
-import type { Launch } from "./types";
+import type { Comment, Engagement, Launch } from "./types";
 
 export const qk = {
   templates: ["templates"] as const,
@@ -19,6 +19,8 @@ export const qk = {
   launches: ["launches"] as const,
   launch: (slug: string) => ["launch", slug] as const,
   github: ["github"] as const,
+  engagement: (key: string) => ["engagement", key] as const,
+  comments: (key: string) => ["comments", key] as const,
   githubRepos: ["github-repos"] as const,
 };
 
@@ -122,3 +124,58 @@ export function useDisconnectGithub() {
 
 export const useScanRepo = () => useMutation({ mutationFn: api.scanRepo });
 export const useUploadZip = () => useMutation({ mutationFn: api.uploadZip });
+
+export const useEngagement = (key: string) => useQuery({ queryKey: qk.engagement(key), queryFn: () => api.engagement(key) });
+export const useComments = (key: string) => useQuery({ queryKey: qk.comments(key), queryFn: () => api.comments(key) });
+
+/** Optimistic like: the heart fills and the count rolls on tap; rolled back if the server refuses. */
+export function useToggleLike(key: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.toggleLike(key),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: qk.engagement(key) });
+      const prev = qc.getQueryData<Engagement>(qk.engagement(key));
+      qc.setQueryData<Engagement>(qk.engagement(key), (e) => (e ? { ...e, liked: !e.liked, likes: e.likes + (e.liked ? -1 : 1) } : e));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => qc.setQueryData(qk.engagement(key), ctx?.prev),
+  });
+}
+
+/** Count a share the moment it's handed off; the number ticks up straight away. */
+export function useRecordShare(key: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.recordShare(key),
+    onMutate: () => qc.setQueryData<Engagement>(qk.engagement(key), (e) => (e ? { ...e, shares: e.shares + 1 } : e)),
+  });
+}
+
+export function usePostComment(key: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { body: string; user: { id: string; name: string; handle: string } }) => api.postComment({ key, ...v }),
+    onSuccess: (c) => {
+      qc.setQueryData<Comment[]>(qk.comments(key), (list) => [c, ...(list ?? [])]);
+      qc.setQueryData<Engagement>(qk.engagement(key), (e) => (e ? { ...e, comments: e.comments + 1 } : e));
+    },
+  });
+}
+
+export function useDeleteComment(key: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteComment({ key, id }),
+    onMutate: (id) => {
+      const prev = qc.getQueryData<Comment[]>(qk.comments(key));
+      qc.setQueryData<Comment[]>(qk.comments(key), (list) => list?.filter((c) => c.id !== id));
+      qc.setQueryData<Engagement>(qk.engagement(key), (e) => (e ? { ...e, comments: Math.max(0, e.comments - 1) } : e));
+      return { prev };
+    },
+    onError: (_e, _id, ctx) => {
+      qc.setQueryData(qk.comments(key), ctx?.prev);
+      qc.invalidateQueries({ queryKey: qk.engagement(key) });
+    },
+  });
+}

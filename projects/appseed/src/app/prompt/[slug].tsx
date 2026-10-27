@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { findCreator } from "@/api/mockServer";
-import { useOwnsPrompt, usePrompt, usePurchasePrompt } from "@/api/queries";
+import { useLaunches, useOwnsPrompt, usePrompt, usePurchasePrompt } from "@/api/queries";
+import { CommentsSection } from "@/components/engage/CommentsSection";
+import { EngagementPanel } from "@/components/engage/EngagementPanel";
+import { useJumpTo } from "@/components/engage/useJumpTo";
 import { Typewriter } from "@/components/market/Typewriter";
 import { DetailScaffold } from "@/components/shell/DetailScaffold";
 import { Field } from "@/components/studio/FormFields";
@@ -45,6 +48,8 @@ export default function PromptScreen() {
   const [justUnlocked, setJustUnlocked] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
+  const jumpTo = useJumpTo();
+  const { data: launches } = useLaunches();
 
   const unlocked = owned || p?.price === 0;
   const vars = useMemo(() => (p && unlocked ? promptVariables(p.text) : []), [p, unlocked]);
@@ -86,6 +91,7 @@ export default function PromptScreen() {
 
   return (
     <DetailScaffold
+      scrollRef={jumpTo.ref}
       title={p?.title}
       right={p ? <FavoriteButton slug={`prompt:${p.slug}`} onSurface /> : undefined}
       bottom={p ? <StickyCTA phase={phase} price={p.price} onBuy={() => requireAuth("auth.reasonBuy", () => (p.price === 0 ? buy() : setCheckout(true)))} onSend={() => copy(fillPrompt(p.text, values))} owned={{ label: t("promptPage.copyFilled"), icon: "copy" }} /> : undefined}
@@ -133,6 +139,14 @@ export default function PromptScreen() {
               </View>
             </Card>
           </Animated.View>
+
+          <EngagementPanel
+            kind="prompt"
+            slug={p.slug}
+            title={p.title}
+            extra={{ icon: "remix", label: t("engage.remixes"), value: (launches ?? []).filter((l) => l.relatedPrompt === p.slug).length }}
+            onComments={jumpTo.jump}
+          />
 
           <Section title={unlocked ? p.title : t("promptPage.preview")} index={1} inset={false}>
             <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, borderWidth: 1, borderColor: c.border, padding: 14, gap: 10 }}>
@@ -188,6 +202,10 @@ export default function PromptScreen() {
               ))}
             </Card>
           </Section>
+
+          <View onLayout={jumpTo.onLayout}>
+            <CommentsSection kind="prompt" slug={p.slug} />
+          </View>
 
           <Sheet
             open={checkout}
