@@ -1,6 +1,7 @@
 import { StyleSheet, View, type ViewStyle } from "react-native";
 import { useTheme } from "@/theme/ThemeProvider";
-import { hit, radius } from "@/theme/tokens";
+import { gap, nested } from "@/theme/tokens";
+import { BAR_RADIUS } from "./BottomBar";
 import { PressableScale } from "./PressableScale";
 import { Spinner } from "./Spinner";
 import { Txt } from "./Txt";
@@ -41,12 +42,13 @@ export function Button({ label, onPress, variant = "primary", loading, disabled,
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: hit + 4,
-    borderRadius: radius.control + 2,
-    paddingHorizontal: 18,
+    minHeight: 48,
+    // Concentric with the floating bar it usually sits in (24 outer, 8 inset).
+    borderRadius: nested(BAR_RADIUS, gap.sm),
+    paddingHorizontal: gap.lg,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: gap.sm,
   },
 });

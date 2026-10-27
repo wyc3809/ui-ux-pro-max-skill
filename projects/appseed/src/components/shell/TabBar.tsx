@@ -1,11 +1,10 @@
 import type { BottomTabBarProps } from "expo-router/js-tabs";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FLOAT_BAR_HEIGHT, useFloatGap } from "@/components/ui/BottomBar";
+import { Glass, useGlassShadow } from "@/components/ui/Glass";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
@@ -13,7 +12,7 @@ import { useT, type TKey } from "@/i18n";
 import { haptic } from "@/lib/haptic";
 import { useUi } from "@/store/ui";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion } from "@/theme/tokens";
+import { gap, motion } from "@/theme/tokens";
 
 const TABS: Record<string, { icon: IconName; label: TKey }> = {
   index: { icon: "compass", label: "tab.explore" },
@@ -22,70 +21,75 @@ const TABS: Record<string, { icon: IconName; label: TKey }> = {
   me: { icon: "user", label: "tab.me" },
 };
 
-export const TAB_BAR_HEIGHT = 60;
+export const TAB_BAR_HEIGHT = FLOAT_BAR_HEIGHT;
+/** Inset of the selection pill inside the capsule; the pill radius is the capsule's minus this. */
+const PILL_INSET = gap.xs;
+const PILL_SPRING = { damping: 18, stiffness: 220, mass: 0.8, reduceMotion: ReduceMotion.System };
 
-/** Custom tab bar (§6): blur, hairline, 1:1:72px:1:1 columns, a raised gradient search button in the middle. */
+/**
+ * Floating glass tab bar (§6, iOS 26 style): a capsule of four tabs with a selection pill that glides between
+ * them like a drop of liquid, plus a separate glass search button. Content scrolls under both.
+ */
 export function TabBar({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const { c, isDark } = useTheme();
   const t = useT();
-  const insets = useSafeAreaInsets();
+  const bottom = useFloatGap();
+  const shadow = useGlassShadow();
   const setTab = useUi((s) => s.setTab);
+  const [width, setWidth] = useState(0);
 
-  const items = state.routes.map((route, index) => {
-    const meta = TABS[route.name];
-    if (!meta) return null;
-    const focused = state.index === index;
-    return (
-      <TabItem
-        key={route.key}
-        icon={meta.icon}
-        label={t(meta.label)}
-        focused={focused}
-        onPress={() => {
-          const e = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-          if (!focused && !e.defaultPrevented) {
-            haptic("selection");
-            setTab(index);
-            navigateToTab(route.key);
-          }
-        }}
-      />
-    );
-  });
+  const routes = state.routes.filter((r) => TABS[r.name]);
+  const selected = Math.max(0, routes.findIndex((r) => r.key === state.routes[state.index]?.key));
+  const slot = routes.length ? (width - PILL_INSET * 2) / routes.length : 0;
 
-  const bar = (
-    <View style={{ flexDirection: "row", height: TAB_BAR_HEIGHT, alignItems: "center" }}>
-      {items.slice(0, 2)}
-      <View style={{ width: 72, alignItems: "center" }}>
-        <SearchFab label={t("a11y.search")} />
-      </View>
-      {items.slice(2)}
-    </View>
-  );
+  const x = useSharedValue(0);
+  const stretch = useSharedValue(1);
+  useEffect(() => {
+    if (!slot) return;
+    x.value = withSpring(selected * slot, PILL_SPRING);
+    // The pill widens mid-flight and settles back, so it reads as liquid rather than a sliding block.
+    stretch.value = withSequence(withTiming(1.18, { duration: 120, reduceMotion: ReduceMotion.System }), withSpring(1, PILL_SPRING));
+  }, [selected, slot, x, stretch]);
+  const pill = useAnimatedStyle(() => ({ width: slot, transform: [{ translateX: x.value }, { scaleX: stretch.value }] }));
 
   return (
-    <View
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        shadowColor: "#0f1412",
-        shadowOpacity: isDark ? 0 : 0.06,
-        shadowRadius: 18,
-        shadowOffset: { width: 0, height: -6 },
-        elevation: 16,
-      }}
-    >
-      <View style={{ height: 0.5, backgroundColor: c.border }} />
-      {Platform.OS === "ios" ? (
-        <BlurView intensity={60} tint={isDark ? "systemChromeMaterialDark" : "systemChromeMaterialLight"} style={{ paddingBottom: insets.bottom }}>
-          {bar}
-        </BlurView>
-      ) : (
-        // Android/web: a 94% opaque surface reads cleaner than a software blur.
-        <View style={{ paddingBottom: insets.bottom, backgroundColor: isDark ? "rgba(20,24,22,0.94)" : "rgba(255,255,255,0.94)" }}>{bar}</View>
-      )}
+    <View pointerEvents="box-none" style={{ position: "absolute", left: gap.lg, right: gap.lg, bottom, flexDirection: "row", gap: gap.md }}>
+      <View style={[{ flex: 1, borderRadius: FLOAT_BAR_HEIGHT / 2 }, shadow]}>
+        <Glass radius={FLOAT_BAR_HEIGHT / 2} interactive>
+          <View onLayout={(e) => setWidth(e.nativeEvent.layout.width)} style={{ height: FLOAT_BAR_HEIGHT, flexDirection: "row", alignItems: "center", paddingHorizontal: PILL_INSET }}>
+            {slot > 0 && (
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  { position: "absolute", left: PILL_INSET, top: PILL_INSET, bottom: PILL_INSET, borderRadius: FLOAT_BAR_HEIGHT / 2 - PILL_INSET, backgroundColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.06)" },
+                  pill,
+                ]}
+              />
+            )}
+            {routes.map((route, i) => {
+              const meta = TABS[route.name]!;
+              const focused = i === selected;
+              return (
+                <TabItem
+                  key={route.key}
+                  icon={meta.icon}
+                  label={t(meta.label)}
+                  focused={focused}
+                  onPress={() => {
+                    const e = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                    if (!focused && !e.defaultPrevented) {
+                      haptic("selection");
+                      setTab(state.routes.indexOf(route));
+                      navigateToTab(route.key);
+                    }
+                  }}
+                />
+              );
+            })}
+          </View>
+        </Glass>
+      </View>
+      <SearchButton label={t("a11y.search")} tint={c.accent} fg={c.accentFg} shadow={shadow} />
     </View>
   );
 }
@@ -98,9 +102,16 @@ function TabItem({ icon, label, focused, onPress }: { icon: IconName; label: str
     if (focused) s.value = withSequence(withTiming(1.18, { duration: 110, reduceMotion: ReduceMotion.System }), withSpring(1, { ...motion.pop, reduceMotion: ReduceMotion.System }));
   }, [focused, s]);
   const a = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
-  const color = focused ? c.accent : c.fgSubtle;
+  const color = focused ? c.accent : c.fgMuted;
   return (
-    <PressableScale onPress={onPress} accessibilityRole="tab" accessibilityLabel={label} accessibilityState={{ selected: focused }} scaleTo={0.92} style={{ flex: 1, height: TAB_BAR_HEIGHT, alignItems: "center", justifyContent: "center", gap: 3 }}>
+    <PressableScale
+      onPress={onPress}
+      accessibilityRole="tab"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: focused }}
+      scaleTo={0.92}
+      style={{ flex: 1, height: FLOAT_BAR_HEIGHT - PILL_INSET * 2, alignItems: "center", justifyContent: "center", gap: gap.xxs }}
+    >
       <Animated.View style={a}>
         {/* Outline → filled morph on selection, on top of the 1 → 1.18 → 1 pop. */}
         <Icon name={icon} size={24} color={color} active={focused} motion="none" />
@@ -112,9 +123,8 @@ function TabItem({ icon, label, focused, onPress }: { icon: IconName; label: str
   );
 }
 
-/** 56px brand-gradient circle floating 22px above the bar with a 4px background ring (§6.2). */
-function SearchFab({ label }: { label: string }) {
-  const { c } = useTheme();
+/** Search sits apart from the tabs as its own accent-tinted glass circle, the way iOS 26 separates search. */
+function SearchButton({ label, tint, fg, shadow }: { label: string; tint: string; fg: string; shadow: object }) {
   return (
     <PressableScale
       onPress={() => {
@@ -122,17 +132,12 @@ function SearchFab({ label }: { label: string }) {
         router.push("/search");
       }}
       accessibilityLabel={label}
-      scaleTo={0.95}
-      style={{ marginTop: -22 - 4, width: 64, height: 64, borderRadius: 32, padding: 4, backgroundColor: c.bg }}
+      scaleTo={0.92}
+      style={[{ width: FLOAT_BAR_HEIGHT, height: FLOAT_BAR_HEIGHT, borderRadius: FLOAT_BAR_HEIGHT / 2 }, shadow]}
     >
-      <LinearGradient
-        colors={[c.accent, c.accentPressed]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ flex: 1, borderRadius: 28, alignItems: "center", justifyContent: "center", shadowColor: c.accent, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 }}
-      >
-        <Icon name="search" size={25} color={c.accentFg} active enterDelay={200} />
-      </LinearGradient>
+      <Glass radius={FLOAT_BAR_HEIGHT / 2} interactive tint={tint} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Icon name="search" size={24} color={fg} active enterDelay={200} />
+      </Glass>
     </PressableScale>
   );
 }

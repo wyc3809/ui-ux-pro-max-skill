@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space, font } from "@/theme/tokens";
+import { useSheetDepth } from "@/store/ui";
 import { Txt } from "./Txt";
 
 export type SheetProps = {
@@ -29,6 +30,7 @@ export type SheetProps = {
  */
 export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
   const { c } = useTheme();
+  useSheetDepth(open);
   const insets = useSafeAreaInsets();
   const ref = useRef<BottomSheetModal>(null);
   const titleRef = useRef<TextInstance>(null);
@@ -76,20 +78,20 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
       animationConfigs={animationConfigs}
       backdropComponent={backdrop}
       backgroundStyle={{ backgroundColor: c.bgElevated, borderTopLeftRadius: radius.hero, borderTopRightRadius: radius.hero }}
-      handleIndicatorStyle={{ backgroundColor: c.fgSubtle, opacity: 0.4, width: 40 }}
+      handleIndicatorStyle={{ backgroundColor: c.fgSubtle, opacity: 0.4, width: 36 }}
     >
       {title ? (
-        <View style={{ paddingHorizontal: space.gutter + 4, paddingBottom: 12, paddingTop: 4 }}>
+        <View style={{ paddingHorizontal: space.gutter + 8, paddingBottom: 12, paddingTop: 4 }}>
           <Txt ref={titleRef} variant="section" accessibilityRole="header" style={{ fontFamily: font.bold }}>
             {title}
           </Txt>
         </View>
       ) : null}
-      <BottomSheetScrollView contentContainerStyle={{ paddingHorizontal: space.gutter + 4, paddingBottom: footer ? 12 : insets.bottom + 20, gap: 12 }}>
+      <BottomSheetScrollView contentContainerStyle={{ paddingHorizontal: space.gutter + 8, paddingBottom: footer ? 12 : insets.bottom + 20, gap: 12 }}>
         {children}
       </BottomSheetScrollView>
       {footer ? (
-        <View style={{ paddingHorizontal: space.gutter + 4, paddingTop: 12, paddingBottom: insets.bottom + 12, borderTopWidth: 1, borderTopColor: c.border, gap: 10 }}>{footer}</View>
+        <View style={{ paddingHorizontal: space.gutter + 8, paddingTop: 12, paddingBottom: insets.bottom + 12, gap: 12 }}>{footer}</View>
       ) : null}
     </BottomSheetModal>
   );

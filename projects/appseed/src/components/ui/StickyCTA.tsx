@@ -15,8 +15,8 @@ import Animated, {
 import { useT } from "@/i18n";
 import { startFrom } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius } from "@/theme/tokens";
-import { BottomBar } from "./BottomBar";
+import { gap, motion, nested } from "@/theme/tokens";
+import { BAR_RADIUS, BottomBar } from "./BottomBar";
 import { Icon, type IconName } from "./Icon";
 import { PressableScale } from "./PressableScale";
 import { PriceTag } from "./PriceTag";
@@ -80,7 +80,7 @@ export function StickyCTA({ phase, price, onBuy, onSend, reason, owned }: Props)
         hapticKind="tap"
         style={{ width: "60%" }}
       >
-        <Animated.View style={[{ height: 48, borderRadius: radius.control + 2, alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: phase === "unavailable" ? 0.45 : 1 }, btn]}>
+        <Animated.View style={[{ height: 48, borderRadius: nested(BAR_RADIUS, gap.sm), alignItems: "center", justifyContent: "center", overflow: "hidden", opacity: phase === "unavailable" ? 0.45 : 1 }, btn]}>
           <Animated.View key={phase} entering={swap.in} exiting={swap.out} style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             {phase === "processing" && <Spinner color={c.accentFg} />}
             {phase === "success" && (

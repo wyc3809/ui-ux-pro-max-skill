@@ -18,6 +18,7 @@ import { ReviewRow } from "@/components/template/ReviewRow";
 import { StackChips } from "@/components/template/StackChips";
 import { StoryStep } from "@/components/template/StoryStep";
 import { VersionTimeline } from "@/components/template/VersionTimeline";
+import { useFloatClearance } from "@/components/ui/BottomBar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { DirectionalSwap } from "@/components/ui/DirectionalSwap";
@@ -51,6 +52,7 @@ export default function TemplateScreen() {
   const { c } = useTheme();
   const t = useT();
   const insets = useSafeAreaInsets();
+  const clearance = useFloatClearance();
   const owned = useOwned(slug);
   const purchase = usePurchase();
   const [seg, setSeg] = useState<Seg>("overview");
@@ -94,7 +96,7 @@ export default function TemplateScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <Animated.ScrollView ref={jumpTo.ref} onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: 64 + insets.bottom + 32 }}>
+      <Animated.ScrollView ref={jumpTo.ref} onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: clearance }}>
         {tpl ? (
           <>
             <Animated.View entering={enterAt(0)} style={{ paddingHorizontal: space.gutter }}>

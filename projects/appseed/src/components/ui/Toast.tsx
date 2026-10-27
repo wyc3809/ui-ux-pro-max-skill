@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { create } from "zustand";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
-import { dark, light } from "@/theme/tokens";
+import { gap } from "@/theme/tokens";
+import { Glass, useGlassShadow } from "./Glass";
 import { Icon } from "./Icon";
 import { Txt } from "./Txt";
 
@@ -24,11 +25,10 @@ export const useToast = create<ToastState>()((set, get) => ({
 
 export const toast = (message: string, kind?: ToastKind) => useToast.getState().show(message, kind);
 
-/** Pill that drops in from the top with a soft spring, then lifts away after 2.2s. */
+/** Glass pill that drops in from the top with a soft spring, then lifts away after 2.2s. */
 export function ToastHost() {
-  const { c, soft, isDark } = useTheme();
-  // The pill is inverted (fg-coloured), so its icon borrows the opposite palette's status colour.
-  const inv = isDark ? light : dark;
+  const { c } = useTheme();
+  const shadow = useGlassShadow();
   const insets = useSafeAreaInsets();
   const { id, message, kind, hide } = useToast();
   useEffect(() => {
@@ -44,15 +44,12 @@ export function ToastHost() {
       accessibilityLiveRegion="polite"
       entering={SlideInUp.springify().damping(18).stiffness(220).reduceMotion(ReduceMotion.System)}
       exiting={FadeOutUp.duration(200)}
-      style={[
-        { position: "absolute", top: insets.top + 8, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, height: 44, borderRadius: 22, backgroundColor: c.fg, zIndex: 100 },
-        soft,
-      ]}
+      style={[{ position: "absolute", top: insets.top + gap.sm, alignSelf: "center", borderRadius: 24, zIndex: 100 }, shadow]}
     >
-      <Icon name={kind === "success" ? "checkCircle" : "alert"} size={19} color={kind === "success" ? inv.live : inv.warn} active enterDelay={120} motion={kind === "success" ? "pop" : "wiggle"} />
-      <Txt variant="bodyStrong" style={{ color: c.bg }}>
-        {message}
-      </Txt>
+      <Glass radius={24} style={{ flexDirection: "row", alignItems: "center", gap: gap.sm, paddingHorizontal: gap.lg, height: 48 }}>
+        <Icon name={kind === "success" ? "checkCircle" : "alert"} size={20} color={kind === "success" ? c.live : c.warn} active enterDelay={120} motion={kind === "success" ? "pop" : "wiggle"} />
+        <Txt variant="bodyStrong">{message}</Txt>
+      </Glass>
     </Animated.View>
   );
 }
