@@ -31,6 +31,7 @@ import { StickyCTA, type CtaPhase } from "@/components/ui/StickyCTA";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { formatBytes, formatCount, formatDate } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
@@ -132,7 +133,7 @@ export default function TemplateScreen() {
         </View>
       </View>
 
-      {tpl && <StickyCTA phase={phase} price={tpl.price} onBuy={() => (tpl.price === 0 ? buy() : setSheet("checkout"))} onSend={() => setSheet("send")} />}
+      {tpl && <StickyCTA phase={phase} price={tpl.price} onBuy={() => requireAuth("auth.reasonBuy", () => (tpl.price === 0 ? buy() : setSheet("checkout")))} onSend={() => setSheet("send")} />}
 
       {tpl && (
         <>

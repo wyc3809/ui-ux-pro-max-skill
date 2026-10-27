@@ -23,6 +23,7 @@ import { Section } from "@/components/ui/Section";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { crossfadeIn, enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space } from "@/theme/tokens";
@@ -84,7 +85,7 @@ function LaunchesFeed() {
         </View>
       </Section>
       <Animated.View entering={enterAt(2)} style={{ paddingHorizontal: space.gutter }}>
-        <PressableScale onPress={() => router.push("/studio/new-launch")} hapticKind="tap" accessibilityLabel={t("listing.launch")} style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: c.accentSoft }}>
+        <PressableScale onPress={() => requireAuth("auth.reasonList", () => router.push("/studio/new-launch"))} hapticKind="tap" accessibilityLabel={t("listing.launch")} style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: c.accentSoft }}>
           <Icon name="rocket" size={26} color={c.accent} active loop="breathe" />
           <View style={{ flex: 1 }}>
             <Txt variant="bodyStrong" tone="accent">

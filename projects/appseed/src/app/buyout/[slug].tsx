@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { buyoutTone, ESCROW_STEPS, escrowFee, MIN_OFFER_RATIO, offerStep, revenueMultiple, validateOffer } from "@/lib/buyout";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
@@ -75,8 +76,8 @@ export default function BuyoutScreen() {
               <Button label={t("buyout.sold")} disabled style={{ flex: 1 }} />
             ) : (
               <>
-                <Button label={t("buyout.makeOffer")} variant="secondary" onPress={() => setSheet("offer")} style={{ flex: 1, paddingHorizontal: 6 }} />
-                <Button label={t("buyout.buyNow")} onPress={() => setSheet("buy")} style={{ flex: 1.15, paddingHorizontal: 6 }} />
+                <Button label={t("buyout.makeOffer")} variant="secondary" onPress={() => requireAuth("auth.reasonOffer", () => setSheet("offer"))} style={{ flex: 1, paddingHorizontal: 6 }} />
+                <Button label={t("buyout.buyNow")} onPress={() => requireAuth("auth.reasonOffer", () => setSheet("buy"))} style={{ flex: 1.15, paddingHorizontal: 6 }} />
               </>
             )}
           </BottomBar>
@@ -269,7 +270,7 @@ function OfferSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onC
           {t("buyout.minOffer", { min: hk(min) })}
         </Txt>
       )}
-      <Field label={t("buyout.offerMessage")} value={message} onChangeText={setMessage} multiline />
+      <Field label={t("buyout.offerMessage")} value={message} onChangeText={setMessage} multiline inSheet />
     </Sheet>
   );
 }

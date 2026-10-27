@@ -27,6 +27,12 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Source code comes from a GitHub App install (read-only, chosen repos) or a web zip upload;
   both pass lib/sourceScan.ts checks and any failed check blocks submission (§22.6).
 
+## Accounts (docs/DESIGN.md §23)
+- Guests can browse and search; wrap account-only actions in `requireAuth(reason, action)` so
+  sign-in opens as a Sheet and the action resumes afterwards. Never gate browsing.
+- Offer Sign in with Apple wherever another third-party login is offered; accounts must be
+  deletable in the app.
+
 ## Payments & access
 - Purchase state comes from the server only; never grant access on the client.
 - In-app purchases use fixed price tiers via RevenueCat; web uses Stripe Checkout.

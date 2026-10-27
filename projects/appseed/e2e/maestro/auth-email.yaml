@@ -1,0 +1,23 @@
+# Guest taps save → signs up with an email code → creates a username → the save completes (§23)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "模板"
+- tapOn: "Pocket Ledger 記帳本"
+- tapOn: "收藏"
+- assertVisible: "登入後即可收藏"
+- tapOn: "電郵地址"
+- inputText: "maestro@example.com"
+- tapOn: "用電郵繼續"
+- assertVisible: "輸入驗證碼"
+- inputText: "111111"
+- assertVisible: "驗證碼不正確，請再試一次。"
+- inputText: "123456"
+- assertVisible: "建立你的帳戶"
+- tapOn: "名稱"
+- inputText: "Maestro Tester"
+- assertVisible: ".*可以使用"
+- tapOn: "建立帳戶"
+- assertVisible: "歡迎，Maestro Tester"
+- assertVisible: "取消收藏"

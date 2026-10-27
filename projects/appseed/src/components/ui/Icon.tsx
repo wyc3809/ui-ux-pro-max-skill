@@ -56,6 +56,7 @@ export const ICONS = {
   phone: "phone-portrait",
   plus: "add",
   minus: "remove",
+  logout: "log-out",
   receipt: "receipt",
   refresh: "refresh",
   reply: "return-down-forward",

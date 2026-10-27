@@ -17,6 +17,7 @@ import { Section } from "@/components/ui/Section";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space } from "@/theme/tokens";
@@ -59,7 +60,7 @@ export default function StudioScreen() {
               </Section>
               <Animated.View entering={enterAt(2)} style={{ gap: 16 }}>
                 <PayoutCard amount={data.payout} next={data.nextPayout} />
-                <Button label={t("listing.choose")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} motion="spin" trigger={chooser} />} onPress={() => setChooser(true)} />
+                <Button label={t("listing.choose")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} motion="spin" trigger={chooser} />} onPress={() => requireAuth("auth.reasonList", () => setChooser(true))} />
               </Animated.View>
             </>
           )}

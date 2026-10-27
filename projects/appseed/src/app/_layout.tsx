@@ -9,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthSheet } from "@/components/auth/AuthSheet";
 import { LaunchMark } from "@/components/shell/LaunchMark";
 import { ToastHost } from "@/components/ui/Toast";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
@@ -36,6 +37,7 @@ function Shell() {
         <Stack.Screen name="buyout/[slug]" />
         <Stack.Screen name="launch/[slug]" />
       </Stack>
+      <AuthSheet />
       <ToastHost />
     </View>
   );

@@ -69,6 +69,9 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
         }
       }}
       enableDynamicSizing
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustResize"
       maxDynamicContentSize={720}
       animationConfigs={animationConfigs}
       backdropComponent={backdrop}

@@ -1,6 +1,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { haptic } from "@/lib/haptic";
 import { useFavorites } from "@/store/favorites";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -18,7 +19,7 @@ export function FavoriteButton({ slug, size = 40, onSurface = false }: { slug: s
       scaleTo={0.9}
       onPress={() => {
         haptic("tap");
-        toggle(slug);
+        requireAuth("auth.reasonFavorite", () => toggle(slug));
       }}
       style={[{ width: size, height: size, borderRadius: size / 2, alignItems: "center", justifyContent: "center", backgroundColor: onSurface ? c.bgElevated : c.bgMuted }, onSurface && soft]}
     >

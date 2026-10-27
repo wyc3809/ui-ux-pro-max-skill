@@ -18,7 +18,9 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { shouldAnimateItems } from "@/lib/motion";
 import { formatPrice } from "@/lib/price";
+import { useAuthGate } from "@/store/authGate";
 import { useFavorites } from "@/store/favorites";
+import { useSession } from "@/store/session";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space } from "@/theme/tokens";
@@ -42,6 +44,8 @@ export default function LibraryScreen() {
   const promptPurchases = usePromptPurchases().data;
   const offers = useOffers().data;
   const saved = useFavorites((s) => s.slugs);
+  const user = useSession((s) => s.user);
+  const openAuth = useAuthGate((s) => s.request);
   const refetch = () => Promise.all([purchases.refetch()]);
 
   const tpl = (slug: string): Item | null => {
@@ -95,7 +99,9 @@ export default function LibraryScreen() {
           />
         </View>
         <DirectionalSwap value={seg} order={SEGS}>
-          {purchases.isLoading ? (
+          {!user ? (
+            <EmptyState icon="user" title={t("auth.title")} body={t("me.signIn")} action={{ label: t("auth.title"), onPress: () => openAuth(null) }} />
+          ) : purchases.isLoading ? (
             <View style={{ paddingHorizontal: space.gutter, gap: 10 }}>
               {[0, 1, 2].map((i) => (
                 <Skeleton key={i} height={92} radius={radius.row} />

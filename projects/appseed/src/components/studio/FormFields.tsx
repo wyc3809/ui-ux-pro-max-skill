@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { TextInput, View, type TextInputProps } from "react-native";
 import { noOutline } from "@/components/ui/SearchBar";
+import { SheetTextInput } from "@/components/ui/SheetTextInput";
 import { Txt } from "@/components/ui/Txt";
 import { useTheme } from "@/theme/ThemeProvider";
 import { font, radius } from "@/theme/tokens";
 
 /** Labelled text input whose border fades to brand colour on focus. Shared by every listing form. */
-export function Field({ label, hint, ...rest }: TextInputProps & { label: string; hint?: string }) {
+/** `inSheet` swaps in the sheet-aware input so the keyboard never covers a field inside a Sheet. */
+export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { label: string; hint?: string; inSheet?: boolean }) {
   const { c } = useTheme();
   const [focused, setFocused] = useState(false);
+  const Input = inSheet ? SheetTextInput : TextInput;
   return (
     <View style={{ gap: 6 }}>
       <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
         {label}
       </Txt>
-      <TextInput
+      <Input
         accessibilityLabel={label}
         {...rest}
         onFocus={(e) => {

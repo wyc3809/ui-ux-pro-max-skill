@@ -24,3 +24,9 @@ jest.mock("@expo/vector-icons/Ionicons", () => {
   Ionicons.font = {};
   return { __esModule: true, default: Ionicons };
 });
+jest.mock("expo-apple-authentication", () => ({
+  isAvailableAsync: jest.fn(() => Promise.resolve(false)),
+  signInAsync: jest.fn(),
+  formatFullName: jest.fn(() => ""),
+  AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+}));

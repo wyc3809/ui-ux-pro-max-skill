@@ -24,6 +24,7 @@ import { StickyCTA, type CtaPhase } from "@/components/ui/StickyCTA";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { formatCount } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
@@ -87,7 +88,7 @@ export default function PromptScreen() {
     <DetailScaffold
       title={p?.title}
       right={p ? <FavoriteButton slug={`prompt:${p.slug}`} onSurface /> : undefined}
-      bottom={p ? <StickyCTA phase={phase} price={p.price} onBuy={() => (p.price === 0 ? buy() : setCheckout(true))} onSend={() => copy(fillPrompt(p.text, values))} owned={{ label: t("promptPage.copyFilled"), icon: "copy" }} /> : undefined}
+      bottom={p ? <StickyCTA phase={phase} price={p.price} onBuy={() => requireAuth("auth.reasonBuy", () => (p.price === 0 ? buy() : setCheckout(true)))} onSend={() => copy(fillPrompt(p.text, values))} owned={{ label: t("promptPage.copyFilled"), icon: "copy" }} /> : undefined}
     >
       {!p ? (
         <Skeleton height={320} radius={radius.hero} />

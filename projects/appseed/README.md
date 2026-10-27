@@ -5,7 +5,7 @@
 
 ## 已完成
 
-> 第 22 節擴展：**新作推廣**（AI vibe coding App 展示和推薦排名）、**買斷 App**（整個 App 轉讓、報價、托管流程）、**Prompt 市集**（預覽、購買解鎖、變數填寫）。規則見 [`docs/DESIGN.md` §22](docs/DESIGN.md)。上架模板和出售 App 時可以連接 GitHub（推薦）或在網頁版上載 zip，兩者都要通過上架前檢查（§22.6）。
+> 第 22 節擴展：**新作推廣**（AI vibe coding App 展示和推薦排名）、**買斷 App**（整個 App 轉讓、報價、托管流程）、**Prompt 市集**（預覽、購買解鎖、變數填寫）。規則見 [`docs/DESIGN.md` §22](docs/DESIGN.md)。上架模板和出售 App 時可以連接 GitHub（推薦）或在網頁版上載 zip，兩者都要通過上架前檢查（§22.6）。註冊和登入支援 Apple、Google 和電郵驗證碼，需要帳戶的操作會先打開登入 Sheet，完成後自動繼續（§23）。
 
 | 範圍 | 內容 |
 |---|---|
@@ -44,7 +44,7 @@
 
 ```bash
 npm install
-npm test             # 63 個測試
+npm test             # 72 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）
@@ -56,6 +56,7 @@ npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不�
 - `@gorhom/bottom-sheet` 的 modal 在 react-native-web 上不會掛載，所以網頁版使用 `Sheet.web.tsx`（相同 API、token 和曲線）；iOS／Android 仍用 gorhom。
 - Reanimated 在網頁版的 layout animation 不支援自訂 bezier，會退回 linear；原生平台不受影響。
 - Reanimated 4.7 網頁版會在自訂起始值（`withInitialValues`／`Keyframe`）的進場動畫結束後，把元素設為 `position: absolute`，令版面重疊。所以網頁版經 `startFrom()` 改用預設動畫，原生平台照用自訂起始值。
+- 登入目前是模擬：Apple 在 iOS 會用系統的 Sign in with Apple，其他平台和 Google 是示範帳戶；電郵驗證碼固定為 123456（畫面會標示「示範模式」）。
 - GitHub 授權、repo 列表和掃描目前是模擬；真正接入需要 GitHub App 和伺服器端掃描（Edge Function）。
 - 未有後端：登入、付款、傳送到電腦、檢舉均為模擬；Maestro 流程（`e2e/maestro/`）已寫好，需要在模擬器上執行。
 - 封面為漸變佔位圖，創作者上載真實截圖後改用 `expo-image` + blurhash。

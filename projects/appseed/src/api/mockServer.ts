@@ -5,7 +5,8 @@ import { rankLaunches, toggleVote } from "@/lib/launch";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { BuyoutListing, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template } from "./types";
+import type { AuthResult, BuyoutListing, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
+import { normalizeEmail, type AuthProvider } from "@/lib/auth";
 
 /**
  * Stand-in for Supabase until the backend exists (§19). Purchase state lives
@@ -29,6 +30,23 @@ function redactPrompt(p: PromptListing, owned: boolean): PromptListing {
 }
 
 const GITHUB_KEY = "mock-server:github";
+const USERS_KEY = "mock-server:users";
+const TICKETS_KEY = "mock-server:signup-tickets";
+
+/** Demo-only: the code every email "receives" until a real email provider is connected. */
+export const DEMO_OTP = "123456";
+
+type StoredUser = User & { appleSub?: string; googleSub?: string };
+type Ticket = { provider: AuthProvider; email: string | null; name: string; appleSub?: string; googleSub?: string };
+const TAKEN_HANDLES = creators.map((c) => c.handle);
+
+function findOrTicket(match: (u: StoredUser) => boolean, t: Ticket): AuthResult {
+  const user = readJson<StoredUser[]>(USERS_KEY, []).find(match);
+  if (user) return { status: "signedIn", user };
+  const ticket = `t_${Date.now().toString(36)}`;
+  mmkv.set(TICKETS_KEY, JSON.stringify({ ...readJson<Record<string, Ticket>>(TICKETS_KEY, {}), [ticket]: t }));
+  return { status: "needsProfile", ticket, email: t.email, name: t.name };
+}
 
 const countFiles = (nodes: FileNode[]): number => nodes.reduce((n, x) => n + (x.children ? countFiles(x.children) : 1), 0);
 
@@ -117,6 +135,50 @@ export const api = {
     mmkv.set(VOTES_KEY, JSON.stringify(voted ? votes.filter((v) => v !== slug) : [slug, ...votes]));
     const base = launches.find((x) => x.slug === slug)?.upvotes ?? 0;
     return wait(toggleVote(base + (voted ? 1 : 0), voted), 120);
+  },
+  /** Supabase signInWithIdToken({ provider: "apple" }) in the real app. */
+  signInWithApple: async (c: { sub: string; email: string | null; name: string | null }) => {
+    await wait(null, 500);
+    return findOrTicket((u) => u.appleSub === c.sub, { provider: "apple", email: c.email, name: c.name ?? "", appleSub: c.sub });
+  },
+  /** Google One Tap / OAuth in the real app; demo account here. */
+  signInWithGoogle: async () => {
+    await wait(null, 900);
+    return findOrTicket((u) => u.googleSub === "demo-google-001", { provider: "google", email: "jamie.lee@gmail.com", name: "Jamie Lee", googleSub: "demo-google-001" });
+  },
+  /** Supabase signInWithOtp({ email }): sends a 6-digit code (and a magic link). */
+  sendEmailCode: async (email: string) => {
+    await wait(null, 700);
+    return { email: normalizeEmail(email), sentAt: Date.now() };
+  },
+  verifyEmailCode: async ({ email, code }: { email: string; code: string }) => {
+    await wait(null, 700);
+    if (code !== DEMO_OTP) throw new Error("invalidCode");
+    const e = normalizeEmail(email);
+    return findOrTicket((u) => u.provider === "email" && u.email === e, { provider: "email", email: e, name: "" });
+  },
+  checkHandle: async (handle: string) => {
+    await wait(null, 350);
+    const taken = [...TAKEN_HANDLES, ...readJson<StoredUser[]>(USERS_KEY, []).map((u) => u.handle)];
+    return { handle, available: !taken.includes(handle) };
+  },
+  completeProfile: async ({ ticket, name, handle }: { ticket: string; name: string; handle: string }) => {
+    await wait(null, 800);
+    const tickets = readJson<Record<string, Ticket>>(TICKETS_KEY, {});
+    const t = tickets[ticket];
+    if (!t) throw new Error("ticketExpired");
+    const user: StoredUser = { id: `u_${Date.now().toString(36)}`, name: name.trim(), handle, email: t.email, provider: t.provider, createdAt: new Date().toISOString().slice(0, 10), appleSub: t.appleSub, googleSub: t.googleSub };
+    mmkv.set(USERS_KEY, JSON.stringify([...readJson<StoredUser[]>(USERS_KEY, []), user]));
+    delete tickets[ticket];
+    mmkv.set(TICKETS_KEY, JSON.stringify(tickets));
+    const { appleSub: _a, googleSub: _g, ...publicUser } = user;
+    return publicUser as User;
+  },
+  /** App Store 5.1.1(v): accounts must be deletable in the app; also revokes the Apple token server-side. */
+  deleteAccount: async (id: string) => {
+    await wait(null, 900);
+    mmkv.set(USERS_KEY, JSON.stringify(readJson<StoredUser[]>(USERS_KEY, []).filter((u) => u.id !== id)));
+    return { ok: true as const };
   },
   /** GitHub App installation: read-only access to repos the creator picks. */
   githubAccount: () => wait<{ login: string } | null>(mmkv.getString(GITHUB_KEY) ? { login: githubLogin } : null, 200),

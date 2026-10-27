@@ -596,3 +596,18 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - 檢查中每項以「呼吸」狀態顯示，結果到達後逐項變成通過／建議／不通過（間隔 180ms），結論在全部顯示後才出現。
 - 通過後自動填入技術棧（由 `package.json` 偵測），並顯示買家會看到的檔案樹（只有檔名）。
 - 「我的」顯示 GitHub 連接狀態，中斷連接用 ConfirmSheet；已上架的模板不受影響。
+
+---
+
+## 23. 註冊與登入
+
+| 項目 | 規格 |
+|---|---|
+| 原則 | 未登入可以瀏覽和搜尋；收藏、購買、報價、推薦、上架才要求登入（§11.2）。登入用 Sheet，完成後**自動繼續原本的操作**（`requireAuth(reason, action)`，有測試） |
+| 方式 | 以 Apple 繼續、以 Google 繼續、電郵驗證碼。提供 Google 就必須同時提供 Sign in with Apple（App Store 4.8） |
+| Apple | iOS 用系統的 Sign in with Apple（`expo-apple-authentication`，`ios.usesAppleSignIn`）；按鈕跟 Apple HIG：淺色模式黑底白字、深色模式白底黑字。Apple 只在第一次登入提供名稱和電郵，電郵可能是「隱藏電郵」轉發地址，要照常使用並標示 |
+| 電郵 | 6 位數字驗證碼（同時寄出 magic link）；支援貼上和 iOS 一次性密碼自動填入；錯誤時格子變紅並搖動；30 秒後才可重新寄出 |
+| 新帳戶 | 名稱 + 用戶名。用戶名 3–20 字元、小寫英文開頭、只用 a-z 0-9 - _、保留字不可用；即時檢查是否已被使用。建議用戶名由名稱或電郵產生，**不使用 Apple 隱藏電郵**（`lib/auth.ts`，有測試） |
+| 完成 | 勾號和擴散圓環動畫，顯示「歡迎／歡迎回來」，Sheet 關閉後繼續原本的操作 |
+| 我的 | 已登入顯示頭像、名稱、@用戶名、登入方式；登出和**刪除帳戶**都用 ConfirmSheet（App Store 5.1.1(v) 要求 App 內可刪除帳戶；刪除時伺服器同時撤銷 Apple token） |
+| 後端 | Supabase Auth：Apple 用 `signInWithIdToken`、Google 用 OAuth、電郵用 `signInWithOtp`；token 存安全儲存，App 的 session store 只驅動介面 |

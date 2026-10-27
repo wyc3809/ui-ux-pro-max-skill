@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { NumberRoll } from "@/components/ui/NumberRoll";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { useT } from "@/i18n";
+import { requireAuth } from "@/store/authGate";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
@@ -23,11 +24,13 @@ export function UpvoteButton({ count, voted, onToggle, name, size = "md" }: { co
   const lg = size === "lg";
   return (
     <PressableScale
-      onPress={() => {
-        haptic(voted ? "selection" : "success");
-        if (!voted) setBurst((n) => n + 1);
-        onToggle();
-      }}
+      onPress={() =>
+        requireAuth("auth.reasonUpvote", () => {
+          haptic(voted ? "selection" : "success");
+          if (!voted) setBurst((n) => n + 1);
+          onToggle();
+        })
+      }
       scaleTo={0.92}
       accessibilityLabel={t("a11y.upvote", { name, n: count })}
       accessibilityState={{ selected: voted }}

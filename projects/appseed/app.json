@@ -10,7 +10,8 @@
     "backgroundColor": "#f5f6f3",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.appseed.mobile"
+      "bundleIdentifier": "app.appseed.mobile",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "app.appseed.mobile",
@@ -33,7 +34,8 @@
       "expo-font",
       "expo-localization",
       "expo-system-ui",
-      "expo-asset"
+      "expo-asset",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": false

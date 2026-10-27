@@ -143,3 +143,15 @@ export type ScanReport = { checks: import("@/lib/sourceScan").Check[]; stack: st
 export type SourceChoice =
   | { kind: "github"; repo: string; branch: string; report: ScanReport | null }
   | { kind: "zip"; fileName: string | null; report: ScanReport | null };
+
+export type User = {
+  id: string;
+  name: string;
+  handle: string;
+  email: string | null;
+  provider: import("@/lib/auth").AuthProvider;
+  createdAt: string;
+};
+
+/** Sign-in either lands a known user, or hands back a ticket to finish a new account's profile. */
+export type AuthResult = { status: "signedIn"; user: User } | { status: "needsProfile"; ticket: string; email: string | null; name: string };
