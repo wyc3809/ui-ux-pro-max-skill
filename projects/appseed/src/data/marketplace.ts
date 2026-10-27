@@ -143,7 +143,8 @@ export const buyouts: BuyoutListing[] = [
     offers: 3,
     revenueSeries: series(3800, 0.04),
     cover: { from: "#15803d", to: "#facc15", icon: "sprout" },
-    verified: true,
+    verifiedVia: ["appStoreConnect", "playConsole", "revenueCat"],
+    transfer: { signInWithApple: true, playAppSigning: true, domain: true, social: false },
   },
   {
     slug: "menu-snap-hk",
@@ -165,7 +166,8 @@ export const buyouts: BuyoutListing[] = [
     offers: 5,
     revenueSeries: series(700, 0.08),
     cover: { from: "#c2410c", to: "#fde047", icon: "camera" },
-    verified: true,
+    verifiedVia: ["appStoreConnect", "stripe"],
+    transfer: { signInWithApple: false, playAppSigning: true, domain: false, social: true },
   },
   {
     slug: "tiny-invoice",
@@ -187,7 +189,8 @@ export const buyouts: BuyoutListing[] = [
     offers: 7,
     revenueSeries: series(2200, 0.035),
     cover: { from: "#7c3aed", to: "#c4b5fd", icon: "receipt" },
-    verified: true,
+    verifiedVia: ["stripe", "appStoreConnect"],
+    transfer: { signInWithApple: true, playAppSigning: false, domain: true, social: false },
   },
   {
     slug: "pixel-quiz",
@@ -209,7 +212,8 @@ export const buyouts: BuyoutListing[] = [
     offers: 1,
     revenueSeries: Array.from({ length: 12 }, () => 0),
     cover: { from: "#a16207", to: "#f97316", icon: "game" },
-    verified: false,
+    verifiedVia: [],
+    transfer: { signInWithApple: false, playAppSigning: true, domain: false, social: false },
   },
 ];
 

@@ -37,12 +37,19 @@ import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
 import { slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { nested, radius } from "@/theme/tokens";
+import { gap, nested, radius } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
+import { HandoverList, VerifiedLine } from "@/components/market/Transfer";
+import { handoverItems } from "@/lib/transfer";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
 
 const STEP_KEYS = { agree: "buyout.stepAgree", deposit: "buyout.stepDeposit", transfer: "buyout.stepTransfer", verify: "buyout.stepVerify", release: "buyout.stepRelease" } as const;
 const hk = (n: number) => formatPrice(n, "HKD", "HK$0");
+/** Names the backend and payment services from the stack for the checklist copy. */
+const services = (stack: string[]) => ({
+  backend: stack.filter((s) => /supabase|firebase|edge functions/i.test(s)).join("、"),
+  payments: stack.filter((s) => /stripe|revenuecat/i.test(s)).join("、"),
+});
 
 export default function BuyoutScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -103,9 +110,7 @@ export default function BuyoutScreen() {
               <View style={{ paddingHorizontal: 8, gap: 8 }}>
                 <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                   <TonePill label={t(`buyout.${b.status}`)} tone={buyoutTone(b.status)} />
-                  <Txt variant="caption" tone={b.verified ? "live" : "fgSubtle"}>
-                    {b.verified ? t("buyout.verified") : t("buyout.unverified")}
-                  </Txt>
+                  {b.monthlyRevenue > 0 && <VerifiedLine sources={b.verifiedVia} />}
                 </View>
                 <Txt variant="heroTitle" accessibilityRole="header">
                   {b.name}
@@ -163,6 +168,15 @@ export default function BuyoutScreen() {
               <View style={{ paddingTop: 8 }}>
                 <StackChips stack={b.stack} />
               </View>
+            </Card>
+          </Section>
+
+          <Section title={t("transfer.title")} index={2} inset={false}>
+            <Card style={{ gap: gap.lg }}>
+              <Txt variant="caption" tone="fgMuted">
+                {t("transfer.intro")}
+              </Txt>
+              <HandoverList items={handoverItems({ platforms: b.platforms, stack: b.stack, ...b.transfer })} services={services(b.stack)} />
             </Card>
           </Section>
 

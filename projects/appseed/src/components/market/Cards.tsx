@@ -114,7 +114,7 @@ export function BuyoutCard({ b, query = "" }: { b: BuyoutListing; query?: string
           </Txt>
           <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
             <TonePill label={t(`buyout.${b.status}`)} tone={buyoutTone(b.status)} />
-            {b.verified && (
+            {b.verifiedVia.length > 0 && (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
                 <Icon name="shield" size={13} color={c.live} active enter={false} />
                 <Txt variant="caption" tone="live">

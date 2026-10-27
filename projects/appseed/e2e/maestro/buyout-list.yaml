@@ -1,0 +1,27 @@
+# Seller lists an app for buyout: platforms, read-only revenue proof, store transfer checks (§22.2)
+appId: app.appseed.mobile
+---
+- launchApp
+- tapOn: "創作"
+- tapOn: "你想上架甚麼？"
+- tapOn: "出售整個 App"
+- tapOn: "App 名稱"
+- inputText: "Focus Fern"
+- tapOn: "一句話簡介"
+- inputText: "專注計時加植物收集"
+- tapOn: "iOS"
+- tapOn: "下一步"
+- tapOn: "每月收入.*"
+- inputText: "4200"
+- tapOn: "每月活躍用戶.*"
+- inputText: "1800"
+- tapOn: "下一步"
+- assertVisible: "請先填妥必填欄位"
+- tapOn: "App Store Connect（銷售報告）"
+- tapOn: "下一步"
+- assertVisible: "未有正式上架的版本，商店不接受轉移。"
+- tapOn: "已正式上架最少一個版本"
+- tapOn: "使用 Sign in with Apple"
+- assertVisible: "使用 Sign in with Apple：轉移後須遷移用戶。"
+- tapOn: "下一步"
+- assertVisible: "原始碼來源"

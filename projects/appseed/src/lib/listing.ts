@@ -1,9 +1,26 @@
-import type { SourceChoice } from "@/api/types";
+import type { Platform, SourceChoice } from "@/api/types";
 import { promptVariables } from "./prompt";
+import { isTransferReady, needsVerification, type StoreFacts, type VerifySource } from "./transfer";
 import { sourceReady } from "./upload";
 
 export type PromptDraft = { step: number; title: string; summary: string; tool: string | null; text: string; previewLines: number; tier: number | null };
-export type BuyoutDraft = { step: number; name: string; tagline: string; monthlyRevenue: string; mau: string; source: SourceChoice | null; included: string[]; reason: string; asking: string };
+export type BuyoutDraft = {
+  step: number;
+  name: string;
+  tagline: string;
+  platforms: Platform[];
+  monthlyRevenue: string;
+  mau: string;
+  verifyVia: VerifySource[];
+  facts: Omit<StoreFacts, "platforms">;
+  source: SourceChoice | null;
+  included: string[];
+  reason: string;
+  asking: string;
+};
+
+/** Buyout wizard steps, in order. */
+export const BUYOUT_STEPS = ["info", "metrics", "transfer", "source", "included", "asking"] as const;
 export type LaunchDraft = { step: number; name: string; tagline: string; aiTools: string[]; buildDays: string; link: string; boost: boolean };
 
 const num = (s: string) => (/^\d+$/.test(s.trim()) ? Number(s.trim()) : NaN);
@@ -30,18 +47,24 @@ export function promptDraftVariables(d: PromptDraft): string[] {
 
 export function missingBuyoutFields(d: BuyoutDraft, step: number): string[] {
   const miss: string[] = [];
-  if (step === 0) {
+  const s = BUYOUT_STEPS[step];
+  if (s === "info") {
     if (!d.name.trim()) miss.push("name");
     if (!d.tagline.trim()) miss.push("tagline");
+    if (d.platforms.length === 0) miss.push("platforms");
   }
-  if (step === 1) {
+  if (s === "metrics") {
     if (Number.isNaN(num(d.monthlyRevenue))) miss.push("monthlyRevenue");
     if (Number.isNaN(num(d.mau))) miss.push("mau");
+    // Claimed revenue must come with read access the platform can check, never a screenshot.
+    else if (needsVerification(num(d.monthlyRevenue) || 0, d.verifyVia)) miss.push("verifyVia");
   }
+  // Store blockers (unreleased, in review, TestFlight on) stop the listing: the stores would refuse the transfer.
+  if (s === "transfer" && !isTransferReady({ ...d.facts, platforms: d.platforms })) miss.push("transfer");
   // A buyout transfers the code itself, so it goes through the same scan as a template.
-  if (step === 2 && !sourceReady(d.source)) miss.push("source");
-  if (step === 3 && d.included.length === 0) miss.push("included");
-  if (step === 4) {
+  if (s === "source" && !sourceReady(d.source)) miss.push("source");
+  if (s === "included" && d.included.length === 0) miss.push("included");
+  if (s === "asking") {
     const a = num(d.asking);
     if (Number.isNaN(a) || a < 1000) miss.push("asking");
   }

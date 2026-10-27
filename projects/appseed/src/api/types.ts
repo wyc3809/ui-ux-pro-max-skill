@@ -1,3 +1,4 @@
+import type { VerifySource } from "@/lib/transfer";
 import type { LicenseKind } from "@/lib/license";
 import type { TemplateStatus } from "@/lib/status";
 
@@ -110,7 +111,10 @@ export type BuyoutListing = {
   offers: number;
   revenueSeries: number[];
   cover: { from: string; to: string; icon: CoverIcon };
-  verified: boolean;
+  /** Read-only sources the revenue was checked against; empty = unverified (§22.2). */
+  verifiedVia: VerifySource[];
+  /** Store transfer facts that shape the hand-over checklist. */
+  transfer: { signInWithApple: boolean; playAppSigning: boolean; domain: boolean; social: boolean };
 };
 
 /** "新作推廣": a vibe-coded app its maker is promoting. */
