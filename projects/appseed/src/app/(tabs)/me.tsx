@@ -99,7 +99,7 @@ export default function MeScreen() {
               <RowDivider />
               <ListRow icon="file" title={t("me.terms")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon="info" title={t("me.about")} value="0.1.0" />
+              <ListRow icon="info" title={t("me.about")} detail={t("brand.tagline")} value="0.1.0" />
             </Card>
             {user ? (
               <Card padded={false}>

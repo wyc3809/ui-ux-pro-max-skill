@@ -1,5 +1,7 @@
 /** Source dictionary. UI copy is written Chinese (書面語) — enforced by __tests__/i18n.test.ts. */
 export const zhHant = {
+  /** Product name and subtitle are the same in every language. */
+  brand: { name: "AppSeed", tagline: "Vibe coding incubator" },
   tab: { explore: "探索", library: "已購", search: "搜尋", studio: "創作", me: "我的" },
   common: {
     free: "免費",

@@ -20,7 +20,7 @@ js = js.replace(/"(\/assets\/[^"]+)"/g, (m, p) => {
   return JSON.stringify(`data:${mime[path.extname(p)]};base64,${fs.readFileSync(file).toString("base64")}`);
 });
 js = js.replace(/<\/script/gi, "<\\/script");
-const html = `<title>AppSeed</title>
+const html = `<title>AppSeed · Vibe coding incubator</title>
 <style>
   :root { --bg: #f5f5f7; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000000; color-scheme: dark } }

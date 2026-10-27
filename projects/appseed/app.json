@@ -2,6 +2,7 @@
   "expo": {
     "name": "AppSeed",
     "slug": "appseed",
+    "description": "AppSeed, the vibe coding incubator: runnable app source, build stories, prompts, launches and whole app buyouts.",
     "scheme": "appseed",
     "version": "0.1.0",
     "orientation": "portrait",

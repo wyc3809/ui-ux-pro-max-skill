@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 import { useSettings } from "@/store/settings";
+import { LaunchMark } from "@/components/shell/LaunchMark";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { PriceTag } from "../PriceTag";
 import { RatingStars } from "../RatingStars";
@@ -37,5 +38,16 @@ describe("RatingStars", () => {
   it("shows 'new' with fewer than 3 reviews", async () => {
     await wrap(<RatingStars value={5} count={2} />);
     expect(screen.getByText("新上架")).toBeTruthy();
+  });
+});
+
+describe("LaunchMark", () => {
+  it("shows the product name and its subtitle in every language", async () => {
+    for (const locale of ["zh-Hant", "en"] as const) {
+      useSettings.setState({ locale });
+      await wrap(<LaunchMark />);
+      expect(screen.getByText("AppSeed")).toBeTruthy();
+      expect(screen.getByText("Vibe coding incubator")).toBeTruthy();
+    }
   });
 });

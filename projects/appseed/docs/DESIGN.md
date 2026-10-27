@@ -2,7 +2,7 @@
 
 > 用途：放在新 repo 的 `docs/DESIGN.md`，並在 `CLAUDE.md` 寫明「所有 UI 必須跟從 docs/DESIGN.md」。
 > 手感、數值和規則沿用 WorthBook 及「香港公司查冊 App」藍圖（同一位作者），以 **React Native + Expo** 實作，一份程式碼出 iOS、Android 和網頁版。
-> 產品（暫名 **AppSeed**，可換）：創作者上載**可運行的 App 原始碼**和**製作經歷**（用過的 prompt、架構決定、踩過的坑、上架步驟），其他人付費取得，用作自己 App 的起點，再用 Claude Code 等 AI 工具修改。
+> 產品名稱 **AppSeed**，副標 **Vibe coding incubator**（所有語言相同，見 i18n `brand`）：創作者上載**可運行的 App 原始碼**和**製作經歷**（用過的 prompt、架構決定、踩過的坑、上架步驟），其他人付費取得，用作自己 App 的起點，再用 Claude Code 等 AI 工具修改。
 
 ---
 

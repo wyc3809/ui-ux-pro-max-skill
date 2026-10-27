@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Product
-AppSeed: a marketplace for runnable app source code plus "build stories" (prompts,
+AppSeed (subtitle "Vibe coding incubator", same in every language via i18n `brand`): a marketplace for runnable app source code plus "build stories" (prompts,
 architecture decisions, pitfalls, launch steps). React Native + Expo for iOS, Android
 and Web. Buyers browse and purchase on mobile, then send the code to their computer.
 Creators upload templates (web recommended), pass review, and get paid via Stripe Connect.

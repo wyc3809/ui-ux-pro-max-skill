@@ -2,6 +2,8 @@ import type { Dict } from "./zh-Hant";
 
 /** Typed against the zh-Hant shape: a missing key fails `tsc`. */
 export const en: Dict = {
+  /** Product name and subtitle are the same in every language. */
+  brand: { name: "AppSeed", tagline: "Vibe coding incubator" },
   tab: { explore: "Explore", library: "Library", search: "Search", studio: "Studio", me: "Me" },
   common: {
     free: "Free",
