@@ -22,7 +22,7 @@ export function RatingStars({ value, count, size = 13, compact }: { value: numbe
       {compact ? (
         <Icon name="star" size={size} color={c.rating} active />
       ) : (
-        <View style={{ flexDirection: "row", gap: 1 }}>
+        <View style={{ flexDirection: "row", gap: 2 }}>
           {starStates(value).map((s, i) =>
             // Stars fill in one after another, left to right.
             s === "half" ? (

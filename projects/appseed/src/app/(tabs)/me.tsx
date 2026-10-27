@@ -179,7 +179,7 @@ function AccountHeader({ user }: { user: User }) {
   const t = useT();
   const via = user.provider === "apple" ? t("auth.viaApple") : user.provider === "google" ? t("auth.viaGoogle") : t("auth.viaEmail");
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: 16 }}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 16, padding: 16 }}>
       <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
         <Txt tone="accent" style={{ fontSize: 24, fontFamily: font.bold }}>
           {user.name.slice(0, 1).toUpperCase()}
@@ -190,7 +190,7 @@ function AccountHeader({ user }: { user: User }) {
         <Txt variant="caption" tone="fgSubtle">
           @{user.handle} · {t("auth.memberSince", { date: formatDate(user.createdAt, t.locale) })}
         </Txt>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4, alignSelf: "flex-start", paddingHorizontal: 8, height: 22, borderRadius: radius.chip, backgroundColor: c.bgMuted }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4, alignSelf: "flex-start", paddingHorizontal: 8, height: 22, borderRadius: radius.chip, backgroundColor: c.bgMuted }}>
           <Icon name={user.provider === "email" ? "mail" : "shield"} size={12} color={c.fgMuted} active />
           <Txt variant="caption" tone="fgMuted">
             {via}

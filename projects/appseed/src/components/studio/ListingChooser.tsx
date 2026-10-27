@@ -33,9 +33,9 @@ export function ListingChooser({ open, onClose }: { open: boolean; onClose: () =
             hapticKind="tap"
             accessibilityLabel={t(o.title)}
             scaleTo={0.98}
-            style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: 14, borderRadius: radius.row, backgroundColor: c.bgMuted }}
+            style={{ flexDirection: "row", alignItems: "center", gap: 16, padding: 16, borderRadius: radius.row, backgroundColor: c.bgMuted }}
           >
-            <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
               <Icon name={o.icon} size={22} color={c.accent} active enterDelay={120 + i * 70} />
             </View>
             <View style={{ flex: 1, gap: 2 }}>

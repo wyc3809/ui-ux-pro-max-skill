@@ -40,7 +40,7 @@ export function TonePill({ label, tone }: { label: string; tone: "live" | "pendi
   const { c } = useTheme();
   const { fg, bg } = toneColors(tone, c);
   return (
-    <Animated.View entering={popIn(0)} accessible accessibilityLabel={label} style={{ alignSelf: "flex-start", paddingHorizontal: 9, height: 22, justifyContent: "center", borderRadius: radius.chip, backgroundColor: bg }}>
+    <Animated.View entering={popIn(0)} accessible accessibilityLabel={label} style={{ alignSelf: "flex-start", paddingHorizontal: 8, height: 22, justifyContent: "center", borderRadius: radius.chip, backgroundColor: bg }}>
       <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: fg }}>{label}</Txt>
     </Animated.View>
   );
@@ -59,7 +59,7 @@ export function PromptCard({ p, width }: { p: PromptListing; width?: number }) {
         <Txt variant="bodyStrong" numberOfLines={2}>
           {p.title}
         </Txt>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <Icon name="terminal" size={13} color={c.fgSubtle} enter={false} />
           <Txt variant="caption" tone="fgSubtle" numberOfLines={1}>
             {p.tool}
@@ -112,10 +112,10 @@ export function BuyoutCard({ b, query = "" }: { b: BuyoutListing; query?: string
           <Txt variant="caption" tone="fgMuted" numberOfLines={2}>
             {b.tagline}
           </Txt>
-          <View style={{ flexDirection: "row", gap: 6, alignItems: "center" }}>
+          <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
             <TonePill label={t(`buyout.${b.status}`)} tone={buyoutTone(b.status)} />
             {b.verified && (
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
                 <Icon name="shield" size={13} color={c.live} active enter={false} />
                 <Txt variant="caption" tone="live">
                   {t("buyout.verified")}
@@ -171,8 +171,8 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
         </Txt>
       )}
       <Cover t={l} style={{ width: 56, aspectRatio: 1 }} rounded={nested(radius.row, gap.sm)} />
-      <View style={{ flex: 1, gap: 3 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <View style={{ flex: 1, gap: 4 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <View style={{ flexShrink: 1 }}>
             <Hl text={l.name} query={query} />
           </View>

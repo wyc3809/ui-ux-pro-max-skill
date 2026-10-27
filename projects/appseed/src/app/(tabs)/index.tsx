@@ -47,7 +47,7 @@ export default function Explore() {
   return (
     <TabScene index={0}>
       <LargeTitleScreen title={t("explore.title")} right={<HeaderButton icon="settings" motion="spin" label={t("a11y.settings")} onPress={() => router.navigate("/me")} />} onRefresh={refetch}>
-        <Reveal style={{ paddingHorizontal: space.gutter, gap: 14 }}>
+        <Reveal style={{ paddingHorizontal: space.gutter, gap: 16 }}>
           <SearchBarButton placeholder={t("explore.searchPlaceholder")} label={t("a11y.search")} onPress={() => router.push("/search")} />
           <SegmentedControl value={hub} onChange={setHub} options={HUBS.map((h) => ({ value: h, label: t(`hub.${h}`) }))} />
         </Reveal>
@@ -72,14 +72,14 @@ function LaunchesFeed() {
   const top = data.find((l) => !l.boosted);
   const rest = data.filter((l) => l !== top);
   return (
-    <View style={{ gap: 20, paddingTop: 18 }}>
+    <View style={{ gap: 24, paddingTop: 16 }}>
       {top && (
         <Section eyebrow={t("feed.launchesEyebrow")} title={t("feed.launchesTitle")} index={0}>
           <LaunchHero l={top} />
         </Section>
       )}
       <Section index={1}>
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 12 }}>
           {rest.map((l) => (
             // Sponsored launches carry no rank number; organic ranks count only organic launches.
             <LaunchRow key={l.slug} l={l} rank={l.boosted ? undefined : rest.filter((x) => !x.boosted).indexOf(l) + (top ? 2 : 1)} />
@@ -126,7 +126,7 @@ function LaunchHero({ l }: { l: Launch & { voted: boolean } }) {
             {l.tagline}
           </Txt>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 4, gap: 12 }}>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, flex: 1 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, flex: 1 }}>
               {l.aiTools.map((tool, i) => (
                 <Tag key={tool} label={tool} index={i} />
               ))}
@@ -147,7 +147,7 @@ function PromptsFeed() {
   const colW = (Math.min(width, 1120) - space.gutter * 2 - 12) / 2;
   if (!data) return <ListSkeleton />;
   return (
-    <View style={{ paddingTop: 18 }}>
+    <View style={{ paddingTop: 16 }}>
       <Section eyebrow={t("feed.promptsEyebrow")} title={t("feed.promptsTitle")} index={0}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, paddingHorizontal: space.gutter }}>
           {[...data]
@@ -169,7 +169,7 @@ function BuyoutsFeed() {
   // Sold listings stay visible (social proof) but sink to the bottom.
   const sorted = [...data].sort((a, b) => Number(a.status === "sold") - Number(b.status === "sold"));
   return (
-    <View style={{ paddingTop: 18, gap: 16 }}>
+    <View style={{ paddingTop: 16, gap: 16 }}>
       <Section eyebrow={t("feed.buyoutsEyebrow")} title={t("feed.buyoutsTitle")} index={0}>
         <View style={{ gap: 12 }}>
           {sorted.map((b) => (
@@ -177,7 +177,7 @@ function BuyoutsFeed() {
           ))}
         </View>
       </Section>
-      <Reveal index={1} style={{ marginHorizontal: space.gutter, flexDirection: "row", gap: 10, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+      <Reveal index={1} style={{ marginHorizontal: space.gutter, flexDirection: "row", gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
         <Icon name="shield" size={18} color={c.pending} active />
         <Txt style={{ flex: 1 }}>{t("buyout.escrowNote")}</Txt>
       </Reveal>
@@ -187,7 +187,7 @@ function BuyoutsFeed() {
 
 function ListSkeleton() {
   return (
-    <View style={{ gap: 10, paddingHorizontal: space.gutter, paddingTop: 18 }}>
+    <View style={{ gap: 12, paddingHorizontal: space.gutter, paddingTop: 16 }}>
       {[0, 1, 2, 3].map((i) => (
         <Skeleton key={i} height={84} radius={radius.row} />
       ))}
@@ -210,7 +210,7 @@ function TemplatesFeed() {
 
   return (
     <View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: space.gutter, paddingVertical: 14 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: space.gutter, paddingVertical: 16 }}>
         {CATEGORIES.map((k) => (
           <Chip key={k} label={t(`category.${k}`)} selected={cat === k} onPress={() => setCat(k)} />
         ))}
@@ -219,7 +219,7 @@ function TemplatesFeed() {
         <ExploreSkeleton cardW={cardW} />
       ) : (
         // Re-keying on category cross-fades the whole feed instead of hard-swapping it.
-        <Animated.View key={cat} entering={crossfadeIn} style={{ gap: 28, paddingTop: 4 }}>
+        <Animated.View key={cat} entering={crossfadeIn} style={{ gap: 32, paddingTop: 4 }}>
           {featured.length > 0 && (
             <Section eyebrow={t("explore.eyebrowFeatured")} title={t("explore.featured")} index={0}>
               <FeaturedCarousel items={featured} />
@@ -263,7 +263,7 @@ function FeaturedCarousel({ items }: { items: Template[] }) {
       showsHorizontalScrollIndicator={false}
       decelerationRate="fast"
       snapToInterval={w + 12}
-      contentContainerStyle={{ gap: 12, paddingHorizontal: space.gutter, paddingBottom: 14 }}
+      contentContainerStyle={{ gap: 12, paddingHorizontal: space.gutter, paddingBottom: 16 }}
     >
       {items.map((item, i) => (
         <FeaturedCard key={item.slug} item={item} i={i} w={w} x={x} />
@@ -304,7 +304,7 @@ function FeaturedCard({ item, i, w, x }: { item: Template; i: number; w: number;
 function ExploreSkeleton({ cardW }: { cardW: number }) {
   const { c, card } = useTheme();
   return (
-    <View style={{ gap: 28, paddingHorizontal: space.gutter, paddingTop: 4 }}>
+    <View style={{ gap: 32, paddingHorizontal: space.gutter, paddingTop: 4 }}>
       <View style={{ gap: 12 }}>
         <Skeleton width={120} height={14} />
         <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 12 }, card]}>
@@ -315,7 +315,7 @@ function ExploreSkeleton({ cardW }: { cardW: number }) {
       </View>
       <View style={{ flexDirection: "row", gap: 12 }}>
         {[0, 1].map((i) => (
-          <View key={i} style={[{ width: cardW, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 10, gap: 10 }, card]}>
+          <View key={i} style={[{ width: cardW, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 12, gap: 12 }, card]}>
             <Skeleton height={cardW / 1.6 - 12} radius={radius.media} />
             <Skeleton width="80%" height={14} />
             <Skeleton width="50%" height={12} />

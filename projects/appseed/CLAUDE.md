@@ -11,7 +11,11 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   src/theme/tokens.ts; reuse components in src/components/ui and src/components/template.
 - Motion: layout presets live in src/theme/animations.ts, direction/stagger rules in
   src/lib/motion.ts. Every animation passes `ReduceMotion.System`.
-- No SVG anywhere (no react-native-svg / lucide). Icons are the Ionicons font via
+- Apple-style system (docs/DESIGN.md §25): Geist only (max weight 700), Tailwind type steps, spacing only
+  from the `gap` scale (a test scans source), radii on the Tailwind steps with `nested(outer, gap)` for
+  inner corners, dark surfaces #000/#181818/#1F1F1F/#272727. Floating surfaces use `Glass`; section
+  entrances use `Reveal`; cards that open a detail page use `ZoomLink` + `ZoomTarget`.
+- No SVG anywhere (no react-native-svg / lucide). Icons are the Phosphor font via
   src/components/ui/Icon.tsx, which animates every glyph (outline↔filled morph, enter pop,
   replayed motion on state change). Loading = `Spinner`, never ActivityIndicator.
   A test fails if an SVG dependency or import comes back.

@@ -46,7 +46,7 @@ export default function NewLaunch() {
       {d.step === 1 && (
         <>
           <Field label={t("form.link")} value={d.link} onChangeText={(link) => patch({ link })} placeholder="https://" autoCapitalize="none" keyboardType="url" />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
             <View style={{ flex: 1, gap: 4 }}>
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                 <Txt variant="bodyStrong">{t("form.boost")}</Txt>

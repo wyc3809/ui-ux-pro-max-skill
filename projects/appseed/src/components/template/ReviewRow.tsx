@@ -16,8 +16,8 @@ export function ReviewRow({ r }: { r: Review }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   return (
-    <Animated.View layout={reorder} style={{ gap: 8, paddingVertical: 14 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+    <Animated.View layout={reorder} style={{ gap: 8, paddingVertical: 16 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
         <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
           <Txt tone="accent" style={{ fontFamily: font.semibold }}>{r.author[0]}</Txt>
         </View>

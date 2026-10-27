@@ -102,7 +102,7 @@ export default function LibraryScreen() {
           {!user ? (
             <EmptyState icon="user" title={t("auth.title")} body={t("me.signIn")} action={{ label: t("auth.title"), onPress: () => openAuth(null) }} />
           ) : purchases.isLoading ? (
-            <View style={{ paddingHorizontal: space.gutter, gap: 10 }}>
+            <View style={{ paddingHorizontal: space.gutter, gap: 12 }}>
               {[0, 1, 2].map((i) => (
                 <Skeleton key={i} height={92} radius={radius.row} />
               ))}
@@ -110,9 +110,9 @@ export default function LibraryScreen() {
           ) : items.length === 0 ? (
             <EmptyState icon={empty[seg].icon} title={empty[seg].title} body={empty[seg].body} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
           ) : (
-            <View style={{ gap: 10 }}>
+            <View style={{ gap: 12 }}>
               {items.map((x) => (
-                <Animated.View key={x.key} entering={animateRows ? rowIn : undefined} exiting={rowOut} layout={reorder} style={{ gap: 6 }}>
+                <Animated.View key={x.key} entering={animateRows ? rowIn : undefined} exiting={rowOut} layout={reorder} style={{ gap: 8 }}>
                   {x.kind === "template" && (
                     <>
                       <TemplateRow t={x.t} trailing={seg === "owned" && x.t.versions.length > 1 ? <UpdateBadge /> : undefined} />
@@ -168,7 +168,7 @@ function MiniAction({ icon, label, onPress }: { icon: IconName; label: string; o
         setTaps((n) => n + 1);
         onPress();
       }}
-      hapticKind="selection" style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 40, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
+      hapticKind="selection" style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 40, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
       <Icon name={icon} size={16} color={c.fg} motion="bounce" trigger={taps} />
       <Txt variant="caption" style={{ fontFamily: font.semibold }}>
         {label}

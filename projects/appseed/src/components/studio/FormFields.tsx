@@ -13,7 +13,7 @@ export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { labe
   const [focused, setFocused] = useState(false);
   const Input = inSheet ? SheetTextInput : TextInput;
   return (
-    <View style={{ gap: 6 }}>
+    <View style={{ gap: 8 }}>
       <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
         {label}
       </Txt>
@@ -32,9 +32,9 @@ export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { labe
         maxFontSizeMultiplier={1.4}
         style={{
           minHeight: rest.multiline ? 96 : 48,
-          paddingHorizontal: 14,
+          paddingHorizontal: 16,
           paddingVertical: 12,
-          borderRadius: radius.control + 2,
+          borderRadius: radius.control,
           backgroundColor: c.bgMuted,
           borderWidth: 1.5,
           borderColor: focused ? c.accent : "transparent",

@@ -24,7 +24,7 @@ export function ListRow({ icon, title, detail, value, trailing, onPress, danger,
   const body = (
     <View style={{ minHeight: hit + 8, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: space.rowPadX, paddingVertical: space.rowPadY }}>
       {icon ? (
-        <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: danger ? c.dangerSoft : c.bgMuted, alignItems: "center", justifyContent: "center" }}>
+        <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: danger ? c.dangerSoft : c.bgMuted, alignItems: "center", justifyContent: "center" }}>
           <Icon name={icon} size={17} color={danger ? c.danger : c.fg} active={taps > 0} motion={danger ? "wiggle" : "pop"} trigger={taps} />
         </View>
       ) : null}

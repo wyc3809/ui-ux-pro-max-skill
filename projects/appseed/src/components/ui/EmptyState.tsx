@@ -12,8 +12,8 @@ type Props = { icon: IconName; title: string; body: string; action?: { label: st
 export function EmptyState({ icon, title, body, action }: Props) {
   const { c } = useTheme();
   return (
-    <Reveal style={{ alignItems: "center", paddingVertical: 48, paddingHorizontal: 32, gap: 10 }}>
-      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center", marginBottom: 6 }}>
+    <Reveal style={{ alignItems: "center", paddingVertical: 48, paddingHorizontal: 32, gap: 12 }}>
+      <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
         <Icon name={icon} size={28} color={c.accent} loop="breathe" enterDelay={160} />
       </View>
       <Txt variant="section" style={{ textAlign: "center" }}>

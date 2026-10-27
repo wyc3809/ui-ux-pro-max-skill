@@ -21,14 +21,14 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
   }));
   return (
     <View
-      onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width - 6)}
+      onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width - 8)}
       accessibilityRole="tablist"
-      style={{ flexDirection: "row", backgroundColor: c.segmentTrack, borderRadius: radius.control + 2, padding: 3 }}
+      style={{ flexDirection: "row", backgroundColor: c.segmentTrack, borderRadius: radius.chip, padding: 4 }}
     >
       {w > 0 && (
         <Animated.View
           style={[
-            { position: "absolute", top: 3, bottom: 3, left: 3, borderRadius: radius.control, backgroundColor: isDark ? c.bgMuted : c.bgElevated, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+            { position: "absolute", top: 4, bottom: 4, left: 4, borderRadius: radius.chip, backgroundColor: isDark ? c.bgMuted : c.bgElevated, shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
             thumb,
           ]}
         />

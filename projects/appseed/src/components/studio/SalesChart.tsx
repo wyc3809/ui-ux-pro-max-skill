@@ -12,8 +12,8 @@ export function SalesChart({ data, label }: { data: number[]; label: string }) {
   const max = Math.max(1, ...data);
   const total = data.reduce((a, b) => a + b, 0);
   return (
-    <View accessible accessibilityLabel={`${label}: ${total}`} style={{ gap: 10 }}>
-      <View style={{ height: H, flexDirection: "row", alignItems: "flex-end", gap: 3 }}>
+    <View accessible accessibilityLabel={`${label}: ${total}`} style={{ gap: 12 }}>
+      <View style={{ height: H, flexDirection: "row", alignItems: "flex-end", gap: 4 }}>
         {data.map((v, i) => (
           <Bar key={i} i={i} h={(v / max) * H} color={i === data.length - 1 ? c.accent : c.accentSoft} />
         ))}

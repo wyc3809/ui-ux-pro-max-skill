@@ -37,7 +37,7 @@ export function UpvoteButton({ count, voted, onToggle, name, size = "md" }: { co
       style={{
         minWidth: lg ? 120 : 56,
         height: lg ? 48 : 56,
-        borderRadius: lg ? radius.control + 2 : radius.inset,
+        borderRadius: radius.inset,
         borderWidth: 1.5,
         borderColor: voted ? c.accent : c.border,
         backgroundColor: voted ? c.accentSoft : c.bgElevated,
@@ -96,7 +96,7 @@ export function SoldStamp({ label }: { label: string }) {
   }, [s, o, r]);
   const a = useAnimatedStyle(() => ({ opacity: o.value, transform: [{ scale: s.value }, { rotate: `${r.value}deg` }] }));
   return (
-    <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 14, right: 14, borderWidth: 3, borderColor: c.danger, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 4, backgroundColor: c.bgElevated }, a]}>
+    <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 14, right: 14, borderWidth: 3, borderColor: c.danger, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 4, backgroundColor: c.bgElevated }, a]}>
       <Animated.Text style={{ color: c.danger, fontFamily: font.bold, fontSize: 16, letterSpacing: 2 }}>{label}</Animated.Text>
     </Animated.View>
   );

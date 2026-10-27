@@ -53,7 +53,7 @@ export function EngagementPanel({ kind, slug, title, extra, like, onComments }: 
   const compact = (n: number) => formatCompact(n, t.locale);
   if (!e) {
     return (
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
         {Array.from({ length: 6 }, (_, i) => (
           <Skeleton key={i} height={84} radius={radius.row} style={{ flexBasis: "30%", flexGrow: 1 }} />
         ))}
@@ -62,8 +62,8 @@ export function EngagementPanel({ kind, slug, title, extra, like, onComments }: 
   }
 
   return (
-    <View style={{ gap: 14 }}>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+    <View style={{ gap: 16 }}>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
         {like ? (
           <Tile index={0} icon={like.icon} label={like.label} value={like.count} active={like.active} format={compact} onPress={like.onToggle} a11y={like.label} />
         ) : (
@@ -126,8 +126,8 @@ function Tile({ index, icon, label, value, format, active = false, activeTone = 
   const { c, card } = useTheme();
   const tone = active ? c[activeTone] : c.fgMuted;
   const body = (
-    <View style={[{ padding: 12, gap: 6, borderRadius: radius.row, backgroundColor: active ? (activeTone === "danger" ? c.dangerSoft : c.accentSoft) : c.bgElevated, borderWidth: 1.5, borderColor: active ? tone : "transparent", minHeight: 84 }, active ? null : card]}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+    <View style={[{ padding: 12, gap: 8, borderRadius: radius.row, backgroundColor: active ? (activeTone === "danger" ? c.dangerSoft : c.accentSoft) : c.bgElevated, borderWidth: 1.5, borderColor: active ? tone : "transparent", minHeight: 84 }, active ? null : card]}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Icon name={icon} size={15} color={c.fgMuted} activeColor={tone} active={active} motion="pop" enterDelay={index * 50} />
         <Txt variant="eyebrow" tone={active ? (activeTone === "danger" ? "danger" : "accent") : "fgSubtle"} numberOfLines={1}>
           {label}
@@ -190,9 +190,9 @@ function ShareRow({ kind, slug, title }: { kind: ItemKind; slug: string; title: 
   };
 
   // Six equal-width buttons that always fit one row (no lone button wrapping onto its own line).
-  const square = { height: 48, borderRadius: radius.control + 2, backgroundColor: c.bgMuted, alignItems: "center" as const, justifyContent: "center" as const };
+  const square = { height: 48, borderRadius: radius.control, backgroundColor: c.bgMuted, alignItems: "center" as const, justifyContent: "center" as const };
   return (
-    <View style={[{ padding: 14, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
+    <View style={[{ padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
       <Txt variant="eyebrow" tone="fgSubtle">
         {t("engage.shareTo")}
       </Txt>

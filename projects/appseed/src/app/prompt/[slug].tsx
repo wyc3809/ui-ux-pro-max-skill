@@ -107,7 +107,7 @@ export default function PromptScreen() {
               <ZoomTarget>
                 <Cover t={p} style={{ aspectRatio: 2 }} rounded={nested(radius.hero, 12)} />
               </ZoomTarget>
-              <View style={{ paddingHorizontal: 6, gap: 6 }}>
+              <View style={{ paddingHorizontal: 8, gap: 8 }}>
                 <Txt variant="eyebrow" tone="fgSubtle">
                   Prompt · {p.tool}
                 </Txt>
@@ -119,7 +119,7 @@ export default function PromptScreen() {
                 </Txt>
               </View>
               {creator && (
-                <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
+                <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>
                   <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
                     <Txt tone="accent" style={{ fontFamily: font.bold }}>
                       {creator.name[0]}
@@ -130,12 +130,12 @@ export default function PromptScreen() {
                   </Txt>
                 </PressableScale>
               )}
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, paddingHorizontal: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, paddingHorizontal: 8 }}>
                 {p.tags.map((tag, i) => (
                   <Tag key={tag} label={tag} index={i} />
                 ))}
               </View>
-              <View style={{ flexDirection: "row", gap: 16, alignItems: "center", paddingHorizontal: 6, paddingBottom: 6 }}>
+              <View style={{ flexDirection: "row", gap: 16, alignItems: "center", paddingHorizontal: 8, paddingBottom: 8 }}>
                 <RatingStars value={p.rating} count={p.reviewCount} />
                 <Txt variant="caption" tone="fgSubtle" tabular>
                   {t("promptPage.uses", { n: formatCount(p.sales) })}
@@ -153,13 +153,13 @@ export default function PromptScreen() {
           />
 
           <Section title={unlocked ? p.title : t("promptPage.preview")} index={1} inset={false}>
-            <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, borderWidth: 1, borderColor: c.border, padding: 14, gap: 10 }}>
+            <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, borderWidth: 1, borderColor: c.border, padding: 16, gap: 12 }}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Txt variant="eyebrow" tone="fgSubtle" style={{ flex: 1 }}>
                   PROMPT · {p.tool}
                 </Txt>
                 {unlocked && (
-                  <PressableScale onPress={() => copy(p.text)} accessibilityLabel={t("common.copy")} style={{ flexDirection: "row", alignItems: "center", gap: 6, height: 32, paddingHorizontal: 8 }}>
+                  <PressableScale onPress={() => copy(p.text)} accessibilityLabel={t("common.copy")} style={{ flexDirection: "row", alignItems: "center", gap: 8, height: 32, paddingHorizontal: 8 }}>
                     <Icon name="copy" size={15} color={c.fgMuted} />
                     <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                       {t("common.copy")}
@@ -173,7 +173,7 @@ export default function PromptScreen() {
                   {Array.from({ length: Math.min(locked, 4) }, (_, i) => (
                     <Skeleton key={i} height={12} width={`${92 - i * 14}%`} radius={4} />
                   ))}
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingTop: 6 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingTop: 8 }}>
                     <Icon name="lock" size={17} color={c.accent} active loop="breathe" />
                     <Txt variant="bodyStrong" tone="accent">
                       {t("promptPage.locked", { n: locked })}
@@ -186,7 +186,7 @@ export default function PromptScreen() {
 
           {unlocked && vars.length > 0 && (
             <Section title={t("promptPage.variables")} index={2} inset={false}>
-              <Card style={{ gap: 14 }}>
+              <Card style={{ gap: 16 }}>
                 <Txt tone="fgMuted">{t("promptPage.variablesHint")}</Txt>
                 {vars.map((v) => (
                   <Field key={v} label={`{{${v}}}`} value={values[v] ?? ""} onChangeText={(x) => setValues((s) => ({ ...s, [v]: x }))} autoCapitalize="none" />
@@ -197,9 +197,9 @@ export default function PromptScreen() {
           )}
 
           <Section title={t("promptPage.sample")} index={2} inset={false}>
-            <Card style={{ gap: 10 }}>
+            <Card style={{ gap: 12 }}>
               {p.sampleOutput.map((s, i) => (
-                <Animated.View key={s} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+                <Animated.View key={s} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
                   <Icon name="checkCircle" size={17} color={c.live} active enterDelay={i * 80} />
                   <Txt style={{ flex: 1 }}>{s}</Txt>
                 </Animated.View>

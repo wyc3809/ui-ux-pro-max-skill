@@ -14,16 +14,16 @@ export function StoryStep({ step, n, last, longform }: { step: Step; n: number; 
   const { c } = useTheme();
   const t = useT();
   return (
-    <View style={{ flexDirection: "row", gap: 14 }}>
+    <View style={{ flexDirection: "row", gap: 16 }}>
       <View style={{ alignItems: "center", width: 28 }}>
         <Animated.View entering={popIn(0)} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
           <Txt variant="caption" tone="accent" tabular style={{ fontFamily: font.bold }}>
             {n}
           </Txt>
         </Animated.View>
-        {!last && <Animated.View entering={growDown(180)} style={{ flex: 1, width: 2, borderRadius: 1, backgroundColor: c.border, marginTop: 6, transformOrigin: "top" }} />}
+        {!last && <Animated.View entering={growDown(180)} style={{ flex: 1, width: 2, borderRadius: 1, backgroundColor: c.border, marginTop: 8, transformOrigin: "top" }} />}
       </View>
-      <View style={{ flex: 1, gap: 10, paddingBottom: last ? 0 : 28 }}>
+      <View style={{ flex: 1, gap: 12, paddingBottom: last ? 0 : 28 }}>
         <Txt variant="eyebrow" tone="fgSubtle">
           {t("template.step", { n })}
         </Txt>
@@ -35,8 +35,8 @@ export function StoryStep({ step, n, last, longform }: { step: Step; n: number; 
         </Txt>
         {step.prompt && <PromptBlock tool={step.prompt.tool} text={step.prompt.text} />}
         {step.pitfall && (
-          <View style={{ flexDirection: "row", gap: 10, padding: 12, borderRadius: radius.inset, backgroundColor: c.warnSoft }}>
-            <Icon name="warning" size={17} color={c.warn} active motion="wiggle" trigger={0} enterDelay={200} style={{ marginTop: 1 }} />
+          <View style={{ flexDirection: "row", gap: 12, padding: 12, borderRadius: radius.inset, backgroundColor: c.warnSoft }}>
+            <Icon name="warning" size={17} color={c.warn} active motion="wiggle" trigger={0} enterDelay={200} style={{ marginTop: 2 }} />
             <View style={{ flex: 1, gap: 2 }}>
               <Txt variant="caption" tone="warn" style={{ fontFamily: font.semibold }}>
                 {t("template.pitfall")}

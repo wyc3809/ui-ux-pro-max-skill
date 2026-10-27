@@ -47,8 +47,8 @@
 | 檔案 | expo-document-picker、expo-file-system、expo-sharing | 手機只做小型上載（截圖）；原始碼建議在網頁上載 |
 | 震動 | expo-haptics | |
 | 模糊 | expo-blur | 分頁列 |
-| 字體 | DM Sans；代碼用 JetBrains Mono；中文用系統字（PingFang／Noto Sans CJK） | |
-| 圖示 | Ionicons 字型（`@expo/vector-icons`），**不用 SVG** | 全部經 `Icon` 元件：outline ↔ filled 變形、進場彈出、狀態改變時播放動畫 |
+| 字體 | Geist；代碼用 Geist Mono；中文用系統字（PingFang／Noto Sans CJK） | 字重最多 700，不用斜體（§25） |
+| 圖示 | Phosphor 字型（regular + fill 兩個子集字型，經 `createIconSet`），**不用 SVG** | 全部經 `Icon` 元件：outline ↔ filled 變形、進場彈出、狀態改變時播放動畫 |
 | 圖表（少量） | Reanimated + View 長條（不用 SVG） | 只用於創作者銷售統計，長條逐條長出 |
 | 通知 | expo-notifications | 審核結果、新銷售、已購模板有新版本 |
 | 測試 | Jest + @testing-library/react-native + Maestro + MSW | |
@@ -98,7 +98,9 @@ e2e/maestro/*.yaml         # 使用流程
 
 ## 4. 設計 Token（`src/theme/tokens.ts`）
 
-所有顏色只能從 token 取用，**元件內不可寫死色碼**。中性色沿用 WorthBook；品牌色由信任藍改為**創作紫**（可以換，換後重新檢查對比度）。
+所有顏色只能從 token 取用，**元件內不可寫死色碼**。
+
+> 以下是第一版數值。Apple 風格改版（§25）之後，色值、圓角、字體以 `src/theme/tokens.ts` 為準：深色模式改用純黑系底色，新增 `glass`／`glassEdge`，圓角改為 Tailwind 階梯。中性色沿用 WorthBook；品牌色由信任藍改為**創作紫**（可以換，換後重新檢查對比度）。
 
 ```ts
 export const light = {
@@ -160,18 +162,20 @@ export const shadow = {
 
 ## 5. 字體與排版
 
+字級只用 Tailwind 階梯：12/16、14/20、16/24、18/28、20/28、24/32、30/36、36/40；字重最多 700。
+
 | 用途 | 樣式 |
 |---|---|
-| 分頁大標題 | 30，800，`letterSpacing: -0.9` |
-| 模板名稱（hero） | 22–24，800，最多 2 行 |
-| 一句話簡介（hero） | 15，500，`fgMuted`，最多 2 行 |
-| 區塊標題 | 16，700 |
-| 眉標（區塊上方小字） | 11，700，全大寫，`letterSpacing: 1.5`，`fgSubtle` |
-| 內文 | 14／行高 20；製作經歷長文用 16／行高 26 |
-| 代碼、prompt、檔案樹 | JetBrains Mono 13／行高 20，`bgCode` 底 |
-| 價錢 | 18，800，`tabular-nums` |
-| 輔助文字 | 12，`fgSubtle` |
-| 分頁列標籤 | 11，700 |
+| 分頁大標題 | 30／36，700，`letterSpacing: -0.75` |
+| 模板名稱（hero） | 24／32，700，最多 2 行 |
+| 一句話簡介（hero） | 16／24，400，`fgMuted`，最多 2 行 |
+| 區塊標題 | 18／28，600 |
+| 眉標（區塊上方小字） | 12／16，600，全大寫，`letterSpacing: 0.5`，`fgSubtle` |
+| 內文 | 14／20；製作經歷長文用 16／24 |
+| 代碼、prompt、檔案樹 | Geist Mono 12／16，`bgCode` 底 |
+| 價錢 | 18／28，700，`tabular-nums` |
+| 輔助文字 | 12／16，`fgSubtle` |
+| 分頁列標籤 | 12／16，500 |
 
 - 價錢、日期、銷量、評分一律用 `fontVariant: ["tabular-nums"]`。
 - 支援系統字體放大（Dynamic Type）：不要把高度寫死，`maxFontSizeMultiplier` 設為 1.4；代碼區塊橫向捲動，不自動換行。
@@ -631,3 +635,38 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - **分享列**：複製連結、X、LinkedIn、Threads、WhatsApp、更多（系統分享），六個按鈕平均分配一行，逐個彈出。分享用公開網址 `https://appseed.app/{t|p|b|l}/{slug}`，沒有安裝 App 的人也可以打開；平台 logo 是字型圖示，LinkedIn 和 WhatsApp 保留品牌色。
 - **留言**：未登入時輸入框會先打開登入。新留言從頂部滑入，自己的留言可以刪除（淡出並收起空位）。超過 400 字顯示字數，上限 500 字（`validateComment`）。時間顯示「剛剛／3 分鐘前／5 小時前／2 日前」，一星期後顯示日期。
 - 讚好、留言、刪除留言都是樂觀更新，伺服器拒絕時還原。
+
+---
+
+## 25. Apple 風格改版：玻璃、無縫轉場、統一系統
+
+參考 `.claude/skills/landing-page-design`（排版、間距、圓角、底色、文案規則）和 `design-to-motion`（進場曲線、上升 + 模糊）。兩個 skill 原本為網頁而寫，App 只採用通用規則，網頁專用的（例如 hero 版面、SEO）不適用。
+
+**玻璃材質（`src/components/ui/Glass.tsx`）**
+
+- 所有浮在內容上面的東西共用一種材質：分頁列、頂部按鈕、詳情頁頂欄、大標題頂欄、購買／報價列、toast。
+- iOS 26 用系統 Liquid Glass（`expo-glass-effect`，按鈕和分頁列可互動）；舊 iOS 用 system chrome 模糊；網頁用 `backdrop-filter: blur(24px) saturate(180%)`；Android 用 96% 不透明底色（軟件模糊太耗效能）。
+- 每塊玻璃都有一條 hairline 高光邊（四邊，不用單邊 border）；淺色模式加柔和陰影，深色模式只靠高光邊。
+- 網頁注意：玻璃的祖先元素不可以有 `overflow: hidden`＋圓角或 `filter`，否則 backdrop 模糊失效。所以背景頁面只在 sheet 打開時才裁切，`Reveal` 完成後會把 `filter` 清走。
+
+**外殼**
+
+- 分頁列：離底 12pt（或 home indicator 高度）的浮動膠囊，高 64；選中項有一粒會滑動的玻璃膠囊，移動途中橫向拉長再彈回（液態感）。搜尋獨立成右邊的品牌色玻璃圓鈕。
+- 購買／報價列同樣是浮動玻璃，圓角 24，內距 8，所以裡面的按鈕圓角是 24 − 8 = 16（同心圓角）。
+- 打開 sheet 時，後面整頁縮到 0.94、圓角 24、變暗 15%（iOS card stack），sheet 看起來是同一個表面的上一層。網頁 sheet 用 portal 掛到 `<body>`，不會被縮放困住。
+
+**轉場與動效**
+
+- 區塊進場用 `Reveal`：文字上升 10px、由模糊 4px 變清晰；卡片上升 24px、0.985 → 1、模糊 6px；曲線 `cubic-bezier(0.22, 1, 0.36, 1)`，500–600ms，首三個區塊錯開 60ms。模糊只在網頁執行（CSS filter），iOS／Android 只有上升、淡入和縮放。
+- 模板、Prompt、買斷卡片打開詳情頁時用 iOS 18 zoom 轉場（`Link.AppleZoom` → `Link.AppleZoomTarget`）：封面放大成詳情頁的主圖，向右掃返回時縮回原位。Android 和網頁維持一般推入。
+- 所有按壓：按下 0.98，放手用彈簧回彈（輕微超出再回到 1）。
+- 全部動畫跟隨系統「減少動態效果」。
+
+**統一系統**
+
+- 間距只用 0、2、4、8、12、16、24、32、40、48、64、80、96（`gap` token）；`src/theme/__tests__/tokens.test.ts` 會掃描原始碼，寫死的間距不在表上就失敗。
+- 圓角只用 2、4、6、8、12、16、24、全圓；內層圓角 = 外層 − 間距（`nested()`，只在間距 < 32 而結果 > 2 時用）。
+- 深色模式底色只用 #000000、#181818、#1F1F1F、#272727。
+- 創作者封面的漸層是內容，不算介面背景，所以保留。
+- 文案：英文不用連字號和感嘆號，不用填充詞；網頁鍵盤操作有品牌色 focus ring。
+

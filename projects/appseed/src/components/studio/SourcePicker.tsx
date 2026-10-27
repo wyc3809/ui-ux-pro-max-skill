@@ -59,7 +59,7 @@ export function SourcePicker({ value, onChange, onStack }: Props) {
     );
   }
   return (
-    <View style={{ gap: 14 }}>
+    <View style={{ gap: 16 }}>
       {value.kind === "github" ? <GithubSource value={value} onChange={onChange} onStack={onStack} /> : <ZipSource value={value} onChange={onChange} onStack={onStack} />}
     </View>
   );
@@ -69,7 +69,7 @@ function OptionCard({ icon, title, body, badge, index, onPress }: { icon: IconNa
   const { c, card } = useTheme();
   return (
     <Animated.View entering={slideInAt(index, 80)}>
-      <PressableScale onPress={onPress} hapticKind="tap" accessibilityLabel={title} scaleTo={0.98} style={[{ flexDirection: "row", alignItems: "center", gap: 14, padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, borderWidth: badge ? 1.5 : 0, borderColor: c.accent }, card]}>
+      <PressableScale onPress={onPress} hapticKind="tap" accessibilityLabel={title} scaleTo={0.98} style={[{ flexDirection: "row", alignItems: "center", gap: 16, padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, borderWidth: badge ? 1.5 : 0, borderColor: c.accent }, card]}>
         <View style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
           <Icon name={icon} size={24} color={c.accent} active enterDelay={120 + index * 80} />
         </View>
@@ -117,7 +117,7 @@ function AuthSheet({ open, onClose, onConnected }: { open: boolean; onClose: () 
     >
       <Txt tone="fgMuted">{t("source.authBody")}</Txt>
       {(["source.authP1", "source.authP2", "source.authP3"] as const).map((k, i) => (
-        <Animated.View key={k} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+        <Animated.View key={k} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
           <Icon name="shield" size={18} color={c.live} active enterDelay={i * 80} />
           <Txt style={{ flex: 1 }}>{t(k)}</Txt>
         </Animated.View>
@@ -148,7 +148,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
 
   return (
     <>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: radius.row, backgroundColor: c.bgMuted }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: radius.row, backgroundColor: c.bgMuted }}>
         <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.fg, alignItems: "center", justifyContent: "center" }}>
           <Icon name="git" size={17} color={c.bg} active />
         </View>
@@ -174,7 +174,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
           )}
         </>
       ) : (
-        <Reveal style={{ gap: 14 }}>
+        <Reveal style={{ gap: 16 }}>
           {repo && <RepoRow r={repo} index={0} selected onPress={() => onChange({ kind: "github", repo: "", branch: "", report: null })} />}
           {repo && repo.branches.length > 1 && (
             <View style={{ gap: 8 }}>
@@ -224,8 +224,8 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
   const warns = report ? report.checks.filter((x) => x.status === "warn").length : 0;
   const settled = useSettledAfter(report, 7 * 180 + 120);
   return (
-    <View style={{ gap: 14 }}>
-      <View style={[{ padding: 14, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
+    <View style={{ gap: 16 }}>
+      <View style={[{ padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <Icon name="shield" size={18} color={c.accent} active loop={scanning ? "breathe" : undefined} />
           <Txt variant="section" style={{ flex: 1 }}>
@@ -242,7 +242,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
       {report && settled && (
         <Reveal style={{ gap: 12 }}>
           {blocking > 0 ? (
-            <View style={{ gap: 10, padding: 14, borderRadius: radius.inset, backgroundColor: c.dangerSoft }}>
+            <View style={{ gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.dangerSoft }}>
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                 <Icon name="warning" size={18} color={c.danger} active motion="wiggle" trigger={report} />
                 <Txt variant="bodyStrong" tone="danger" style={{ flex: 1 }}>
@@ -272,7 +272,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
                   <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                     {t("source.detectedStack")}
                   </Txt>
-                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                     {report.stack.map((s, i) => (
                       <Tag key={s} label={s} index={i} />
                     ))}
@@ -332,7 +332,7 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
 
   return (
     <>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 12, borderRadius: radius.row, backgroundColor: c.bgMuted }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: radius.row, backgroundColor: c.bgMuted }}>
         <Icon name="package" size={20} color={c.fg} active />
         <Txt variant="bodyStrong" style={{ flex: 1 }}>
           {value.fileName ?? t("source.zip")}
@@ -344,8 +344,8 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
         </PressableScale>
       </View>
       {Platform.OS !== "web" ? (
-        <Reveal style={{ gap: 12, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
-          <View style={{ flexDirection: "row", gap: 10 }}>
+        <Reveal style={{ gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+          <View style={{ flexDirection: "row", gap: 12 }}>
             <Icon name="laptop" size={20} color={c.pending} active loop="breathe" />
             <Txt style={{ flex: 1 }}>{t("source.zipMobile")}</Txt>
           </View>
@@ -356,7 +356,7 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
       ) : (
         <>
           {!value.report && (
-            <View style={{ gap: 6 }}>
+            <View style={{ gap: 8 }}>
               <Txt variant="caption" tone="fgSubtle">
                 {t("source.uploading")}
               </Txt>

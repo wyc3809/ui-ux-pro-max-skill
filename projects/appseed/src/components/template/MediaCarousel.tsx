@@ -27,7 +27,7 @@ export function MediaCarousel({ t }: { t: Template }) {
   });
   const screens = Array.from({ length: t.screens }, (_, i) => i);
   return (
-    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ gap: 10 }}>
+    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ gap: 12 }}>
       {w > 0 && (
         <Animated.ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={16} style={{ borderRadius: radius.media }}>
           {screens.map((i) => (
@@ -37,7 +37,7 @@ export function MediaCarousel({ t }: { t: Template }) {
           ))}
         </Animated.ScrollView>
       )}
-      <View style={{ flexDirection: "row", justifyContent: "center", gap: 6 }}>
+      <View style={{ flexDirection: "row", justifyContent: "center", gap: 8 }}>
         {screens.map((i) => (
           <Dot key={i} i={i} w={w} x={x} />
         ))}

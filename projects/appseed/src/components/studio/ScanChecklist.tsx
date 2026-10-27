@@ -39,14 +39,14 @@ export function ScanChecklist({ report }: { report: ScanReport | null }) {
   }, [report]);
 
   return (
-    <View style={{ gap: 10 }}>
+    <View style={{ gap: 12 }}>
       {!report && <SweepBar />}
       {ORDER.map((id, i) => {
         const check = report && i < revealed ? report.checks.find((x) => x.id === id) : undefined;
         const tone = !check ? c.fgSubtle : check.status === "pass" ? c.live : check.status === "warn" ? c.warn : c.danger;
         return (
           <Animated.View key={id} entering={slideInAt(i, 50)} style={{ gap: 4 }}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
               {!check ? (
                 <Icon name="clock" size={18} color={c.fgSubtle} loop="breathe" enter={false} />
               ) : (
@@ -62,7 +62,7 @@ export function ScanChecklist({ report }: { report: ScanReport | null }) {
               ) : null}
             </View>
             {check?.status === "fail" && (
-              <Animated.View entering={slideInAt(0)} style={{ marginLeft: 28, padding: 10, borderRadius: radius.control, backgroundColor: c.dangerSoft, gap: 4 }}>
+              <Animated.View entering={slideInAt(0)} style={{ marginLeft: 32, padding: 12, borderRadius: radius.control, backgroundColor: c.dangerSoft, gap: 4 }}>
                 {check.detail ? (
                   <Txt variant="code" tone="danger">
                     {check.detail}

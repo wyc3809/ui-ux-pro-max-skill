@@ -15,11 +15,17 @@
 | 狀態 | TanStack Query（伺服器狀態，「已購」只由伺服器決定）、Zustand + MMKV（收藏、搜尋紀錄、設定、上載草稿） |
 | 多語言 | zh-Hant／en，key 有型別；書面語由測試檢查 |
 
+## Apple 風格（§25）
+
+- Geist 字體、Tailwind 字級、純黑深色模式、同心圓角、固定間距表（測試會檢查）
+- 共用玻璃材質：浮動膠囊分頁列、頂部按鈕、頂欄、購買列、toast（iOS 26 用 Liquid Glass）
+- 打開 sheet 時背景頁面縮後；卡片用 iOS 18 zoom 轉場打開詳情頁；區塊以「上升 + 模糊」進場
+
 ## 動效（§8）
 
 所有數值集中在 `src/theme/tokens.ts` 的 `motion`，全部在 UI thread 執行，並跟隨系統「減少動態效果」。
 
-**全 App 不用 SVG。** 圖示是 Ionicons 字型，全部經 `src/components/ui/Icon.tsx`：
+**全 App 不用 SVG。** 圖示是 Phosphor 字型（regular + fill），全部經 `src/components/ui/Icon.tsx`：
 
 - 每個圖示由 0.4× 彈性進場，可以用 `enterDelay` 錯開（例如評分星星逐粒出現）
 - 狀態改變時 outline → filled 縮放交叉變形（分頁、收藏、資料夾展開、已購）
@@ -44,7 +50,7 @@
 
 ```bash
 npm install
-npm test             # 78 個測試
+npm test             # 84 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

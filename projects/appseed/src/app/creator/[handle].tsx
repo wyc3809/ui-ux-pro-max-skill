@@ -50,7 +50,7 @@ export default function CreatorScreen() {
               <Txt variant="heroTitle">{creator.name}</Txt>
               <Txt tone="fgSubtle">@{creator.handle}</Txt>
               {creator.founding && (
-                <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 10, height: 24, justifyContent: "center" }}>
+                <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 12, height: 24, justifyContent: "center" }}>
                   <Txt style={{ fontSize: 12, fontFamily: font.semibold, color: c.accent }}>{t("creator.founding")}</Txt>
                 </View>
               )}

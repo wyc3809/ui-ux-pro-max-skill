@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { DirectionalSwap } from "@/components/ui/DirectionalSwap";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Glass } from "@/components/ui/Glass";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
 import { ListRow, RowDivider } from "@/components/ui/ListRow";
@@ -104,7 +105,7 @@ export default function TemplateScreen() {
             <Reveal style={{ paddingHorizontal: space.gutter }}>
               <Hero t={tpl} />
             </Reveal>
-            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
+            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
               <EngagementPanel
                 kind="template"
                 slug={tpl.slug}
@@ -113,7 +114,7 @@ export default function TemplateScreen() {
                 onComments={jumpTo.jump}
               />
             </Reveal>
-            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 20, paddingBottom: 16 }}>
+            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 24, paddingBottom: 16 }}>
               <SegmentedControl value={seg} onChange={setSeg} options={SEGS.map((s) => ({ value: s, label: t(`template.${s}`) }))} />
             </Reveal>
             <Reveal index={2} style={{ paddingHorizontal: space.gutter }}>
@@ -129,7 +130,7 @@ export default function TemplateScreen() {
                 )}
               </DirectionalSwap>
             </Reveal>
-            <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
+            <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
               <CommentsSection kind="template" slug={tpl.slug} />
               <Footer t={tpl} />
             </View>
@@ -139,17 +140,19 @@ export default function TemplateScreen() {
         )}
       </Animated.ScrollView>
 
-      {/* Floating header: buttons always visible, a solid bar + title fade in once the hero scrolls away. */}
+      {/* Floating header: glass buttons always visible, a glass bar + title fade in once the hero scrolls away. */}
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingTop: insets.top }}>
-        <Animated.View style={[{ position: "absolute", inset: 0, backgroundColor: c.bg, borderBottomWidth: 1, borderBottomColor: c.border }, headerBg]} />
-        <View style={{ height: 52, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
+        <Animated.View pointerEvents="none" style={[{ position: "absolute", inset: 0 }, headerBg]}>
+          <Glass style={{ flex: 1 }} />
+        </Animated.View>
+        <View style={{ height: 56, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: space.gutter }}>
           <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))} />
           <Animated.View style={[{ flex: 1 }, headerBg]}>
             <Txt variant="section" numberOfLines={1} style={{ textAlign: "center" }}>
               {tpl?.name}
             </Txt>
           </Animated.View>
-          <HeaderButton icon="share" motion="bounce" label="Share" onPress={() => tpl && Share.share({ message: `${tpl.name} https://appseed.app/t/${tpl.slug}` })} />
+          <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => tpl && Share.share({ message: `${tpl.name} https://appseed.app/t/${tpl.slug}` })} />
           {tpl && <FavoriteButton slug={tpl.slug} onSurface />}
         </View>
       </View>
@@ -172,11 +175,11 @@ function Hero({ t: tpl }: { t: Template }) {
   const t = useT();
   const creator = findCreator(tpl.creator);
   return (
-    <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 14 }, card]}>
+    <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 16 }, card]}>
       <ZoomTarget>
         <MediaCarousel t={tpl} />
       </ZoomTarget>
-      <View style={{ paddingHorizontal: 6, gap: 6 }}>
+      <View style={{ paddingHorizontal: 8, gap: 8 }}>
         <Txt variant="heroTitle" numberOfLines={2} accessibilityRole="header">
           {tpl.name}
         </Txt>
@@ -185,7 +188,7 @@ function Hero({ t: tpl }: { t: Template }) {
         </Txt>
       </View>
       {creator && (
-        <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} accessibilityLabel={t("template.by", { name: creator.name })} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
+        <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} accessibilityLabel={t("template.by", { name: creator.name })} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>
           <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
             <Txt tone="accent" style={{ fontFamily: font.bold }}>
               {creator.name[0]}
@@ -201,10 +204,10 @@ function Hero({ t: tpl }: { t: Template }) {
           )}
         </PressableScale>
       )}
-      <View style={{ paddingHorizontal: 6 }}>
+      <View style={{ paddingHorizontal: 8 }}>
         <StackChips stack={tpl.stack} />
       </View>
-      <View style={{ flexDirection: "row", paddingHorizontal: 6, paddingBottom: 6, gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+      <View style={{ flexDirection: "row", paddingHorizontal: 8, paddingBottom: 8, gap: 16, alignItems: "center", flexWrap: "wrap" }}>
         <RatingStars value={tpl.rating} count={tpl.reviewCount} />
         <Txt variant="caption" tone="fgSubtle" tabular>
           {t("common.sales")} {formatCount(tpl.sales)}
@@ -220,8 +223,8 @@ function Hero({ t: tpl }: { t: Template }) {
 function Overview({ t: tpl, onLicense }: { t: Template; onLicense: () => void }) {
   const t = useT();
   return (
-    <View style={{ gap: 14 }}>
-      <Card style={{ gap: 10 }}>
+    <View style={{ gap: 16 }}>
+      <Card style={{ gap: 12 }}>
         <Txt variant="section">{t("template.features")}</Txt>
         {tpl.features.map((f, i) => (
           <Bullet key={f} text={f} index={i} />
@@ -231,7 +234,7 @@ function Overview({ t: tpl, onLicense }: { t: Template; onLicense: () => void })
         <Txt variant="section">{t("template.forWho")}</Txt>
         <Txt tone="fgMuted">{tpl.forWho}</Txt>
       </Card>
-      <Card style={{ gap: 10 }}>
+      <Card style={{ gap: 12 }}>
         <Txt variant="section">{t("template.requirements")}</Txt>
         {tpl.requirements.map((f, i) => (
           <Bullet key={f} text={f} index={i} />
@@ -249,8 +252,8 @@ function Overview({ t: tpl, onLicense }: { t: Template; onLicense: () => void })
 function Bullet({ text, index }: { text: string; index: number }) {
   const { c } = useTheme();
   return (
-    <Animated.View entering={slideInAt(index)} style={{ flexDirection: "row", gap: 10 }}>
-      <Animated.View entering={popIn(index, 60)} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent, marginTop: 7 }} />
+    <Animated.View entering={slideInAt(index)} style={{ flexDirection: "row", gap: 12 }}>
+      <Animated.View entering={popIn(index, 60)} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.accent, marginTop: 8 }} />
       <Txt style={{ flex: 1 }}>{text}</Txt>
     </Animated.View>
   );
@@ -289,7 +292,7 @@ function Files({ t: tpl }: { t: Template }) {
   const t = useT();
   const { files, bytes } = countFiles(tpl.files);
   return (
-    <View style={{ gap: 14 }}>
+    <View style={{ gap: 16 }}>
       <Txt variant="caption" tone="fgSubtle" tabular>
         {t("template.totalFiles", { n: files, size: formatBytes(bytes) })}
       </Txt>
@@ -311,7 +314,7 @@ function Reviews({ t: tpl }: { t: Template }) {
   const max = Math.max(1, ...dist);
   return (
     <Card style={{ gap: 4 }}>
-      <View style={{ flexDirection: "row", gap: 20, alignItems: "center", paddingBottom: 8 }}>
+      <View style={{ flexDirection: "row", gap: 24, alignItems: "center", paddingBottom: 8 }}>
         <View style={{ alignItems: "center" }}>
           <Txt variant="largeTitle" tabular>
             {tpl.rating.toFixed(1)}
@@ -364,8 +367,8 @@ function Footer({ t: tpl }: { t: Template }) {
   const t = useT();
   const [reports, setReports] = useState(0);
   return (
-    <View style={{ alignItems: "center", gap: 10, paddingVertical: 28 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+    <View style={{ alignItems: "center", gap: 12, paddingVertical: 32 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Icon name="shield" size={15} color={c.live} active />
         <Txt variant="caption" tone="fgSubtle">
           {t("template.footer", { date: formatDate(tpl.updatedAt, t.locale) })}
@@ -376,7 +379,7 @@ function Footer({ t: tpl }: { t: Template }) {
           setReports((n) => n + 1);
           toast(t("common.done"));
         }}
-        style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44 }}
+        style={{ flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 }}
       >
         <Icon name="flag" size={14} color={c.fgSubtle} motion="wiggle" trigger={reports} />
         <Txt variant="caption" tone="fgSubtle" style={{ textDecorationLine: "underline" }}>
@@ -441,7 +444,7 @@ function LicenseSheet({ t: tpl, open, onClose }: { t: Template; open: boolean; o
   return (
     <Sheet open={open} onClose={onClose} title={t("template.license")} footer={<Button label={t("common.close")} variant="secondary" onPress={onClose} />}>
       {(["personal", "commercial", "extended"] as const).map((k) => (
-        <View key={k} style={{ padding: 14, borderRadius: radius.inset, gap: 4, backgroundColor: k === tpl.license ? c.accentSoft : c.bgMuted }}>
+        <View key={k} style={{ padding: 16, borderRadius: radius.inset, gap: 4, backgroundColor: k === tpl.license ? c.accentSoft : c.bgMuted }}>
           <Txt variant="bodyStrong" tone={k === tpl.license ? "accent" : "fg"}>
             {t(`license.${k}`)}
           </Txt>
@@ -458,8 +461,8 @@ function LicenseSheet({ t: tpl, open, onClose }: { t: Template; open: boolean; o
 function HeroSkeleton() {
   const { c, card } = useTheme();
   return (
-    <View style={{ paddingHorizontal: space.gutter, gap: 20 }}>
-      <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 14 }, card]}>
+    <View style={{ paddingHorizontal: space.gutter, gap: 24 }}>
+      <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 16 }, card]}>
         <Skeleton height={210} radius={radius.media} />
         <Skeleton width="70%" height={24} />
         <Skeleton width="90%" height={16} />

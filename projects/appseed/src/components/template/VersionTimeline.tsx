@@ -14,12 +14,12 @@ export function VersionTimeline({ versions }: { versions: Version[] }) {
   return (
     <View>
       {versions.map((v, i) => (
-        <View key={v.version} style={{ flexDirection: "row", gap: 14 }}>
+        <View key={v.version} style={{ flexDirection: "row", gap: 16 }}>
           <View style={{ alignItems: "center", width: 12 }}>
             <Animated.View entering={popIn(i, 120)} style={{ width: 12, height: 12, borderRadius: 6, marginTop: 4, backgroundColor: i === 0 ? c.accent : c.bgElevated, borderWidth: 2, borderColor: i === 0 ? c.accent : c.fgSubtle }} />
             {i < versions.length - 1 && <Animated.View entering={growDown(i * 120 + 80)} style={{ flex: 1, width: 2, backgroundColor: c.border, marginVertical: 4, transformOrigin: "top" }} />}
           </View>
-          <Animated.View entering={slideInAt(i, 120)} style={{ flex: 1, paddingBottom: 20, gap: 4 }}>
+          <Animated.View entering={slideInAt(i, 120)} style={{ flex: 1, paddingBottom: 24, gap: 4 }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Txt variant="bodyStrong" tabular style={{ fontFamily: font.monoBold, fontSize: 12 }}>
                 v{v.version}

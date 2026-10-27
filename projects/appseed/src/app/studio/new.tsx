@@ -66,7 +66,7 @@ export default function UploadWizard() {
         nextLabel={step === UPLOAD_STEPS - 1 ? t("upload.submit") : t("common.next")}
         shakeKey={shake}
       >
-        <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: space.gutter, paddingBottom: 24, gap: 18 }}>
+        <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: space.gutter, paddingBottom: 24, gap: 16 }}>
           {step === 0 && (
             <>
               <Field label={t("upload.name")} value={d.name} onChangeText={(name) => patch({ name })} />
@@ -108,7 +108,7 @@ export default function UploadWizard() {
           {step === 3 && (
             <>
               {d.storySteps.map((s, i) => (
-                <Animated.View key={i} entering={rowIn} exiting={rowOut} layout={reorder} style={{ gap: 10, padding: 14, borderRadius: radius.card, backgroundColor: c.bgElevated, borderWidth: 1, borderColor: c.border }}>
+                <Animated.View key={i} entering={rowIn} exiting={rowOut} layout={reorder} style={{ gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, borderWidth: 1, borderColor: c.border }}>
                   <Txt variant="eyebrow" tone="fgSubtle">
                     {t("template.step", { n: i + 1 })}
                   </Txt>
@@ -116,7 +116,7 @@ export default function UploadWizard() {
                   <Field label={t("upload.stepBody")} value={s.body} multiline onChangeText={(body) => patch({ storySteps: d.storySteps.map((x, j) => (j === i ? { ...x, body } : x)) })} />
                 </Animated.View>
               ))}
-              <PressableScale onPress={() => patch({ storySteps: [...d.storySteps, { title: "", body: "" }] })} hapticKind="tap" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: radius.control + 2, backgroundColor: c.bgMuted }}>
+              <PressableScale onPress={() => patch({ storySteps: [...d.storySteps, { title: "", body: "" }] })} hapticKind="tap" style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
                 <Icon name="plus" size={18} color={c.fg} motion="spin" trigger={d.storySteps.length} />
                 <Txt variant="bodyStrong">{t("upload.addStep")}</Txt>
               </PressableScale>
@@ -139,7 +139,7 @@ export default function UploadWizard() {
                   <Chip key={l} label={t(`license.${l}`)} selected={d.license === l} onPress={() => patch({ license: l })} />
                 ))}
               </Group>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
                 <Txt style={{ flex: 1 }}>{t("upload.original")}</Txt>
                 <Switch label={t("upload.original")} value={d.originalityConfirmed} onValueChange={(v) => patch({ originalityConfirmed: v })} />
               </View>

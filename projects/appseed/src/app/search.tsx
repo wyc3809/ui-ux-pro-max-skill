@@ -73,7 +73,7 @@ export default function SearchScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top + 6 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: space.gutter }}>
         <SearchInput ref={input} value={q} onChangeText={setQ} placeholder={t("explore.searchPlaceholder")} onSubmit={() => history.add(q)} />
         <PressableScale onPress={() => router.back()} style={{ height: 44, justifyContent: "center" }} accessibilityLabel={t("common.cancel")}>
           <Txt variant="bodyStrong" tone="accent">
@@ -86,7 +86,7 @@ export default function SearchScreen() {
         {KINDS.map((k) => (
           <Chip key={k} label={k === "all" ? t("search.any") : t(`hub.${k}`)} selected={kind === k} onPress={() => setKind(k)} />
         ))}
-        <View style={{ width: 1, alignSelf: "stretch", marginVertical: 6, backgroundColor: c.border }} />
+        <View style={{ width: 1, alignSelf: "stretch", marginVertical: 8, backgroundColor: c.border }} />
         <Chip label={t("search.filters")} selected={active} onPress={() => setSheet(true)} trailing={<Icon name="sliders" size={15} color={active ? c.bg : c.fg} active={active} motion="spin" />} />
         <Chip label={`${t("search.price")} · ${filters.price === "any" ? t("search.any") : filters.price === "free" ? t("common.free") : t("search.paid")}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
         <Chip label={`${t("search.platform")} · ${filters.platform === "any" ? t("search.any") : filters.platform}`} onPress={() => setSheet(true)} trailing={<Icon name="chevronDown" size={14} color={c.fgSubtle} motion="bounce" trigger={sheet} enter={false} />} />
@@ -107,7 +107,7 @@ export default function SearchScreen() {
           </View>
           {history.queries.map((h) => (
             <Animated.View key={h} entering={rowIn} exiting={rowOut} layout={reorder}>
-              <PressableScale onPress={() => setQ(h)} scaleTo={0.99} style={{ flexDirection: "row", alignItems: "center", gap: 10, height: 44 }}>
+              <PressableScale onPress={() => setQ(h)} scaleTo={0.99} style={{ flexDirection: "row", alignItems: "center", gap: 12, height: 44 }}>
                 <Icon name="clock" size={16} color={c.fgSubtle} />
                 <Txt>{h}</Txt>
               </PressableScale>
@@ -226,7 +226,7 @@ function FilterSheet({ open, value, onClose, onApply }: { open: boolean; value: 
 
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <View style={{ gap: 8, marginBottom: 6 }}>
+    <View style={{ gap: 8, marginBottom: 8 }}>
       <Txt variant="eyebrow" tone="fgSubtle">
         {label}
       </Txt>

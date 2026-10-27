@@ -52,7 +52,7 @@ export function ListingWizard({ title, steps, step, setStep, missing, submitLabe
         <HeaderButton icon="close" motion="spin" label={t("common.close")} onPress={() => router.back()} />
       </View>
       <UploadStepper step={step} total={steps.length} titles={steps} onBack={() => setStep(Math.max(0, step - 1))} onNext={next} nextLabel={last ? submitLabel : t("common.next")} shakeKey={shake}>
-        <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: space.gutter, paddingBottom: 24, gap: 18 }}>
+        <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: space.gutter, paddingBottom: 24, gap: 16 }}>
           {children}
         </ScrollView>
       </UploadStepper>

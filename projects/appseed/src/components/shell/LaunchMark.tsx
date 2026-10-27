@@ -25,7 +25,7 @@ export function LaunchMark() {
   const seed = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
-      <Animated.View style={[{ width: 76, height: 76, borderRadius: 24, backgroundColor: c.accent, alignItems: "center", justifyContent: "flex-end", paddingBottom: 18 }, tile]}>
+      <Animated.View style={[{ width: 76, height: 76, borderRadius: 24, backgroundColor: c.accent, alignItems: "center", justifyContent: "flex-end", paddingBottom: 16 }, tile]}>
         <Animated.View style={[{ width: 18, height: 22, borderRadius: 11, backgroundColor: c.accentFg }, seed]} />
       </Animated.View>
     </View>

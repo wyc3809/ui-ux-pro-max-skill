@@ -30,7 +30,7 @@ export function StatusBadge({ status }: { status: TemplateStatus }) {
   }, [bg, p, s, fromBg]);
   const a = useAnimatedStyle(() => ({ backgroundColor: interpolateColor(p.value, [0, 1], [fromBg.value, bg]), transform: [{ scale: s.value }] }));
   return (
-    <Animated.View accessible accessibilityLabel={label} style={[{ alignSelf: "flex-start", paddingHorizontal: 9, height: 22, justifyContent: "center", borderRadius: radius.chip }, a]}>
+    <Animated.View accessible accessibilityLabel={label} style={[{ alignSelf: "flex-start", paddingHorizontal: 8, height: 22, justifyContent: "center", borderRadius: radius.chip }, a]}>
       <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: fg }}>{label}</Txt>
     </Animated.View>
   );

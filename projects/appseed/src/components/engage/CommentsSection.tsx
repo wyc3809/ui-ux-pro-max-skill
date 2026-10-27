@@ -58,7 +58,7 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
   const ready = validateComment(text) == null;
 
   return (
-    <View style={[{ padding: 14, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
+    <View style={[{ padding: 16, borderRadius: radius.card, backgroundColor: c.bgElevated, gap: 12 }, card]}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <Icon name="comment" size={17} color={c.accent} active />
         <Txt variant="section" style={{ flex: 1 }}>
@@ -101,7 +101,7 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
           </PressableScale>
         </View>
       ) : (
-        <PressableScale onPress={() => requireAuth("engage.reasonComment", () => {})} scaleTo={0.99} accessibilityLabel={t("engage.placeholder")} style={{ height: 44, justifyContent: "center", paddingHorizontal: 12, borderRadius: radius.control + 2, backgroundColor: c.bgMuted }}>
+        <PressableScale onPress={() => requireAuth("engage.reasonComment", () => {})} scaleTo={0.99} accessibilityLabel={t("engage.placeholder")} style={{ height: 44, justifyContent: "center", paddingHorizontal: 12, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
           <Txt tone="fgSubtle">{t("engage.placeholder")}</Txt>
         </PressableScale>
       )}
@@ -146,12 +146,12 @@ function CommentRow({ cm, now, mine, onDelete }: { cm: Comment; now: number; min
   const { c } = useTheme();
   const t = useT();
   return (
-    <View style={{ flexDirection: "row", gap: 10, paddingVertical: 10, borderTopWidth: 1, borderTopColor: c.border }}>
+    <View style={{ flexDirection: "row", gap: 12, paddingVertical: 12 }}>
       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: mine ? c.accent : c.accentSoft, alignItems: "center", justifyContent: "center" }}>
         <Txt style={{ fontFamily: font.bold, color: mine ? c.accentFg : c.accent }}>{cm.author.slice(0, 1).toUpperCase()}</Txt>
       </View>
-      <View style={{ flex: 1, gap: 3 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <View style={{ flex: 1, gap: 4 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <Txt variant="bodyStrong" numberOfLines={1} style={{ flexShrink: 1 }}>
             {mine ? t("engage.you") : cm.author}
           </Txt>

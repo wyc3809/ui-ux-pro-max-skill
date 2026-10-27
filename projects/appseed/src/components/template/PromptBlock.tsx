@@ -29,11 +29,11 @@ export function PromptBlock({ tool, text }: { tool: string; text: string }) {
   };
   return (
     <Animated.View layout={LinearTransition.duration(motion.rowIn.duration).easing(motion.rowIn.easing).reduceMotion(ReduceMotion.System)} style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, overflow: "hidden", borderWidth: 1, borderColor: c.border }}>
-      <View style={{ flexDirection: "row", alignItems: "center", paddingLeft: 14, paddingRight: 6, paddingTop: 6 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", paddingLeft: 16, paddingRight: 8, paddingTop: 8 }}>
         <Txt variant="eyebrow" tone="fgSubtle" style={{ flex: 1 }}>
           {tool === "Claude Code" ? "PROMPT · CLAUDE CODE" : `PROMPT · ${tool}`}
         </Txt>
-        <PressableScale onPress={copy} accessibilityLabel={t("common.copy")} style={{ height: 36, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 10 }}>
+        <PressableScale onPress={copy} accessibilityLabel={t("common.copy")} style={{ height: 36, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 10 }}>
           <Animated.View key={copied ? "y" : "n"} entering={ZoomIn.duration(180)}>
             {copied ? <Icon name="checkCircle" size={16} color={c.live} active /> : <Icon name="copy" size={15} color={c.fgMuted} />}
           </Animated.View>
@@ -43,14 +43,14 @@ export function PromptBlock({ tool, text }: { tool: string; text: string }) {
         </PressableScale>
       </View>
       <Pressable onLongPress={copy} delayLongPress={350}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 14, paddingTop: 2 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16, paddingTop: 2 }}>
           <Txt variant="code" selectable>
             {shown}
           </Txt>
         </ScrollView>
       </Pressable>
       {long && (
-        <PressableScale onPress={() => setExpanded((e) => !e)} style={{ height: 40, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: c.border }}>
+        <PressableScale onPress={() => setExpanded((e) => !e)} style={{ height: 40, alignItems: "center", justifyContent: "center", backgroundColor: c.bgMuted }}>
           <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
             {expanded ? t("common.collapse") : t("common.expand")}
           </Txt>

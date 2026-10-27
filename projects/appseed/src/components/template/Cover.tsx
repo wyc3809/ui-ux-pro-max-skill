@@ -44,7 +44,7 @@ export function Cover({ t, style, screen = 0, rounded = radius.media }: { t: { c
         <View style={{ position: "absolute", top: "18%", left: "8%", opacity: 0.95 }}>
           <Icon name={icons[t.cover.icon]} size={36} color="#ffffff" active enterDelay={120} />
         </View>
-        <Animated.View entering={startFrom(FadeInDown.springify().damping(16).stiffness(140).delay(60), { opacity: 0, transform: [{ translateY: 40 }] }).reduceMotion(RM)} style={{ width: "38%", height: "78%", borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: "rgba(255,255,255,0.92)", padding: 10, gap: 6, transform: [{ translateX: 34 }] }}>
+        <Animated.View entering={startFrom(FadeInDown.springify().damping(16).stiffness(140).delay(60), { opacity: 0, transform: [{ translateY: 40 }] }).reduceMotion(RM)} style={{ width: "38%", height: "78%", borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: "rgba(255,255,255,0.92)", padding: 12, gap: 8, transform: [{ translateX: 34 }] }}>
           <Animated.View entering={FadeInLeft.duration(260).delay(260).reduceMotion(RM)} style={{ height: 8, width: "55%", borderRadius: 4, backgroundColor: t.cover.from, opacity: 0.85 }} />
           <Animated.View entering={FadeIn.duration(260).delay(330).reduceMotion(RM)} style={{ height: 30, borderRadius: 8, backgroundColor: t.cover.to, opacity: 0.35 + (screen % 3) * 0.15 }} />
           {[0.9, 0.7, 0.8].map((w, i) => (

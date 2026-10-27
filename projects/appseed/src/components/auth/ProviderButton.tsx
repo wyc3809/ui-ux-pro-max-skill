@@ -28,7 +28,7 @@ export function ProviderButton({ provider, label, loading, disabled, onPress, in
         accessibilityLabel={label}
         accessibilityState={{ busy: loading, disabled }}
         scaleTo={0.98}
-        style={{ height: hit + 6, borderRadius: radius.control + 2, backgroundColor: bg, borderWidth: apple ? 0 : 1.5, borderColor: c.border, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, opacity: disabled && !loading ? 0.5 : 1 }}
+        style={{ height: hit + 6, borderRadius: radius.control, backgroundColor: bg, borderWidth: apple ? 0 : 1.5, borderColor: c.border, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, opacity: disabled && !loading ? 0.5 : 1 }}
       >
         {loading ? (
           <Spinner color={fg} />

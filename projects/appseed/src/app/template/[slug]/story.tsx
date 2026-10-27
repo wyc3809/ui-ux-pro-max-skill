@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useOwned, useTemplate } from "@/api/queries";
 import { StoryStep } from "@/components/template/StoryStep";
 import { Button } from "@/components/ui/Button";
+import { Glass } from "@/components/ui/Glass";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
 import { ListRow } from "@/components/ui/ListRow";
@@ -52,15 +53,18 @@ export default function StoryScreen() {
   const jump = (i: number) => {
     setToc(false);
     const y = offsets.current[i] ?? 0;
-    scheduleOnUI(() => scrollTo(ref, 0, Math.max(0, y - 12), true));
+    // Land the step just below the floating glass header.
+    const header = insets.top + 56 + 3 + 12;
+    scheduleOnUI(() => scrollTo(ref, 0, Math.max(0, y - header), true));
   };
 
   const visible = owned ? tpl?.story.length ?? 0 : tpl?.freePreviewSteps ?? 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <View style={{ paddingTop: insets.top, backgroundColor: c.bg, zIndex: 2 }}>
-        <View style={{ height: 52, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingTop: insets.top, zIndex: 2 }}>
+        <Glass style={{ position: "absolute", inset: 0 }} />
+        <View style={{ height: 56, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: space.gutter }}>
           <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => router.back()} />
           <Txt variant="section" numberOfLines={1} style={{ flex: 1, textAlign: "center" }}>
             {t("template.story")}
@@ -83,7 +87,7 @@ export default function StoryScreen() {
             mmkv.set(posKey, String(y));
           }
         }}
-        contentContainerStyle={{ padding: space.gutter + 4, paddingBottom: insets.bottom + 48 }}
+        contentContainerStyle={{ padding: space.gutter + 8, paddingTop: insets.top + 56 + 3 + 24, paddingBottom: insets.bottom + 48 }}
       >
         {!tpl ? (
           <View style={{ gap: 12 }}>
@@ -94,7 +98,7 @@ export default function StoryScreen() {
           </View>
         ) : (
           <>
-            <Reveal style={{ gap: 6, marginBottom: 28 }}>
+            <Reveal style={{ gap: 8, marginBottom: 32 }}>
               <Txt variant="eyebrow" tone="fgSubtle">
                 {t("template.story")}
               </Txt>
@@ -108,7 +112,7 @@ export default function StoryScreen() {
               </Reveal>
             ))}
             {!owned && tpl.story.length > visible && (
-              <Reveal index={2} style={{ marginTop: 28, padding: 20, borderRadius: 22, backgroundColor: c.accentSoft, alignItems: "center", gap: 12 }}>
+              <Reveal index={2} style={{ marginTop: 32, padding: 24, borderRadius: 24, backgroundColor: c.accentSoft, alignItems: "center", gap: 12 }}>
                 <Icon name="lock" size={24} color={c.accent} active motion="wiggle" loop="breathe" />
                 <Txt variant="bodyStrong" style={{ textAlign: "center" }}>
                   {t("template.unlockAll", { n: tpl.story.length })}

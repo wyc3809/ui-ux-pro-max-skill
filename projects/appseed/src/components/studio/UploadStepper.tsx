@@ -75,7 +75,7 @@ export function UploadStepper({ step, total, titles, onBack, onNext, nextLabel, 
         </Txt>
       </View>
       <Animated.View style={body}>{children}</Animated.View>
-      <View style={{ flexDirection: "row", gap: 10, paddingHorizontal: space.gutter, paddingTop: 12, paddingBottom: insets.bottom + 12, borderTopWidth: 1, borderTopColor: c.border, backgroundColor: c.bg }}>
+      <View style={{ flexDirection: "row", gap: 12, paddingHorizontal: space.gutter, paddingTop: 12, paddingBottom: insets.bottom + 12, backgroundColor: c.bg }}>
         <Button label={t("common.back")} variant="secondary" onPress={onBack} disabled={step === 0} style={{ flex: 1 }} />
         <Animated.View style={next}>
           <Button label={nextLabel} onPress={onNext} />

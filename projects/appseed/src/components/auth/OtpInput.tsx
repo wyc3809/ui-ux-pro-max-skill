@@ -44,7 +44,7 @@ export function OtpInput({ value, onChange, onComplete, error, errorKey, label }
               style={{
                 width: 46,
                 height: 56,
-                borderRadius: radius.control + 2,
+                borderRadius: radius.control,
                 backgroundColor: c.bgMuted,
                 borderWidth: 1.5,
                 borderColor: error ? c.danger : active ? c.accent : "transparent",

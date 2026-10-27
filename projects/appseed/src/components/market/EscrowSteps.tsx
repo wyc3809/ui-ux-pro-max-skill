@@ -20,9 +20,9 @@ export function EscrowSteps({ steps, active = -1 }: { steps: string[]; active?: 
                   {i + 1}
                 </Txt>
               </Animated.View>
-              {i < steps.length - 1 && <Animated.View entering={growDown(i * 110 + 80)} style={{ width: 2, flex: 1, minHeight: 18, backgroundColor: c.border, marginVertical: 3, transformOrigin: "top" }} />}
+              {i < steps.length - 1 && <Animated.View entering={growDown(i * 110 + 80)} style={{ width: 2, flex: 1, minHeight: 18, backgroundColor: c.border, marginVertical: 4, transformOrigin: "top" }} />}
             </View>
-            <Animated.View entering={slideInAt(i, 110)} style={{ flex: 1, paddingTop: 3, paddingBottom: 16 }}>
+            <Animated.View entering={slideInAt(i, 110)} style={{ flex: 1, paddingTop: 4, paddingBottom: 16 }}>
               <Txt>{label}</Txt>
             </Animated.View>
           </View>

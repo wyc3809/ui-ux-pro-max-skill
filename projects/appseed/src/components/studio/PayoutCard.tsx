@@ -14,7 +14,7 @@ export function PayoutCard({ amount, next }: { amount: number; next: string }) {
   const t = useT();
   const [taps, setTaps] = useState(0);
   return (
-    <Card style={{ gap: 6 }}>
+    <Card style={{ gap: 8 }}>
       <Txt variant="eyebrow" tone="fgSubtle">
         {t("studio.payoutAvailable")}
       </Txt>

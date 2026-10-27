@@ -83,8 +83,8 @@ export default function BuyoutScreen() {
               <Button label={t("buyout.sold")} disabled style={{ flex: 1 }} />
             ) : (
               <>
-                <Button label={t("buyout.makeOffer")} variant="secondary" onPress={() => requireAuth("auth.reasonOffer", () => setSheet("offer"))} style={{ flex: 1, paddingHorizontal: 6 }} />
-                <Button label={t("buyout.buyNow")} onPress={() => requireAuth("auth.reasonOffer", () => setSheet("buy"))} style={{ flex: 1.15, paddingHorizontal: 6 }} />
+                <Button label={t("buyout.makeOffer")} variant="secondary" onPress={() => requireAuth("auth.reasonOffer", () => setSheet("offer"))} style={{ flex: 1, paddingHorizontal: 8 }} />
+                <Button label={t("buyout.buyNow")} onPress={() => requireAuth("auth.reasonOffer", () => setSheet("buy"))} style={{ flex: 1.15, paddingHorizontal: 8 }} />
               </>
             )}
           </BottomBar>
@@ -100,7 +100,7 @@ export default function BuyoutScreen() {
               <ZoomTarget>
                 <Cover t={b} rounded={nested(radius.hero, 12)} />
               </ZoomTarget>
-              <View style={{ paddingHorizontal: 6, gap: 6 }}>
+              <View style={{ paddingHorizontal: 8, gap: 8 }}>
                 <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                   <TonePill label={t(`buyout.${b.status}`)} tone={buyoutTone(b.status)} />
                   <Txt variant="caption" tone={b.verified ? "live" : "fgSubtle"}>
@@ -124,7 +124,7 @@ export default function BuyoutScreen() {
           <EngagementPanel kind="buyout" slug={b.slug} title={b.name} extra={{ icon: "hand", label: t("engage.offers"), value: b.offers + (myOffer ? 1 : 0) }} onComments={jumpTo.jump} />
 
           {myOffer && (
-            <Reveal index={1} style={{ flexDirection: "row", gap: 10, alignItems: "center", padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+            <Reveal index={1} style={{ flexDirection: "row", gap: 12, alignItems: "center", padding: 16, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
               <Icon name="hand" size={18} color={c.pending} active motion="wiggle" />
               <Txt style={{ flex: 1 }}>
                 {t("mine.offers")} {hk(myOffer.amount)} · {t("mine.offerSent")}
@@ -133,7 +133,7 @@ export default function BuyoutScreen() {
           )}
 
           <Section index={1} inset={false}>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
               <MetricTile label={t("buyout.monthlyRevenue")} value={b.monthlyRevenue} prefix="HK$" empty={b.monthlyRevenue === 0 ? t("buyout.preRevenue") : undefined} />
               <MetricTile label={t("buyout.mau")} value={b.monthlyActive} />
               <MetricTile label={t("buyout.downloads")} value={b.downloads} />
@@ -153,14 +153,14 @@ export default function BuyoutScreen() {
           )}
 
           <Section title={t("buyout.included")} index={2} inset={false}>
-            <Card style={{ gap: 10 }}>
+            <Card style={{ gap: 12 }}>
               {b.included.map((item, i) => (
-                <Animated.View key={item} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+                <Animated.View key={item} entering={slideInAt(i)} style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
                   <Icon name="checkCircle" size={18} color={c.live} active enterDelay={i * 80} />
                   <Txt style={{ flex: 1 }}>{item}</Txt>
                 </Animated.View>
               ))}
-              <View style={{ paddingTop: 6 }}>
+              <View style={{ paddingTop: 8 }}>
                 <StackChips stack={b.stack} />
               </View>
             </Card>
@@ -196,7 +196,7 @@ export default function BuyoutScreen() {
 function MetricTile({ label, value, prefix = "", empty, note }: { label: string; value: number; prefix?: string; empty?: string; note?: string }) {
   const { c, card } = useTheme();
   return (
-    <View style={[{ flexBasis: "47%", flexGrow: 1, padding: 14, borderRadius: radius.row, backgroundColor: c.bgElevated, gap: 4 }, card]}>
+    <View style={[{ flexBasis: "47%", flexGrow: 1, padding: 16, borderRadius: radius.row, backgroundColor: c.bgElevated, gap: 4 }, card]}>
       <Txt variant="caption" tone="fgSubtle">
         {label}
       </Txt>
@@ -274,7 +274,7 @@ function OfferSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onC
         })}
       </View>
       {error ? (
-        <Reveal style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 10, borderRadius: radius.control, backgroundColor: c.warnSoft }}>
+        <Reveal style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 12, borderRadius: radius.control, backgroundColor: c.warnSoft }}>
           <Icon name="warning" size={16} color={c.warn} active motion="wiggle" />
           <Txt tone="warn" style={{ flex: 1 }}>
             {error}
@@ -330,7 +330,7 @@ function BuyNowSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; on
       }
     >
       <Txt variant="section">{b.name}</Txt>
-      <View style={{ gap: 8, padding: 14, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
+      <View style={{ gap: 8, padding: 16, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
         <Row label={t("buyout.asking")} value={hk(b.asking)} />
         <Row label={t("buyout.escrowFee")} value={hk(fee)} />
         <View style={{ height: 1, backgroundColor: c.border }} />

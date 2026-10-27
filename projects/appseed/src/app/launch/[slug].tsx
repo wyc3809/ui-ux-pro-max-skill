@@ -67,7 +67,7 @@ export default function LaunchScreen() {
     <DetailScaffold
       scrollRef={jumpTo.ref}
       title={l?.name}
-      right={l ? <HeaderButton icon="share" motion="bounce" label="Share" onPress={() => Share.share({ message: `${l.name} https://appseed.app/l/${l.slug}` })} /> : undefined}
+      right={l ? <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => Share.share({ message: `${l.name} https://appseed.app/l/${l.slug}` })} /> : undefined}
       bottom={
         l ? (
           <BottomBar>
@@ -86,7 +86,7 @@ export default function LaunchScreen() {
               <ZoomTarget>
                 <Cover t={l} rounded={nested(radius.hero, 12)} />
               </ZoomTarget>
-              <View style={{ paddingHorizontal: 6, gap: 6 }}>
+              <View style={{ paddingHorizontal: 8, gap: 8 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                   <Txt variant="eyebrow" tone="fgSubtle">
                     {formatDate(l.launchedAt, t.locale)}
@@ -101,7 +101,7 @@ export default function LaunchScreen() {
                 </Txt>
               </View>
               {maker && (
-                <PressableScale onPress={() => router.push(`/creator/${maker.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
+                <PressableScale onPress={() => router.push(`/creator/${maker.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>
                   <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
                     <Txt tone="accent" style={{ fontFamily: font.bold }}>
                       {maker.name[0]}
@@ -115,7 +115,7 @@ export default function LaunchScreen() {
                   </Txt>
                 </PressableScale>
               )}
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, paddingHorizontal: 6, paddingBottom: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, paddingHorizontal: 8, paddingBottom: 8 }}>
                 {l.aiTools.map((tool, i) => (
                   <Tag key={tool} label={tool} index={i} />
                 ))}

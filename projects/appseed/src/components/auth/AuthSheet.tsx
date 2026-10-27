@@ -166,7 +166,7 @@ export function AuthSheet() {
 function OrDivider({ label }: { label: string }) {
   const { c } = useTheme();
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginVertical: 2 }}>
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginVertical: 2 }}>
       <View style={{ flex: 1, height: 1, backgroundColor: c.border }} />
       <Txt variant="caption" tone="fgSubtle">
         {label}
@@ -246,7 +246,7 @@ function CodeStep({ email, sentAt, onResent, onBack, onLanded }: { email: string
           </Txt>
         </PressableScale>
       </View>
-      <View style={{ padding: 10, borderRadius: radius.control, backgroundColor: c.pendingSoft }}>
+      <View style={{ padding: 12, borderRadius: radius.control, backgroundColor: c.pendingSoft }}>
         <Txt variant="caption" style={{ textAlign: "center" }}>
           {t("auth.demoCode", { code: DEMO_OTP })}
         </Txt>
@@ -310,10 +310,10 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
             : null;
 
   return (
-    <View style={{ gap: 14 }}>
+    <View style={{ gap: 16 }}>
       <Txt tone="fgMuted">{t("auth.profileBody")}</Txt>
       {ticket.email && (
-        <View style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 10, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
+        <View style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 12, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
           <Icon name="mail" size={16} color={c.fgMuted} />
           <Txt variant="caption" style={{ flex: 1 }} numberOfLines={1}>
             {ticket.email}
@@ -328,7 +328,7 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
       <Field inSheet label={t("auth.name")} value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
       <Field inSheet label={t("auth.handle")} value={handle} onChangeText={(v) => setHandle(v.toLowerCase().replace(/\s/g, ""))} autoCapitalize="none" autoCorrect={false} />
       {status && (
-        <Reveal key={status.label} style={{ flexDirection: "row", gap: 6, alignItems: "center", marginTop: -6 }}>
+        <Reveal key={status.label} style={{ flexDirection: "row", gap: 8, alignItems: "center", marginTop: -8 }}>
           <Icon name={status.icon} size={15} color={c[status.tone]} active loop={availability === "checking" && !formatError ? "breathe" : undefined} />
           <Txt variant="caption" tone={status.tone}>
             @{handle} · {status.label}
@@ -365,7 +365,7 @@ function DoneStep({ name, returning }: { name: string; returning: boolean }) {
   }, [ring]);
   const a = useAnimatedStyle(() => ({ opacity: 1 - ring.value, transform: [{ scale: 0.6 + ring.value * 1.2 }] }));
   return (
-    <View style={{ alignItems: "center", gap: 14, paddingVertical: 28 }}>
+    <View style={{ alignItems: "center", gap: 16, paddingVertical: 32 }}>
       <View style={{ width: 88, height: 88, alignItems: "center", justifyContent: "center" }}>
         <Animated.View style={[{ position: "absolute", width: 88, height: 88, borderRadius: 44, backgroundColor: c.liveSoft }, a]} />
         <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.liveSoft, alignItems: "center", justifyContent: "center" }}>

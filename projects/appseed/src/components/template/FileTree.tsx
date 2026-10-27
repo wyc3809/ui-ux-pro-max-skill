@@ -14,7 +14,7 @@ import { motion, radius } from "@/theme/tokens";
 export function FileTree({ nodes }: { nodes: FileNode[] }) {
   const { c } = useTheme();
   return (
-    <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, paddingVertical: 6, borderWidth: 1, borderColor: c.border }}>
+    <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, paddingVertical: 8, borderWidth: 1, borderColor: c.border }}>
       {nodes.map((n) => (
         <Node key={n.name} node={n} depth={0} defaultOpen={n.name === "app"} />
       ))}

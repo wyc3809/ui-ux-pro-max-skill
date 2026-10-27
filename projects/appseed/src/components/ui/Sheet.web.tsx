@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Pressable, ScrollView, View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
+import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space, font } from "@/theme/tokens";
 import type { SheetProps } from "./Sheet";
@@ -16,6 +17,7 @@ import { Txt } from "./Txt";
  */
 export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
   const { c } = useTheme();
+  const t = useT();
   useSheetDepth(open);
   const [mounted, setMounted] = useState(open);
   const p = useSharedValue(0);
@@ -46,7 +48,7 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
   return createPortal(
     <View style={{ position: "fixed" as "absolute", inset: 0, zIndex: 50, justifyContent: "flex-end", alignItems: "center" }}>
       <Animated.View style={[{ position: "absolute", inset: 0, backgroundColor: c.overlay }, backdrop]}>
-        <Pressable accessibilityLabel="close" onPress={onClose} style={{ flex: 1 }} />
+        <Pressable accessibilityLabel={t("common.close")} onPress={onClose} style={{ flex: 1 }} />
       </Animated.View>
       <Animated.View
         accessibilityViewIsModal

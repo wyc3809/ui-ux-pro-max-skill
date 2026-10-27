@@ -51,7 +51,7 @@ export default function NewPrompt() {
               <Txt variant="caption" tone="fgMuted">
                 {t("form.detectedVars", { n: vars.length })}
               </Txt>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 {vars.map((v, i) => (
                   <Tag key={v} label={`{{${v}}}`} index={i} />
                 ))}
@@ -68,7 +68,7 @@ export default function NewPrompt() {
             ))}
           </Group>
           {/* Live preview of exactly what a non-buyer will see. */}
-          <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, padding: 14, gap: 8, borderWidth: 1, borderColor: c.border }}>
+          <View style={{ backgroundColor: c.bgCode, borderRadius: radius.inset, padding: 16, gap: 8, borderWidth: 1, borderColor: c.border }}>
             <Txt variant="eyebrow" tone="fgSubtle">
               {t("promptPage.preview")}
             </Txt>
