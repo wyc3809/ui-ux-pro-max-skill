@@ -18,7 +18,7 @@ export function SearchBarButton({ placeholder, onPress, label }: { placeholder: 
   return (
     <PressableScale onPress={onPress} accessibilityLabel={label} hapticKind="tap" scaleTo={0.98} style={[shell, { backgroundColor: c.bgElevated }, card]}>
       <Icon name="search" size={18} color={c.fgSubtle} />
-      <Txt tone="fgSubtle" style={{ fontSize: 15 }}>
+      <Txt tone="fgSubtle" style={{ fontSize: 16, lineHeight: 24 }}>
         {placeholder}
       </Txt>
     </PressableScale>
@@ -43,7 +43,7 @@ export const SearchInput = forwardRef<TextInputInstance, InputProps>(function Se
         onSubmitEditing={onSubmit}
         autoCorrect={false}
         maxFontSizeMultiplier={1.4}
-        style={[{ flex: 1, height: "100%", color: c.fg, fontFamily: font.medium, fontSize: 15 }, noOutline]}
+        style={[{ flex: 1, height: "100%", color: c.fg, fontFamily: font.medium, fontSize: 16 }, noOutline]}
       />
       {value.length > 0 && (
         <Animated.View entering={ZoomIn.duration(160)} exiting={ZoomOut.duration(120)}>

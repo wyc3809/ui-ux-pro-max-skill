@@ -2,20 +2,20 @@ import { render, screen } from "@testing-library/react-native";
 import fs from "fs";
 import path from "path";
 import { Icon, ICONS } from "../Icon";
+import { PHOSPHOR_FILL, PHOSPHOR_REGULAR } from "../phosphorGlyphs";
 
 describe("Icon", () => {
   // Icons are decorative (hidden from screen readers); the label lives on the button.
   it("stacks outline and filled glyphs so state changes morph instead of swap", async () => {
     await render(<Icon name="heart" color="#000" active />);
-    expect(screen.getByText("heart-outline", { includeHiddenElements: true })).toBeTruthy();
-    expect(screen.getByText("heart", { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.getByText("phosphor-regular:heart", { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.getByText("phosphor-fill:heart", { includeHiddenElements: true })).toBeTruthy();
   });
 
-  it("maps every logical name to an Ionicons glyph that has an outline twin", () => {
-    const glyphs = require("@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json") as Record<string, number>;
+  it("maps every logical name to a Phosphor glyph present in both the regular and fill fonts", () => {
     for (const base of Object.values(ICONS)) {
-      expect(glyphs[base]).toBeDefined();
-      expect(glyphs[`${base}-outline`]).toBeDefined();
+      expect(PHOSPHOR_REGULAR[base]).toBeDefined();
+      expect(PHOSPHOR_FILL[base]).toBeDefined();
     }
   });
 });

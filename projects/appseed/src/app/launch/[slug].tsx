@@ -31,7 +31,7 @@ import { formatDate } from "@/lib/format";
 import { requireAuth } from "@/store/authGate";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 
 /** A promoted vibe-coded app: maker's story, tools used, links, and the template / prompt behind it. */
 export default function LaunchScreen() {
@@ -100,7 +100,7 @@ export default function LaunchScreen() {
               {maker && (
                 <PressableScale onPress={() => router.push(`/creator/${maker.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
                   <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-                    <Txt tone="accent" style={{ fontFamily: "DMSans_800ExtraBold" }}>
+                    <Txt tone="accent" style={{ fontFamily: font.bold }}>
                       {maker.name[0]}
                     </Txt>
                   </View>

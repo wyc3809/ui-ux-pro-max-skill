@@ -9,7 +9,7 @@ import { useT } from "@/i18n";
 import { formatDate } from "@/lib/format";
 import { reorder } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 
 export function ReviewRow({ r }: { r: Review }) {
   const { c } = useTheme();
@@ -19,7 +19,7 @@ export function ReviewRow({ r }: { r: Review }) {
     <Animated.View layout={reorder} style={{ gap: 8, paddingVertical: 14 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-          <Txt tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>{r.author[0]}</Txt>
+          <Txt tone="accent" style={{ fontFamily: font.semibold }}>{r.author[0]}</Txt>
         </View>
         <View style={{ flex: 1 }}>
           <Txt variant="bodyStrong">{r.author}</Txt>
@@ -36,7 +36,7 @@ export function ReviewRow({ r }: { r: Review }) {
         <View style={{ flexDirection: "row", gap: 8, marginLeft: 12, padding: 12, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
           <Icon name="reply" size={15} color={c.fgSubtle} enterDelay={120} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Txt variant="caption" tone="fgSubtle" style={{ fontFamily: "DMSans_700Bold" }}>
+            <Txt variant="caption" tone="fgSubtle" style={{ fontFamily: font.semibold }}>
               {t("template.creatorReply")}
             </Txt>
             <Txt>{r.reply}</Txt>

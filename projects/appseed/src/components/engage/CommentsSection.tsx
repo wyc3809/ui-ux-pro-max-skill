@@ -82,7 +82,7 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
               maxLength={COMMENT_MAX + 50}
               accessibilityLabel={t("engage.placeholder")}
               maxFontSizeMultiplier={1.4}
-              style={[{ minHeight: 44, maxHeight: 120, paddingHorizontal: 12, paddingVertical: 11, borderRadius: radius.control + 2, backgroundColor: c.bgMuted, color: c.fg, fontFamily: font.regular, fontSize: 15 }, noOutline]}
+              style={[{ minHeight: 44, maxHeight: 120, paddingHorizontal: 12, paddingVertical: 12, borderRadius: radius.control, backgroundColor: c.bgMuted, color: c.fg, fontFamily: font.regular, fontSize: 16 }, noOutline]}
             />
             {text.length > COMMENT_MAX - 100 && (
               <Txt variant="caption" tone={text.length > COMMENT_MAX ? "danger" : "fgSubtle"} tabular style={{ textAlign: "right" }}>
@@ -148,7 +148,7 @@ function CommentRow({ cm, now, mine, onDelete }: { cm: Comment; now: number; min
   return (
     <View style={{ flexDirection: "row", gap: 10, paddingVertical: 10, borderTopWidth: 1, borderTopColor: c.border }}>
       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: mine ? c.accent : c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-        <Txt style={{ fontFamily: "DMSans_800ExtraBold", color: mine ? c.accentFg : c.accent }}>{cm.author.slice(0, 1).toUpperCase()}</Txt>
+        <Txt style={{ fontFamily: font.bold, color: mine ? c.accentFg : c.accent }}>{cm.author.slice(0, 1).toUpperCase()}</Txt>
       </View>
       <View style={{ flex: 1, gap: 3 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>

@@ -4,6 +4,7 @@ import { isNewListing, starStates } from "@/lib/rating";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Icon } from "./Icon";
 import { Txt } from "./Txt";
+import { font } from "@/theme/tokens";
 
 /** Announces "4.5 星，共 23 則評價" instead of relying on the star glyphs (§16). */
 export function RatingStars({ value, count, size = 13, compact }: { value: number; count: number; size?: number; compact?: boolean }) {
@@ -12,7 +13,7 @@ export function RatingStars({ value, count, size = 13, compact }: { value: numbe
   if (isNewListing(count)) {
     return (
       <View accessible accessibilityLabel={t("a11y.newListing")} style={{ alignSelf: "flex-start", backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 8, height: 20, justifyContent: "center" }}>
-        <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: c.accent }}>{t("common.new")}</Txt>
+        <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: c.accent }}>{t("common.new")}</Txt>
       </View>
     );
   }
@@ -32,7 +33,7 @@ export function RatingStars({ value, count, size = 13, compact }: { value: numbe
           )}
         </View>
       )}
-      <Txt variant="caption" tone="fg" tabular style={{ fontFamily: "DMSans_700Bold" }}>
+      <Txt variant="caption" tone="fg" tabular style={{ fontFamily: font.semibold }}>
         {value.toFixed(1)}
       </Txt>
       <Txt variant="caption" tone="fgSubtle" tabular>

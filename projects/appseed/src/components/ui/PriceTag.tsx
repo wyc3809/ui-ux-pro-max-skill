@@ -4,6 +4,7 @@ import { startFrom } from "@/theme/animations";
 import { formatPrice } from "@/lib/price";
 import { StatusBadge } from "./StatusBadge";
 import { Txt, type TxtVariant } from "./Txt";
+import { font } from "@/theme/tokens";
 
 const swapIn = startFrom(FadeInDown.duration(220), { opacity: 0, transform: [{ translateY: 6 }] }).reduceMotion(ReduceMotion.System);
 const swapOut = FadeOutUp.duration(160).reduceMotion(ReduceMotion.System);
@@ -17,7 +18,7 @@ export function PriceTag({ amount, owned, variant = "price" }: { amount: number;
       {owned ? (
         <StatusBadge status="purchased" />
       ) : (
-        <Txt variant={variant} tone="price" tabular style={variant !== "price" ? { fontFamily: "DMSans_800ExtraBold" } : undefined}>
+        <Txt variant={variant} tone="price" tabular style={variant !== "price" ? { fontFamily: font.bold } : undefined}>
           {formatPrice(amount, "HKD", t("common.free"))}
         </Txt>
       )}

@@ -49,7 +49,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
             scaleTo={0.96}
             style={{ flex: 1, height: 36, alignItems: "center", justifyContent: "center" }}
           >
-            <Txt variant="bodyStrong" tone={active ? "fg" : "fgMuted"} style={{ fontSize: 13 }} numberOfLines={1}>
+            <Txt variant="bodyStrong" tone={active ? "fg" : "fgMuted"} numberOfLines={1}>
               {o.label}
             </Txt>
           </PressableScale>

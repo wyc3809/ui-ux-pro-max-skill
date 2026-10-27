@@ -8,7 +8,7 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius } from "@/theme/tokens";
+import { motion, radius, font } from "@/theme/tokens";
 
 const MAX_LINES = 12;
 
@@ -37,7 +37,7 @@ export function PromptBlock({ tool, text }: { tool: string; text: string }) {
           <Animated.View key={copied ? "y" : "n"} entering={ZoomIn.duration(180)}>
             {copied ? <Icon name="checkCircle" size={16} color={c.live} active /> : <Icon name="copy" size={15} color={c.fgMuted} />}
           </Animated.View>
-          <Txt variant="caption" tone={copied ? "live" : "fgMuted"} style={{ fontFamily: "DMSans_700Bold" }}>
+          <Txt variant="caption" tone={copied ? "live" : "fgMuted"} style={{ fontFamily: font.semibold }}>
             {copied ? t("common.copied") : t("common.copy")}
           </Txt>
         </PressableScale>
@@ -51,7 +51,7 @@ export function PromptBlock({ tool, text }: { tool: string; text: string }) {
       </Pressable>
       {long && (
         <PressableScale onPress={() => setExpanded((e) => !e)} style={{ height: 40, alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderTopColor: c.border }}>
-          <Txt variant="caption" tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>
+          <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
             {expanded ? t("common.collapse") : t("common.expand")}
           </Txt>
         </PressableScale>

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius, space } from "@/theme/tokens";
+import { motion, radius, space, font } from "@/theme/tokens";
 import type { SheetProps } from "./Sheet";
 import { Txt } from "./Txt";
 
@@ -51,7 +51,7 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
         <View style={{ alignSelf: "center", width: 40, height: 5, borderRadius: 3, backgroundColor: c.fgSubtle, opacity: 0.4, marginBottom: 10 }} />
         {title ? (
           <View style={{ paddingHorizontal: space.gutter + 4, paddingBottom: 12 }}>
-            <Txt variant="section" accessibilityRole="header" style={{ fontSize: 19, fontFamily: "DMSans_800ExtraBold" }}>
+            <Txt variant="section" accessibilityRole="header" style={{ fontFamily: font.bold }}>
               {title}
             </Txt>
           </View>

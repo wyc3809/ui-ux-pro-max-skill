@@ -1,10 +1,9 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
 import { Linking, Platform, Share, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useEngagement, useRecordShare, useToggleLike } from "@/api/queries";
-import { Icon, type IconName } from "@/components/ui/Icon";
+import { BrandIcon, Icon, type IconName } from "@/components/ui/Icon";
 import { NumberRoll } from "@/components/ui/NumberRoll";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -130,7 +129,7 @@ function Tile({ index, icon, label, value, format, active = false, activeTone = 
     <View style={[{ padding: 12, gap: 6, borderRadius: radius.row, backgroundColor: active ? (activeTone === "danger" ? c.dangerSoft : c.accentSoft) : c.bgElevated, borderWidth: 1.5, borderColor: active ? tone : "transparent", minHeight: 84 }, active ? null : card]}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <Icon name={icon} size={15} color={c.fgMuted} activeColor={tone} active={active} motion="pop" enterDelay={index * 50} />
-        <Txt variant="eyebrow" tone={active ? (activeTone === "danger" ? "danger" : "accent") : "fgSubtle"} style={{ fontSize: 10, letterSpacing: 1 }} numberOfLines={1}>
+        <Txt variant="eyebrow" tone={active ? (activeTone === "danger" ? "danger" : "accent") : "fgSubtle"} numberOfLines={1}>
           {label}
         </Txt>
       </View>
@@ -152,11 +151,11 @@ function Tile({ index, icon, label, value, format, active = false, activeTone = 
   );
 }
 
-const TARGET_GLYPH: Record<ShareTarget, { glyph: "logo-x" | "logo-linkedin" | "logo-threads" | "logo-whatsapp"; label: string; brand?: string }> = {
-  x: { glyph: "logo-x", label: "X" },
-  linkedin: { glyph: "logo-linkedin", label: "LinkedIn", brand: "#0a66c2" },
-  threads: { glyph: "logo-threads", label: "Threads" },
-  whatsapp: { glyph: "logo-whatsapp", label: "WhatsApp", brand: "#25d366" },
+const TARGET_GLYPH: Record<ShareTarget, { label: string; brand?: string }> = {
+  x: { label: "X" },
+  linkedin: { label: "LinkedIn", brand: "#0a66c2" },
+  threads: { label: "Threads" },
+  whatsapp: { label: "WhatsApp", brand: "#25d366" },
 };
 
 /** Copy link, four networks and the system share sheet. Buttons pop in one by one. */
@@ -207,7 +206,7 @@ function ShareRow({ kind, slug, title }: { kind: ItemKind; slug: string; title: 
           <Animated.View key={target} entering={popIn(i + 1, 60)} style={{ flex: 1 }}>
             <PressableScale onPress={() => open(target)} scaleTo={0.9} accessibilityLabel={`${t("engage.shareTo")} ${TARGET_GLYPH[target].label}`} style={square}>
               {/* Brand logos are font glyphs; LinkedIn and WhatsApp keep their brand colours, X and Threads follow the text colour. */}
-              <Ionicons name={TARGET_GLYPH[target].glyph} size={22} color={TARGET_GLYPH[target].brand ?? c.fg} />
+              <BrandIcon brand={target} size={22} color={TARGET_GLYPH[target].brand ?? c.fg} />
             </PressableScale>
           </Animated.View>
         ))}

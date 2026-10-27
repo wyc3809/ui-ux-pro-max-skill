@@ -8,7 +8,7 @@ import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 
 const RM = ReduceMotion.System;
 const PARTICLES = 8;
@@ -97,7 +97,7 @@ export function SoldStamp({ label }: { label: string }) {
   const a = useAnimatedStyle(() => ({ opacity: o.value, transform: [{ scale: s.value }, { rotate: `${r.value}deg` }] }));
   return (
     <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 14, right: 14, borderWidth: 3, borderColor: c.danger, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 4, backgroundColor: c.bgElevated }, a]}>
-      <Animated.Text style={{ color: c.danger, fontFamily: "DMSans_800ExtraBold", fontSize: 16, letterSpacing: 2 }}>{label}</Animated.Text>
+      <Animated.Text style={{ color: c.danger, fontFamily: font.bold, fontSize: 16, letterSpacing: 2 }}>{label}</Animated.Text>
     </Animated.View>
   );
 }

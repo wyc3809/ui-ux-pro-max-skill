@@ -89,7 +89,7 @@ export function StickyCTA({ phase, price, onBuy, onSend, reason, owned }: Props)
               </Animated.View>
             )}
             {phase === "send" && <Icon name={owned?.icon ?? "laptop"} size={19} color={c.accentFg} active motion="bounce" enterDelay={120} />}
-            <Txt variant="bodyStrong" style={{ color: fg, fontSize: 15 }}>
+            <Txt variant="bodyStrong" style={{ color: fg }}>
               {label}
             </Txt>
           </Animated.View>

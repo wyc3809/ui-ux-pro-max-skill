@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 import { PromptBlock } from "./PromptBlock";
 
 /** One build-story step: numbered timeline dot + line on the left, content on the right (§7). */
@@ -17,7 +17,7 @@ export function StoryStep({ step, n, last, longform }: { step: Step; n: number; 
     <View style={{ flexDirection: "row", gap: 14 }}>
       <View style={{ alignItems: "center", width: 28 }}>
         <Animated.View entering={popIn(0)} style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-          <Txt variant="caption" tone="accent" tabular style={{ fontFamily: "DMSans_800ExtraBold" }}>
+          <Txt variant="caption" tone="accent" tabular style={{ fontFamily: font.bold }}>
             {n}
           </Txt>
         </Animated.View>
@@ -38,7 +38,7 @@ export function StoryStep({ step, n, last, longform }: { step: Step; n: number; 
           <View style={{ flexDirection: "row", gap: 10, padding: 12, borderRadius: radius.inset, backgroundColor: c.warnSoft }}>
             <Icon name="warning" size={17} color={c.warn} active motion="wiggle" trigger={0} enterDelay={200} style={{ marginTop: 1 }} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Txt variant="caption" tone="warn" style={{ fontFamily: "DMSans_700Bold" }}>
+              <Txt variant="caption" tone="warn" style={{ fontFamily: font.semibold }}>
                 {t("template.pitfall")}
               </Txt>
               <Txt tone="fg">{step.pitfall}</Txt>

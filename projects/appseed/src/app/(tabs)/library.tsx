@@ -23,7 +23,7 @@ import { useFavorites } from "@/store/favorites";
 import { useSession } from "@/store/session";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space } from "@/theme/tokens";
+import { radius, space, font } from "@/theme/tokens";
 
 type Seg = "owned" | "prompts" | "offers" | "saved";
 const SEGS: Seg[] = ["owned", "prompts", "offers", "saved"];
@@ -154,7 +154,7 @@ function UpdateBadge() {
   const t = useT();
   return (
     <View style={{ backgroundColor: c.pendingSoft, borderRadius: 999, paddingHorizontal: 8, height: 22, justifyContent: "center" }}>
-      <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: c.pending }}>{t("library.hasUpdate")}</Txt>
+      <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: c.pending }}>{t("library.hasUpdate")}</Txt>
     </View>
   );
 }
@@ -170,7 +170,7 @@ function MiniAction({ icon, label, onPress }: { icon: IconName; label: string; o
       }}
       hapticKind="selection" style={{ flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, height: 40, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
       <Icon name={icon} size={16} color={c.fg} motion="bounce" trigger={taps} />
-      <Txt variant="caption" style={{ fontFamily: "DMSans_700Bold" }}>
+      <Txt variant="caption" style={{ fontFamily: font.semibold }}>
         {label}
       </Txt>
     </PressableScale>

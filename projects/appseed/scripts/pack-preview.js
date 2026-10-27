@@ -9,7 +9,7 @@ const rank = (f) => (f.startsWith("__expo-metro-runtime") ? 0 : f.startsWith("__
 files.sort((a, b) => rank(a) - rank(b));
 const scripts = files.map((f) => fs.readFileSync(path.join(jsDir, f), "utf8"));
 let js = scripts.join("\n/*@@CHUNK@@*/\n");
-const USED = /DMSans_(400Regular|500Medium|600SemiBold|700Bold|800ExtraBold)\.|JetBrainsMono_(400Regular|700Bold)\.|Ionicons\.|\.png$/;
+const USED = /Geist_(400Regular|500Medium|600SemiBold|700Bold)\.|GeistMono_(400Regular|700Bold)\.|Phosphor(Fill)?\.|\.png$/;
 const mime = { ".ttf": "font/ttf", ".png": "image/png" };
 let embedded = 0;
 js = js.replace(/"(\/assets\/[^"]+)"/g, (m, p) => {
@@ -22,9 +22,9 @@ js = js.replace(/"(\/assets\/[^"]+)"/g, (m, p) => {
 js = js.replace(/<\/script/gi, "<\\/script");
 const html = `<title>AppSeed</title>
 <style>
-  :root { --bg: #f5f6f3; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0a0c0b; color-scheme: dark } }
-  :root[data-theme="dark"] { --bg: #0a0c0b; color-scheme: dark }
+  :root { --bg: #f5f5f7; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000000; color-scheme: dark } }
+  :root[data-theme="dark"] { --bg: #000000; color-scheme: dark }
   html, body { height: 100%; }
   body { overflow: hidden; background: var(--bg); }
   #root { display: flex; height: 100%; flex: 1; }

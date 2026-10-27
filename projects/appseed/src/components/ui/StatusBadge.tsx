@@ -3,7 +3,7 @@ import Animated, { interpolateColor, ReduceMotion, useAnimatedStyle, useSharedVa
 import { useT } from "@/i18n";
 import { statusTone, toneColors, type TemplateStatus } from "@/lib/status";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 import { Txt } from "./Txt";
 
 export function StatusBadge({ status }: { status: TemplateStatus }) {
@@ -31,7 +31,7 @@ export function StatusBadge({ status }: { status: TemplateStatus }) {
   const a = useAnimatedStyle(() => ({ backgroundColor: interpolateColor(p.value, [0, 1], [fromBg.value, bg]), transform: [{ scale: s.value }] }));
   return (
     <Animated.View accessible accessibilityLabel={label} style={[{ alignSelf: "flex-start", paddingHorizontal: 9, height: 22, justifyContent: "center", borderRadius: radius.chip }, a]}>
-      <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: fg }}>{label}</Txt>
+      <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: fg }}>{label}</Txt>
     </Animated.View>
   );
 }

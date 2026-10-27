@@ -45,7 +45,7 @@ export function LargeTitleScreen({ title, right, children, onRefresh, bottomInse
       <View style={{ paddingTop: insets.top, backgroundColor: c.bg, zIndex: 2 }}>
         <View style={{ height: 52, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", paddingHorizontal: space.gutter }}>
           <Animated.View pointerEvents="none" style={[{ position: "absolute", left: 0, right: 0, alignItems: "center" }, compact]}>
-            <Txt variant="section" style={{ fontSize: 17 }}>
+            <Txt variant="section" style={{ fontSize: 16, lineHeight: 24 }}>
               {title}
             </Txt>
           </Animated.View>

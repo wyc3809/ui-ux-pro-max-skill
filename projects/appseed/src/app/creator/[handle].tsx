@@ -14,7 +14,7 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { space } from "@/theme/tokens";
+import { space, font } from "@/theme/tokens";
 
 export default function CreatorScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
@@ -43,7 +43,7 @@ export default function CreatorScreen() {
           <>
             <Animated.View entering={enterAt(0)} style={{ alignItems: "center", gap: 8, paddingHorizontal: space.gutter }}>
               <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-                <Txt tone="accent" style={{ fontSize: 34, fontFamily: "DMSans_800ExtraBold" }}>
+                <Txt tone="accent" style={{ fontSize: 30, lineHeight: 36, fontFamily: font.bold }}>
                   {creator.name[0]}
                 </Txt>
               </View>
@@ -51,7 +51,7 @@ export default function CreatorScreen() {
               <Txt tone="fgSubtle">@{creator.handle}</Txt>
               {creator.founding && (
                 <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 10, height: 24, justifyContent: "center" }}>
-                  <Txt style={{ fontSize: 12, fontFamily: "DMSans_700Bold", color: c.accent }}>{t("creator.founding")}</Txt>
+                  <Txt style={{ fontSize: 12, fontFamily: font.semibold, color: c.accent }}>{t("creator.founding")}</Txt>
                 </View>
               )}
               <Txt tone="fgMuted" style={{ textAlign: "center", marginTop: 4 }}>

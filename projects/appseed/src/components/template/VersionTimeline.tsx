@@ -6,6 +6,7 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { formatDate } from "@/lib/format";
 import { useTheme } from "@/theme/ThemeProvider";
+import { font } from "@/theme/tokens";
 
 export function VersionTimeline({ versions }: { versions: Version[] }) {
   const { c } = useTheme();
@@ -20,12 +21,12 @@ export function VersionTimeline({ versions }: { versions: Version[] }) {
           </View>
           <Animated.View entering={slideInAt(i, 120)} style={{ flex: 1, paddingBottom: 20, gap: 4 }}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Txt variant="bodyStrong" tabular style={{ fontFamily: "JetBrainsMono_700Bold", fontSize: 13 }}>
+              <Txt variant="bodyStrong" tabular style={{ fontFamily: font.monoBold, fontSize: 12 }}>
                 v{v.version}
               </Txt>
               {i === 0 && (
                 <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 8, height: 20, justifyContent: "center" }}>
-                  <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: c.accent }}>{t("common.latest")}</Txt>
+                  <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: c.accent }}>{t("common.latest")}</Txt>
                 </View>
               )}
               <Txt variant="caption" tone="fgSubtle" style={{ marginLeft: "auto" }}>

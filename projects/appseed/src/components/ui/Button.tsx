@@ -32,7 +32,7 @@ export function Button({ label, onPress, variant = "primary", loading, disabled,
     >
       {loading ? <Spinner color={variant === "primary" ? c.accentFg : c.fg} /> : null}
       {!loading && icon ? <View>{icon}</View> : null}
-      <Txt variant="bodyStrong" tone={fg} style={{ fontSize: 15 }}>
+      <Txt variant="bodyStrong" tone={fg}>
         {label}
       </Txt>
     </PressableScale>

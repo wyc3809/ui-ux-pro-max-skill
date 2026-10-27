@@ -1,5 +1,5 @@
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from "react-native";
-import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { haptic } from "@/lib/haptic";
 import { motion } from "@/theme/tokens";
 
@@ -11,11 +11,15 @@ type Props = Omit<PressableProps, "style"> & {
   hapticKind?: Parameters<typeof haptic>[0];
 };
 
-/** Every tappable surface: scales to 0.97 on press-in on the UI thread (§8 "按下"). */
+/**
+ * Every tappable surface (§8 "按下"). Press-in eases down to `scaleTo` (0.98) on the UI thread; release springs back
+ * with a slight overshoot, so surfaces feel like liquid rather than a hard toggle.
+ */
 export function PressableScale({ style, scaleTo = motion.press.scale, hapticKind, onPressIn, onPressOut, onPress, ...rest }: Props) {
   const s = useSharedValue(1);
   const animated = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
   const cfg = { duration: motion.press.duration, reduceMotion: ReduceMotion.System };
+  const release = { damping: motion.liquid.damping, stiffness: motion.liquid.stiffness, mass: motion.liquid.mass, reduceMotion: ReduceMotion.System };
   return (
     <APressable
       accessibilityRole="button"
@@ -25,7 +29,7 @@ export function PressableScale({ style, scaleTo = motion.press.scale, hapticKind
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        s.value = withTiming(1, cfg);
+        s.value = withSpring(1, release);
         onPressOut?.(e);
       }}
       onPress={(e) => {

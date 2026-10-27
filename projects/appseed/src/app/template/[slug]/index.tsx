@@ -40,7 +40,7 @@ import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
 import { enterAt, popIn, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius, space } from "@/theme/tokens";
+import { motion, radius, space, font } from "@/theme/tokens";
 
 type Seg = "overview" | "story" | "files" | "reviews" | "versions";
 const SEGS: Seg[] = ["overview", "story", "files", "reviews", "versions"];
@@ -181,7 +181,7 @@ function Hero({ t: tpl }: { t: Template }) {
       {creator && (
         <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} accessibilityLabel={t("template.by", { name: creator.name })} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
           <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-            <Txt tone="accent" style={{ fontFamily: "DMSans_800ExtraBold" }}>
+            <Txt tone="accent" style={{ fontFamily: font.bold }}>
               {creator.name[0]}
             </Txt>
           </View>
@@ -190,7 +190,7 @@ function Hero({ t: tpl }: { t: Template }) {
           </Txt>
           {creator.founding && (
             <View style={{ backgroundColor: c.accentSoft, borderRadius: 999, paddingHorizontal: 8, height: 22, justifyContent: "center" }}>
-              <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: c.accent }}>{t("creator.founding")}</Txt>
+              <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: c.accent }}>{t("creator.founding")}</Txt>
             </View>
           )}
         </PressableScale>

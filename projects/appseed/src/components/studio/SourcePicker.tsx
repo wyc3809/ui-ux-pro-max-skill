@@ -20,7 +20,7 @@ import { matches } from "@/lib/search";
 import { isBlocking } from "@/lib/sourceScan";
 import { enterAt, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 import { ScanChecklist } from "./ScanChecklist";
 
 type Props = { value: SourceChoice | null; onChange: (v: SourceChoice | null) => void; onStack?: (stack: string[]) => void };
@@ -155,7 +155,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
           @{account?.login}
         </Txt>
         <PressableScale onPress={() => onChange(null)} hitSlop={8}>
-          <Txt variant="caption" tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>
+          <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
             {t("source.change")}
           </Txt>
         </PressableScale>
@@ -177,7 +177,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
           {repo && <RepoRow r={repo} index={0} selected onPress={() => onChange({ kind: "github", repo: "", branch: "", report: null })} />}
           {repo && repo.branches.length > 1 && (
             <View style={{ gap: 8 }}>
-              <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+              <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                 {t("source.branch")}
               </Txt>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -268,7 +268,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
               </View>
               {report.stack.length > 0 && (
                 <View style={{ gap: 8 }}>
-                  <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+                  <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                     {t("source.detectedStack")}
                   </Txt>
                   <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
@@ -278,7 +278,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
                   </View>
                 </View>
               )}
-              <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+              <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                 {t("source.preview")} · {t("source.files", { n: report.fileCount, size: formatBytes(report.sizeBytes) })}
               </Txt>
               <FileTree nodes={report.files} />
@@ -337,7 +337,7 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
           {value.fileName ?? t("source.zip")}
         </Txt>
         <PressableScale onPress={() => onChange(null)} hitSlop={8}>
-          <Txt variant="caption" tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>
+          <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
             {t("source.change")}
           </Txt>
         </PressableScale>

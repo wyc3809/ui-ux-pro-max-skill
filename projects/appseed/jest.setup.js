@@ -18,12 +18,15 @@ jest.mock("react-native-mmkv", () => {
   return { createMMKV };
 });
 // Icon fonts load real assets; in tests a glyph is just its name.
-jest.mock("@expo/vector-icons/Ionicons", () => {
-  const { Text } = require("react-native");
-  const Ionicons = ({ name }) => require("react").createElement(Text, null, name);
-  Ionicons.font = {};
-  return { __esModule: true, default: Ionicons };
-});
+jest.mock("@expo/vector-icons/createIconSet", () => ({
+  __esModule: true,
+  default: (_map, family) => {
+    const { Text } = require("react-native");
+    const Glyph = ({ name }) => require("react").createElement(Text, null, `${family}:${name}`);
+    Glyph.font = {};
+    return Glyph;
+  },
+}));
 jest.mock("expo-apple-authentication", () => ({
   isAvailableAsync: jest.fn(() => Promise.resolve(false)),
   signInAsync: jest.fn(),

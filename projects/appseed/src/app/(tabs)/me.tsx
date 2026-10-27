@@ -23,7 +23,7 @@ import { useSettings, type ThemePref } from "@/store/settings";
 import { Icon } from "@/components/ui/Icon";
 import { Txt } from "@/components/ui/Txt";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space } from "@/theme/tokens";
+import { radius, space, font } from "@/theme/tokens";
 
 export default function MeScreen() {
   const t = useT();
@@ -181,7 +181,7 @@ function AccountHeader({ user }: { user: User }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 14, padding: 16 }}>
       <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-        <Txt tone="accent" style={{ fontSize: 24, fontFamily: "DMSans_800ExtraBold" }}>
+        <Txt tone="accent" style={{ fontSize: 24, fontFamily: font.bold }}>
           {user.name.slice(0, 1).toUpperCase()}
         </Txt>
       </View>

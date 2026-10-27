@@ -34,7 +34,7 @@ import { formatPrice } from "@/lib/price";
 import { fillPrompt, promptVariables } from "@/lib/prompt";
 import { enterAt, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 
 /** Prompt detail: free preview, locked remainder that types itself in after purchase, variable filler, copy. */
 export default function PromptScreen() {
@@ -117,7 +117,7 @@ export default function PromptScreen() {
               {creator && (
                 <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 6, minHeight: 44 }}>
                   <View style={{ width: 30, height: 30, borderRadius: 15, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
-                    <Txt tone="accent" style={{ fontFamily: "DMSans_800ExtraBold" }}>
+                    <Txt tone="accent" style={{ fontFamily: font.bold }}>
                       {creator.name[0]}
                     </Txt>
                   </View>
@@ -157,7 +157,7 @@ export default function PromptScreen() {
                 {unlocked && (
                   <PressableScale onPress={() => copy(p.text)} accessibilityLabel={t("common.copy")} style={{ flexDirection: "row", alignItems: "center", gap: 6, height: 32, paddingHorizontal: 8 }}>
                     <Icon name="copy" size={15} color={c.fgMuted} />
-                    <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+                    <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
                       {t("common.copy")}
                     </Txt>
                   </PressableScale>

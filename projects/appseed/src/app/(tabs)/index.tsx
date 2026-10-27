@@ -117,7 +117,7 @@ function LaunchHero({ l }: { l: Launch & { voted: boolean } }) {
               {t("launch.rank", { n: 1 })}
             </Txt>
           </View>
-          <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 25 }}>
+          <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 28 }}>
             {l.name}
           </Txt>
           <Txt tone="fgMuted" numberOfLines={2}>
@@ -281,7 +281,7 @@ function FeaturedCard({ item, i, w, x }: { item: Template; i: number; w: number;
       <PressableScale onPress={() => router.push(`/template/${item.slug}`)} accessibilityLabel={item.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 12 }, card]}>
         <Cover t={item} rounded={radius.media} />
         <View style={{ paddingHorizontal: 4, paddingBottom: 4, gap: 6 }}>
-          <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 25 }} numberOfLines={1}>
+          <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 28 }} numberOfLines={1}>
             {item.name}
           </Txt>
           <Txt variant="body" tone="fgMuted" numberOfLines={2}>

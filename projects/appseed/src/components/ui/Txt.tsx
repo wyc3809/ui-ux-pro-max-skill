@@ -9,11 +9,12 @@ type Tone = keyof Pick<Palette, "fg" | "fgMuted" | "fgSubtle" | "accent" | "acce
 type Props = TextProps & { ref?: Ref<TextInstance>; variant?: TxtVariant; tone?: Tone; style?: TextStyle | TextStyle[]; tabular?: boolean };
 
 const WEIGHT: Record<string, TextStyle["fontWeight"]> = {
-  DMSans_400Regular: "400",
-  DMSans_500Medium: "500",
-  DMSans_600SemiBold: "600",
-  DMSans_700Bold: "700",
-  DMSans_800ExtraBold: "800",
+  Geist_400Regular: "400",
+  Geist_500Medium: "500",
+  Geist_600SemiBold: "600",
+  Geist_700Bold: "700",
+  GeistMono_400Regular: "400",
+  GeistMono_700Bold: "700",
 };
 
 /** Typography primitive: type scale + token colour, capped at 1.4× Dynamic Type (§5). */

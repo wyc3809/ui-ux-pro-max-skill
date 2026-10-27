@@ -1,4 +1,4 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import createIconSet from "@expo/vector-icons/createIconSet";
 import { useEffect, useRef } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import Animated, {
@@ -12,99 +12,114 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { motion } from "@/theme/tokens";
+import { PHOSPHOR_FILL, PHOSPHOR_REGULAR, type PhosphorGlyph } from "./phosphorGlyphs";
+
+const PhosphorRegular = createIconSet(PHOSPHOR_REGULAR, "phosphor-regular", require("../../../assets/fonts/Phosphor.ttf"));
+const PhosphorFill = createIconSet(PHOSPHOR_FILL, "phosphor-fill", require("../../../assets/fonts/PhosphorFill.ttf"));
+
+/** Load with the app's other fonts so icons never flash as boxes. */
+export const iconFonts = { ...PhosphorRegular.font, ...PhosphorFill.font };
+
+const BRANDS = { x: "x-logo", linkedin: "linkedin-logo", threads: "threads-logo", whatsapp: "whatsapp-logo", apple: "apple-logo", google: "google-logo" } as const;
+export type Brand = keyof typeof BRANDS;
+
+/** Third-party logos for sign-in and share buttons (filled brand marks), from the same font. */
+export function BrandIcon({ brand, size = 20, color }: { brand: Brand; size?: number; color: string }) {
+  return <PhosphorFill name={BRANDS[brand]} size={size} color={color} />;
+}
 
 /**
- * Logical icon names → Ionicons glyph base. Every glyph has an `-outline` twin,
+ * Logical icon names → Phosphor glyph. Each glyph exists in the regular (outline) and fill fonts,
  * which is what lets an icon morph from outline to filled instead of swapping.
  * Icons are a font, never SVG.
  */
 export const ICONS = {
-  bell: "notifications",
-  book: "book",
-  building: "business",
+  bell: "bell",
+  book: "book-open",
+  building: "buildings",
   bus: "bus",
-  check: "checkmark",
-  checkCircle: "checkmark-circle",
-  alert: "alert-circle",
-  chef: "restaurant",
-  chevronDown: "chevron-down",
-  chevronLeft: "chevron-back",
-  chevronRight: "chevron-forward",
-  clock: "time",
-  close: "close",
-  closeCircle: "close-circle",
+  check: "check",
+  checkCircle: "check-circle",
+  alert: "warning-circle",
+  chef: "chef-hat",
+  chevronDown: "caret-down",
+  chevronLeft: "caret-left",
+  chevronRight: "caret-right",
+  clock: "clock",
+  close: "x",
+  closeCircle: "x-circle",
   compass: "compass",
   copy: "copy",
-  file: "document-text",
+  file: "file-text",
   flag: "flag",
   folder: "folder",
   git: "git-branch",
-  grid: "grid",
+  grid: "grid-four",
   heart: "heart",
   image: "image",
-  info: "information-circle",
-  language: "language",
+  info: "info",
+  language: "translate",
   laptop: "laptop",
-  library: "library",
+  library: "books",
   link: "link",
-  list: "list",
-  lock: "lock-closed",
-  mail: "mail",
+  list: "list-numbers",
+  lock: "lock",
+  mail: "envelope-simple",
   moon: "moon",
-  package: "cube",
-  pen: "create",
-  phone: "phone-portrait",
-  plus: "add",
-  minus: "remove",
-  logout: "log-out",
-  bookmark: "bookmark",
-  comment: "chatbubble",
-  remix: "git-merge",
-  send: "paper-plane",
-  more: "ellipsis-horizontal",
+  package: "package",
+  pen: "pencil-simple-line",
+  phone: "device-mobile",
+  plus: "plus",
+  minus: "minus",
   receipt: "receipt",
-  refresh: "refresh",
-  reply: "return-down-forward",
-  scale: "scale",
-  search: "search",
-  settings: "settings",
-  share: "share-social",
-  shield: "shield-checkmark",
-  sliders: "options",
-  sprout: "leaf",
+  refresh: "arrow-clockwise",
+  reply: "arrow-bend-down-right",
+  scale: "scales",
+  search: "magnifying-glass",
+  settings: "gear-six",
+  share: "share-network",
+  shield: "shield-check",
+  sliders: "sliders-horizontal",
+  sprout: "plant",
   star: "star",
   starHalf: "star-half",
   ticket: "ticket",
   trash: "trash",
-  user: "person",
-  userX: "person-remove",
+  user: "user",
+  userX: "user-minus",
   wallet: "wallet",
   warning: "warning",
-  sparkles: "sparkles",
-  code: "code-slash",
-  chat: "chatbubbles",
+  sparkles: "sparkle",
+  code: "code",
+  chat: "chats",
   camera: "camera",
-  rocket: "rocket",
+  rocket: "rocket-launch",
   game: "game-controller",
-  trendingUp: "trending-up",
-  upvote: "arrow-up-circle",
-  tag: "pricetag",
+  trendingUp: "trend-up",
+  upvote: "arrow-fat-up",
+  tag: "tag",
   briefcase: "briefcase",
-  people: "people",
-  download: "download",
+  people: "users",
+  download: "download-simple",
   hammer: "hammer",
-  cash: "cash",
-  hand: "hand-left",
+  cash: "money",
+  hand: "hand",
   megaphone: "megaphone",
-  flash: "flash",
+  flash: "lightning",
   eye: "eye",
-  terminal: "terminal",
-  layers: "layers",
+  terminal: "terminal-window",
+  layers: "stack",
   trophy: "trophy",
   globe: "globe",
   timer: "timer",
-  swap: "swap-horizontal",
-} as const;
+  swap: "swap",
+  logout: "sign-out",
+  bookmark: "bookmark-simple",
+  comment: "chat-circle",
+  remix: "git-merge",
+  send: "paper-plane-tilt",
+  more: "dots-three",
+} as const satisfies Record<string, PhosphorGlyph>;
 
 export type IconName = keyof typeof ICONS;
 
@@ -209,10 +224,10 @@ export function Icon({ name, size = 20, color, activeColor, active = false, moti
   return (
     <Animated.View pointerEvents="none" importantForAccessibility="no-hide-descendants" accessibilityElementsHidden style={[{ width: size, height: size }, wrap, style]}>
       <Animated.View style={[{ position: "absolute" }, outline]}>
-        <Ionicons name={`${base}-outline`} size={size} color={color} />
+        <PhosphorRegular name={base} size={size} color={color} />
       </Animated.View>
       <Animated.View style={[{ position: "absolute" }, filled]}>
-        <Ionicons name={base} size={size} color={activeColor ?? color} />
+        <PhosphorFill name={base} size={size} color={activeColor ?? color} />
       </Animated.View>
     </Animated.View>
   );

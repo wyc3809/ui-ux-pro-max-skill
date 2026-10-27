@@ -14,7 +14,7 @@ export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { labe
   const Input = inSheet ? SheetTextInput : TextInput;
   return (
     <View style={{ gap: 6 }}>
-      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
         {label}
       </Txt>
       <Input
@@ -40,7 +40,7 @@ export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { labe
           borderColor: focused ? c.accent : "transparent",
           color: c.fg,
           fontFamily: rest.multiline && rest.keyboardType === "ascii-capable" ? font.mono : font.medium,
-          fontSize: 15,
+          fontSize: 16,
           textAlignVertical: rest.multiline ? "top" : "center",
           ...noOutline,
         }}
@@ -57,7 +57,7 @@ export function Field({ label, hint, inSheet, ...rest }: TextInputProps & { labe
 export function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <View style={{ gap: 8 }}>
-      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: "DMSans_700Bold" }}>
+      <Txt variant="caption" tone="fgMuted" style={{ fontFamily: font.semibold }}>
         {label}
       </Txt>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>{children}</View>

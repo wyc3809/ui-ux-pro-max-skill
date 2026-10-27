@@ -97,7 +97,7 @@ export default function StoryScreen() {
               <Txt variant="eyebrow" tone="fgSubtle">
                 {t("template.story")}
               </Txt>
-              <Txt variant="largeTitle" style={{ fontSize: 26 }}>
+              <Txt variant="largeTitle" style={{ fontSize: 24, lineHeight: 32 }}>
                 {tpl.name}
               </Txt>
             </Animated.View>

@@ -9,7 +9,7 @@ import { RatingStars } from "@/components/ui/RatingStars";
 import { Txt } from "@/components/ui/Txt";
 import { highlight } from "@/lib/search";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space } from "@/theme/tokens";
+import { radius, space, font } from "@/theme/tokens";
 import { Cover } from "./Cover";
 
 const open = (slug: string) => router.push(`/template/${slug}`);
@@ -22,7 +22,7 @@ export function TemplateCard({ t, width }: { t: Template; width?: number }) {
     <PressableScale onPress={() => open(t.slug)} accessibilityLabel={t.name} style={[{ width, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 10, gap: 10 }, card]}>
       <Cover t={t} />
       <View style={{ paddingHorizontal: 4, paddingBottom: 4, gap: 6 }}>
-        <Txt variant="bodyStrong" numberOfLines={2} style={{ fontSize: 15, lineHeight: 20, fontFamily: "DMSans_700Bold" }}>
+        <Txt variant="bodyStrong" numberOfLines={2}>
           {t.name}
         </Txt>
         <Txt variant="caption" tone="fgSubtle" numberOfLines={1}>
@@ -53,16 +53,16 @@ export function TemplateRow({ t, query = "", trailing, onOpen }: { t: Template; 
     >
       <Cover t={t} style={{ width: 104 }} rounded={12} />
       <View style={{ flex: 1, gap: 4, justifyContent: "center" }}>
-        <Txt variant="bodyStrong" numberOfLines={1} style={{ fontFamily: "DMSans_700Bold" }}>
+        <Txt variant="bodyStrong" numberOfLines={1} style={{ fontFamily: font.semibold }}>
           {highlight(t.name, query).map((s, i) => (
-            <Txt key={i} variant="bodyStrong" tone={s.hit ? "accent" : "fg"} style={{ fontFamily: s.hit ? "DMSans_800ExtraBold" : "DMSans_700Bold" }}>
+            <Txt key={i} variant="bodyStrong" tone={s.hit ? "accent" : "fg"} style={{ fontFamily: s.hit ? font.bold : font.semibold }}>
               {s.text}
             </Txt>
           ))}
         </Txt>
         <Txt variant="caption" tone="fgSubtle" numberOfLines={1}>
           {highlight(t.stack.join(" · "), query).map((s, i) => (
-            <Txt key={i} variant="caption" tone={s.hit ? "accent" : "fgSubtle"} style={s.hit ? { fontFamily: "DMSans_700Bold" } : undefined}>
+            <Txt key={i} variant="caption" tone={s.hit ? "accent" : "fgSubtle"} style={s.hit ? { fontFamily: font.semibold } : undefined}>
               {s.text}
             </Txt>
           ))}

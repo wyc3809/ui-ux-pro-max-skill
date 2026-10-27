@@ -1,6 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
+import { BrandIcon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Spinner } from "@/components/ui/Spinner";
 import { Txt } from "@/components/ui/Txt";
@@ -35,7 +35,7 @@ export function ProviderButton({ provider, label, loading, disabled, onPress, in
         ) : (
           <>
             <Animated.View entering={popIn(index + 1, 80)}>
-              <Ionicons name={apple ? "logo-apple" : "logo-google"} size={apple ? 20 : 18} color={fg} />
+              <BrandIcon brand={apple ? "apple" : "google"} size={20} color={fg} />
             </Animated.View>
             <Txt variant="bodyStrong" style={{ color: fg, fontSize: 16 }}>
               {label}

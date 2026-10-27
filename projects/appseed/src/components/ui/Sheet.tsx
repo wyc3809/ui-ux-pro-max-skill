@@ -11,7 +11,7 @@ import { ReduceMotion } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { haptic } from "@/lib/haptic";
 import { useTheme } from "@/theme/ThemeProvider";
-import { motion, radius, space } from "@/theme/tokens";
+import { motion, radius, space, font } from "@/theme/tokens";
 import { Txt } from "./Txt";
 
 export type SheetProps = {
@@ -80,7 +80,7 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
     >
       {title ? (
         <View style={{ paddingHorizontal: space.gutter + 4, paddingBottom: 12, paddingTop: 4 }}>
-          <Txt ref={titleRef} variant="section" accessibilityRole="header" style={{ fontSize: 19, fontFamily: "DMSans_800ExtraBold" }}>
+          <Txt ref={titleRef} variant="section" accessibilityRole="header" style={{ fontFamily: font.bold }}>
             {title}
           </Txt>
         </View>

@@ -23,7 +23,7 @@ import { matches } from "@/lib/search";
 import { useHistory } from "@/store/history";
 import { crossfadeIn, rowIn, rowOut, reorder } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { space } from "@/theme/tokens";
+import { space, font } from "@/theme/tokens";
 
 type Filters = Required<Omit<SearchParams, "q" | "category">>;
 type Kind = "all" | "templates" | "prompts" | "buyouts" | "launches";
@@ -76,7 +76,7 @@ export default function SearchScreen() {
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: space.gutter }}>
         <SearchInput ref={input} value={q} onChangeText={setQ} placeholder={t("explore.searchPlaceholder")} onSubmit={() => history.add(q)} />
         <PressableScale onPress={() => router.back()} style={{ height: 44, justifyContent: "center" }} accessibilityLabel={t("common.cancel")}>
-          <Txt variant="bodyStrong" tone="accent" style={{ fontSize: 15 }}>
+          <Txt variant="bodyStrong" tone="accent">
             {t("common.cancel")}
           </Txt>
         </PressableScale>
@@ -100,7 +100,7 @@ export default function SearchScreen() {
               {t("search.recent")}
             </Txt>
             <PressableScale onPress={history.clear} hitSlop={8}>
-              <Txt variant="caption" tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>
+              <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
                 {t("search.clear")}
               </Txt>
             </PressableScale>

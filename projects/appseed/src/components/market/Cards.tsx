@@ -19,15 +19,15 @@ import { highlight } from "@/lib/search";
 import { toneColors } from "@/lib/status";
 import { popIn } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space } from "@/theme/tokens";
+import { radius, space, font } from "@/theme/tokens";
 import { SoldStamp, UpvoteButton } from "./UpvoteButton";
 
 /** Text with query hits in accent bold (§5). */
 function Hl({ text, query, variant = "bodyStrong" as const }: { text: string; query: string; variant?: "bodyStrong" }) {
   return (
-    <Txt variant={variant} numberOfLines={1} style={{ fontFamily: "DMSans_700Bold" }}>
+    <Txt variant={variant} numberOfLines={1} style={{ fontFamily: font.semibold }}>
       {highlight(text, query).map((s, i) => (
-        <Txt key={i} variant={variant} tone={s.hit ? "accent" : "fg"} style={{ fontFamily: s.hit ? "DMSans_800ExtraBold" : "DMSans_700Bold" }}>
+        <Txt key={i} variant={variant} tone={s.hit ? "accent" : "fg"} style={{ fontFamily: s.hit ? font.bold : font.semibold }}>
           {s.text}
         </Txt>
       ))}
@@ -40,7 +40,7 @@ export function TonePill({ label, tone }: { label: string; tone: "live" | "pendi
   const { fg, bg } = toneColors(tone, c);
   return (
     <Animated.View entering={popIn(0)} accessible accessibilityLabel={label} style={{ alignSelf: "flex-start", paddingHorizontal: 9, height: 22, justifyContent: "center", borderRadius: radius.chip, backgroundColor: bg }}>
-      <Txt style={{ fontSize: 11, fontFamily: "DMSans_700Bold", color: fg }}>{label}</Txt>
+      <Txt style={{ fontSize: 12, lineHeight: 16, fontFamily: font.semibold, color: fg }}>{label}</Txt>
     </Animated.View>
   );
 }
@@ -53,7 +53,7 @@ export function PromptCard({ p, width }: { p: PromptListing; width?: number }) {
     <PressableScale onPress={() => router.push(`/prompt/${p.slug}`)} accessibilityLabel={p.title} style={[{ width, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 10, gap: 10 }, card]}>
       <Cover t={p} style={{ aspectRatio: 16 / 9 }} />
       <View style={{ paddingHorizontal: 4, paddingBottom: 4, gap: 6 }}>
-        <Txt variant="bodyStrong" numberOfLines={2} style={{ fontSize: 15, lineHeight: 20, fontFamily: "DMSans_700Bold" }}>
+        <Txt variant="bodyStrong" numberOfLines={2}>
           {p.title}
         </Txt>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
@@ -159,7 +159,7 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
           <Icon name="megaphone" size={15} color={c.fgSubtle} enter={false} />
         </View>
       ) : rank == null ? null : (
-        <Txt variant="section" tone={rank <= 3 ? "accent" : "fgSubtle"} tabular style={{ width: 20, textAlign: "center", fontFamily: "DMSans_800ExtraBold" }}>
+        <Txt variant="section" tone={rank <= 3 ? "accent" : "fgSubtle"} tabular style={{ width: 20, textAlign: "center", fontFamily: font.bold }}>
           {rank}
         </Txt>
       )}

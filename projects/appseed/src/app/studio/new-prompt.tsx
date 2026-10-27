@@ -12,7 +12,7 @@ import { PROMPT_TIERS, splitPreview } from "@/lib/prompt";
 import { useFormDraft } from "@/store/formDrafts";
 import { enterAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { radius, font } from "@/theme/tokens";
 
 const TOOLS = ["Claude Code", "Claude", "Cursor", "v0", "Windsurf"];
 const EMPTY: PromptDraft = { step: 0, title: "", summary: "", tool: null, text: "", previewLines: 2, tier: null };
@@ -74,7 +74,7 @@ export default function NewPrompt() {
             </Txt>
             <Txt variant="code">{visible}</Txt>
             {lockedLines > 0 && (
-              <Txt variant="caption" tone="accent" style={{ fontFamily: "DMSans_700Bold" }}>
+              <Txt variant="caption" tone="accent" style={{ fontFamily: font.semibold }}>
                 {t("promptPage.locked", { n: lockedLines })}
               </Txt>
             )}
