@@ -16,7 +16,7 @@ export function ListingRow({ l }: { l: Listing }) {
   if (!tpl) return null;
   return (
     <PressableScale onPress={() => router.push(`/template/${l.slug}`)} scaleTo={0.985} accessibilityLabel={tpl.name} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: space.rowPadX, paddingVertical: space.rowPadY }}>
-      <Cover t={tpl} style={{ width: 64 }} rounded={10} />
+      <Cover t={tpl} style={{ width: 64 }} rounded={8} />
       <View style={{ flex: 1, gap: 4 }}>
         <Txt variant="bodyStrong" numberOfLines={1}>
           {tpl.name}

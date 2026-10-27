@@ -1,10 +1,12 @@
-import { formatBytes, formatCount, formatDate } from "../format";
+import { formatBytes, formatCount, formatDate, formatShortDate } from "../format";
 import { isNewListing, starStates } from "../rating";
 
 describe("format", () => {
   it("formats dates per locale (§15)", () => {
     expect(formatDate("2026-10-26", "zh-Hant")).toBe("2026年10月26日");
     expect(formatDate("2026-10-26", "en")).toBe("26 Oct 2026");
+    expect(formatShortDate("2026-10-26", "zh-Hant")).toBe("10月26日");
+    expect(formatShortDate("2026-01-05", "en")).toBe("5 Jan");
   });
   it("formats counts and bytes", () => {
     expect(formatCount(12345)).toBe("12,345");

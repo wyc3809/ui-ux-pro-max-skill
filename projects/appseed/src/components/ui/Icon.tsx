@@ -119,6 +119,14 @@ export const ICONS = {
   remix: "git-merge",
   send: "paper-plane-tilt",
   more: "dots-three",
+  trendingDown: "trend-down",
+  chart: "chart-bar",
+  funnel: "funnel",
+  calendar: "calendar-blank",
+  click: "cursor-click",
+  report: "presentation-chart",
+  arrowUp: "arrow-up",
+  arrowDown: "arrow-down",
 } as const satisfies Record<string, PhosphorGlyph>;
 
 export type IconName = keyof typeof ICONS;

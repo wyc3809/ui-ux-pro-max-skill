@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useStudio } from "@/api/queries";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
 import { TabScene } from "@/components/shell/TabScene";
+import { AnalyticsOverview } from "@/components/studio/AnalyticsOverview";
 import { ListingChooser } from "@/components/studio/ListingChooser";
 import { ListingRow } from "@/components/studio/ListingRow";
 import { PayoutCard } from "@/components/studio/PayoutCard";
@@ -47,6 +48,9 @@ export default function StudioScreen() {
                   <View style={{ height: 16 }} />
                   <SalesChart data={data.sales} label={t("studio.last30")} />
                 </Card>
+              </Reveal>
+              <Reveal index={1}>
+                <AnalyticsOverview />
               </Reveal>
               <Section title={t("studio.myTemplates")} index={1} inset={false}>
                 <Card padded={false}>

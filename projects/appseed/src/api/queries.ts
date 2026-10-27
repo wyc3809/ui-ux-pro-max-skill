@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { RangeDays } from "@/lib/analytics";
 import { toggleVote } from "@/lib/launch";
 import { api, type SearchParams } from "./mockServer";
 import type { Comment, Engagement, Launch } from "./types";
@@ -22,6 +23,7 @@ export const qk = {
   engagement: (key: string) => ["engagement", key] as const,
   comments: (key: string) => ["comments", key] as const,
   githubRepos: ["github-repos"] as const,
+  analytics: (range: RangeDays, slug: string | null) => ["analytics", range, slug ?? "all"] as const,
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -33,6 +35,9 @@ export const useSearch = (p: SearchParams) =>
   useQuery({ queryKey: qk.search(p), queryFn: () => api.search(p), placeholderData: (prev) => prev });
 export const usePurchases = () => useQuery({ queryKey: qk.purchases, queryFn: api.purchases });
 export const useStudio = () => useQuery({ queryKey: qk.studio, queryFn: api.studio });
+/** Keeps the previous report on screen while a new range or listing loads, so numbers roll instead of blanking. */
+export const useAnalytics = (range: RangeDays, slug: string | null) =>
+  useQuery({ queryKey: qk.analytics(range, slug), queryFn: () => api.analytics(range, slug), placeholderData: (prev) => prev, staleTime: 5 * 60 * 1000 });
 
 /** Ownership comes from the server only — the client never flips it locally (§14.6). */
 export function useOwned(slug: string): boolean {

@@ -8,6 +8,12 @@ export function formatDate(iso: string, locale: Locale): string {
   return locale === "en" ? `${d} ${EN_MONTHS[m - 1]} ${y}` : `${y}年${m}月${d}日`;
 }
 
+/** Chart labels without the year. zh: 10月26日 · en: 26 Oct */
+export function formatShortDate(iso: string, locale: Locale): string {
+  const [, m, d] = iso.slice(0, 10).split("-").map(Number) as [number, number, number];
+  return locale === "en" ? `${d} ${EN_MONTHS[m - 1]}` : `${m}月${d}日`;
+}
+
 export function formatCount(n: number): string {
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

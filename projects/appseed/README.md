@@ -15,6 +15,11 @@
 | 狀態 | TanStack Query（伺服器狀態，「已購」只由伺服器決定）、Zustand + MMKV（收藏、搜尋紀錄、設定、上載草稿） |
 | 多語言 | zh-Hant／en，key 有型別；書面語由測試檢查 |
 
+## 創作者數據報告（§26）
+
+- 參考 App Store Connect：7／30／90 日、按作品篩選、8 個數據格（瀏覽、讚好、分享、收藏、留言、銷量、收入、轉換率）連升跌
+- 可以按的柱狀圖、轉換漏斗、流量來源、分享去向、按作品分佈；只顯示彙總數字
+
 ## Apple 風格（§25）
 
 - Geist 字體、Tailwind 字級、純黑深色模式、同心圓角、固定間距表（測試會檢查）
@@ -50,7 +55,7 @@
 
 ```bash
 npm install
-npm test             # 84 個測試
+npm test             # 91 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

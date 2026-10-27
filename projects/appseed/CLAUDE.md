@@ -31,6 +31,11 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Source code comes from a GitHub App install (read-only, chosen repos) or a web zip upload;
   both pass lib/sourceScan.ts checks and any failed check blocks submission (§22.6).
 
+## Creator analytics (docs/DESIGN.md §26)
+- First-party, server-aggregated totals only; never send or show individual viewers or raw events.
+- Every number compares against the previous period of the same length; no baseline shows a dash.
+- Pure maths lives in src/lib/analytics.ts with tests; charts are animated Views, never SVG.
+
 ## Accounts (docs/DESIGN.md §23)
 - Guests can browse and search; wrap account-only actions in `requireAuth(reason, action)` so
   sign-in opens as a Sheet and the action resumes afterwards. Never gate browsing.

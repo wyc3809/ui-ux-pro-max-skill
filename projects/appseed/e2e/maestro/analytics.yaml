@@ -1,0 +1,22 @@
+# Creator opens the analytics report, switches period, metric and listing (§26)
+appId: app.appseed.mobile
+---
+- launchApp
+- tapOn: "創作"
+- tapOn: "查看完整報告"
+- assertVisible: "數據報告"
+- assertVisible: "對比前 30 日"
+- tapOn: "90 日"
+- assertVisible: "對比前 90 日"
+- assertVisible: "每週"
+- tapOn: "讚好 .*"
+- scrollUntilVisible:
+    element: "轉換漏斗"
+- assertVisible: "讚好或收藏"
+- scrollUntilVisible:
+    element: "按作品"
+- tapOn: "Habit Seed.*"
+- assertNotVisible: "按作品"
+- scrollUntilVisible:
+    element: "流量來源"
+    direction: UP

@@ -56,6 +56,7 @@ function Shell() {
           <Stack.Screen name="studio/new-prompt" options={{ presentation: "modal" }} />
           <Stack.Screen name="studio/new-buyout" options={{ presentation: "modal" }} />
           <Stack.Screen name="studio/new-launch" options={{ presentation: "modal" }} />
+          <Stack.Screen name="studio/analytics" />
           <Stack.Screen name="prompt/[slug]" />
           <Stack.Screen name="buyout/[slug]" />
           <Stack.Screen name="launch/[slug]" />

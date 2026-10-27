@@ -1,6 +1,8 @@
 import { githubLogin, githubRepos, repoManifests, zipManifest } from "@/data/github";
 import { buyouts, launches, prompts } from "@/data/marketplace";
+import { buildReport } from "@/data/analytics";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
+import type { RangeDays } from "@/lib/analytics";
 import { rankLaunches, toggleVote } from "@/lib/launch";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
@@ -280,6 +282,8 @@ export const api = {
     return { fileName: "my-app.zip", report: report(zipManifest) };
   },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
+  /** Aggregated server side; the client never receives individual viewers or raw events (§26). */
+  analytics: (range: RangeDays, slug: string | null) => wait(buildReport(range, slug), 360),
 };
 
 export const findCreator = (handle: string) => creators.find((c) => c.handle === handle);
