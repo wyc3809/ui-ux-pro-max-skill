@@ -127,6 +127,8 @@ export const ICONS = {
   report: "presentation-chart",
   arrowUp: "arrow-up",
   arrowDown: "arrow-down",
+  repost: "repeat",
+  compose: "pencil-simple",
 } as const satisfies Record<string, PhosphorGlyph>;
 
 export type IconName = keyof typeof ICONS;

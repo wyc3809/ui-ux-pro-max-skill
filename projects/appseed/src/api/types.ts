@@ -163,4 +163,24 @@ export type AuthResult = { status: "signedIn"; user: User } | { status: "needsPr
 /** Public counters for any item plus the viewer's own like. Bookmark state lives in favourites. */
 export type Engagement = { likes: number; views: number; shares: number; comments: number; bookmarks: number; liked: boolean };
 
+/** A discussion post (§27). Top-level posts may attach one app to promote; replies never do. */
+export type PostAttachment = { kind: "template" | "prompt" | "buyout" | "launch"; slug: string };
+export type Post = {
+  id: string;
+  userId: string;
+  author: string;
+  handle: string;
+  body: string;
+  createdAt: string;
+  attachment?: PostAttachment;
+  /** The attached app belongs to the author: shown as 作者作品 so promotion is always disclosed. */
+  promo?: boolean;
+  parentId?: string;
+  likes: number;
+  replies: number;
+  reposts: number;
+  liked?: boolean;
+  reposted?: boolean;
+};
+
 export type Comment = { id: string; userId: string; author: string; handle: string; body: string; createdAt: string };

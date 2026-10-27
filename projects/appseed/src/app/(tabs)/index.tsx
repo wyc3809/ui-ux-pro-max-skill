@@ -4,6 +4,7 @@ import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type SharedValue } from "react-native-reanimated";
 import { useBuyouts, useLaunches, usePrompts, useTemplates, useVote } from "@/api/queries";
 import type { CategoryKey, Launch, Template } from "@/api/types";
+import { DiscussFeed } from "@/components/feed/DiscussFeed";
 import { BuyoutCard, LaunchRow, PromptCard } from "@/components/market/Cards";
 import { UpvoteButton } from "@/components/market/UpvoteButton";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
@@ -32,12 +33,12 @@ import { Reveal } from "@/components/ui/Reveal";
 
 const CATEGORIES: (CategoryKey | "all")[] = ["all", "tools", "finance", "ai", "games", "hk", "merchant"];
 
-type Hub = "launches" | "templates" | "prompts" | "buyouts";
-const HUBS: Hub[] = ["launches", "templates", "prompts", "buyouts"];
+type Hub = "discuss" | "launches" | "templates" | "prompts" | "buyouts";
+const HUBS: Hub[] = ["discuss", "launches", "templates", "prompts", "buyouts"];
 
 export default function Explore() {
   const t = useT();
-  const [hub, setHub] = useState<Hub>("launches");
+  const [hub, setHub] = useState<Hub>("discuss");
   const templates = useTemplates();
   const launches = useLaunches();
   const prompts = usePrompts();
@@ -52,6 +53,7 @@ export default function Explore() {
           <SegmentedControl value={hub} onChange={setHub} options={HUBS.map((h) => ({ value: h, label: t(`hub.${h}`) }))} />
         </Reveal>
         <DirectionalSwap value={hub} order={HUBS}>
+          {hub === "discuss" && <DiscussFeed />}
           {hub === "launches" && <LaunchesFeed />}
           {hub === "templates" && <TemplatesFeed />}
           {hub === "prompts" && <PromptsFeed />}

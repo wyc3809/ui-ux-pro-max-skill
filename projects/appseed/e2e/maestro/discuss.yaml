@@ -1,0 +1,27 @@
+# Signed-in maker posts about their app on Explore, likes, replies in a thread and reports a post (§27)
+appId: app.appseed.mobile
+---
+- launchApp
+- assertVisible: "有甚麼新作想分享？"
+- tapOn: "有甚麼新作想分享？"
+- tapOn: "分享你的新作、進度或問題"
+- inputText: "Pocket Ledger 加入了月結圖表 #vibecoding"
+- tapOn: "Pocket Ledger 記帳本"
+- tapOn: "發佈"
+- assertVisible: "已發佈"
+- assertVisible: "作者作品"
+- tapOn: "熱門"
+- tapOn: "讚好 86"
+- assertVisible: "讚好 87"
+- tapOn: "Moodboard AI 今日上架了.*"
+- assertVisible: "討論串"
+- assertVisible: "3 則回覆"
+- tapOn: "回覆 Mint Loop"
+- inputText: "動畫很順，想看製作經歷"
+- tapOn: "發佈"
+- assertVisible: "動畫很順，想看製作經歷"
+- tapOn:
+    label: "更多"
+    index: 1
+- tapOn: "檢舉帖子"
+- assertVisible: "已收到檢舉"

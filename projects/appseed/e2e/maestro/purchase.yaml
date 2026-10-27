@@ -3,6 +3,7 @@ appId: app.appseed.mobile
 ---
 - launchApp:
     clearState: true
+- tapOn: "模板"
 - tapOn: "Pocket Ledger 記帳本"
 - tapOn: "製作經歷"
 - assertVisible: "購買後解鎖全部 6 個步驟"

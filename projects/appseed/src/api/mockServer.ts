@@ -1,13 +1,15 @@
 import { githubLogin, githubRepos, repoManifests, zipManifest } from "@/data/github";
 import { buyouts, launches, prompts } from "@/data/marketplace";
 import { buildReport } from "@/data/analytics";
+import { SEED_POSTS, SEED_REPLIES } from "@/data/posts";
+import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/posts";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
 import { rankLaunches, toggleVote } from "@/lib/launch";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { AuthResult, BuyoutListing, Comment, Engagement, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
+import type { AuthResult, BuyoutListing, Comment, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
 import { normalizeEmail, type AuthProvider } from "@/lib/auth";
 
 /**
@@ -39,6 +41,35 @@ const LIKES_KEY = "mock-server:likes";
 const VIEWS_KEY = "mock-server:views";
 const SHARES_KEY = "mock-server:shares";
 const COMMENTS_KEY = "mock-server:comments";
+const POSTS_KEY = "mock-server:posts";
+const POST_LIKES_KEY = "mock-server:post-likes";
+const POST_REPOSTS_KEY = "mock-server:post-reposts";
+const POST_HIDDEN_KEY = "mock-server:post-hidden";
+
+/** All posts and replies, seeded on first read with timestamps relative to now. */
+function readPosts(): Post[] {
+  const stored = mmkv.getString(POSTS_KEY);
+  if (stored) return JSON.parse(stored) as Post[];
+  const now = Date.now();
+  const seed = [...SEED_POSTS, ...SEED_REPLIES].map(({ hoursAgo, ...p }) => ({ ...p, createdAt: new Date(now - hoursAgo * 3_600_000).toISOString() }));
+  mmkv.set(POSTS_KEY, JSON.stringify(seed));
+  return seed;
+}
+const writePosts = (list: Post[]) => mmkv.set(POSTS_KEY, JSON.stringify(list));
+/** Adds the viewer's own like / repost flags; reported posts disappear for the reporter only. */
+function decorate(list: Post[]): Post[] {
+  const liked = readJson<string[]>(POST_LIKES_KEY, []);
+  const reposted = readJson<string[]>(POST_REPOSTS_KEY, []);
+  const hidden = readJson<string[]>(POST_HIDDEN_KEY, []);
+  return list.filter((p) => !hidden.includes(p.id)).map((p) => ({ ...p, liked: liked.includes(p.id), reposted: reposted.includes(p.id) }));
+}
+function toggleIn(store: string, id: string, field: "likes" | "reposts") {
+  const set = readJson<string[]>(store, []);
+  const on = !set.includes(id);
+  mmkv.set(store, JSON.stringify(on ? [...set, id] : set.filter((x) => x !== id)));
+  writePosts(readPosts().map((p) => (p.id === id ? { ...p, [field]: Math.max(0, p[field] + (on ? 1 : -1)) } : p)));
+  return on;
+}
 
 /** Deterministic fictional starting counts per item, so numbers are stable across reloads and screenshots. */
 function seeded(key: string) {
@@ -282,9 +313,68 @@ export const api = {
     return { fileName: "my-app.zip", report: report(zipManifest) };
   },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
+  posts: (sort: PostSort) => wait(sortPosts(decorate(readPosts().filter((p) => !p.parentId)), sort), 320),
+  thread: (id: string) => {
+    const all = decorate(readPosts());
+    const post = all.find((p) => p.id === id);
+    if (!post) return Promise.reject(new Error("not-found"));
+    return wait({ post, replies: sortPosts(all.filter((p) => p.parentId === id), "latest").reverse() }, 260);
+  },
+  /** The server re-runs the same rules as the composer, including the daily promotion limit. */
+  createPost: async ({ body, attachment, parentId, user }: { body: string; attachment?: PostAttachment; parentId?: string; user: { id: string; name: string; handle: string } }) => {
+    await wait(null, 380);
+    const all = readPosts();
+    const error = validatePost(body, { promo: !!attachment && !parentId, promoToday: promoCountToday(all, user.id) });
+    if (error) throw new Error(error);
+    const post: Post = {
+      id: `p_${Date.now().toString(36)}`,
+      userId: user.id,
+      author: user.name,
+      handle: user.handle,
+      body: body.trim(),
+      createdAt: new Date().toISOString(),
+      ...(attachment && !parentId ? { attachment, promo: true } : null),
+      ...(parentId ? { parentId } : null),
+      likes: 0,
+      replies: 0,
+      reposts: 0,
+    };
+    writePosts([post, ...all.map((p) => (p.id === parentId ? { ...p, replies: p.replies + 1 } : p))]);
+    return post;
+  },
+  togglePostLike: async (id: string) => {
+    await wait(null, 200);
+    return toggleIn(POST_LIKES_KEY, id, "likes");
+  },
+  toggleRepost: async (id: string) => {
+    await wait(null, 200);
+    return toggleIn(POST_REPOSTS_KEY, id, "reposts");
+  },
+  reportPost: async (id: string) => {
+    await wait(null, 300);
+    mmkv.set(POST_HIDDEN_KEY, JSON.stringify([...readJson<string[]>(POST_HIDDEN_KEY, []), id]));
+  },
   /** Aggregated server side; the client never receives individual viewers or raw events (§26). */
   analytics: (range: RangeDays, slug: string | null) => wait(buildReport(range, slug), 360),
 };
 
 export const findCreator = (handle: string) => creators.find((c) => c.handle === handle);
 export const findTemplate = (slug: string) => templates.find((t) => t.slug === slug);
+
+/** Any listing by kind, for attachment cards: name, tagline, cover and owner. */
+export function findListing(kind: PostAttachment["kind"], slug: string): { name: string; tagline: string; cover: Template["cover"]; owner: string; price?: number } | undefined {
+  if (kind === "template") {
+    const t = findTemplate(slug);
+    return t && { name: t.name, tagline: t.tagline, cover: t.cover, owner: t.creator, price: t.price };
+  }
+  if (kind === "prompt") {
+    const p = prompts.find((x) => x.slug === slug);
+    return p && { name: p.title, tagline: p.summary, cover: p.cover, owner: p.creator, price: p.price };
+  }
+  if (kind === "buyout") {
+    const b = buyouts.find((x) => x.slug === slug);
+    return b && { name: b.name, tagline: b.tagline, cover: b.cover, owner: b.seller, price: b.asking };
+  }
+  const l = launches.find((x) => x.slug === slug);
+  return l && { name: l.name, tagline: l.tagline, cover: l.cover, owner: l.maker };
+}

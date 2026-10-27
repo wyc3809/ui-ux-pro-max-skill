@@ -25,11 +25,19 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 ## Markets (docs/DESIGN.md §22)
 - Four markets share one design system: templates, prompts, whole-app buyouts, launches.
-- Buyouts are business transfers paid via web escrow, never IAP; the app only takes offers.
+- Buyouts are business transfers paid via a licensed escrow partner on the web, never IAP; the app only
+  takes offers. Sell the app (official App Store / Play transfer), never the developer account. Listings
+  must pass lib/transfer.ts readiness checks, revenue is verified only from read access (never screenshots),
+  and escrow releases only when every hand-over item is confirmed (§22.2).
 - Prompt full text is only sent to owners by the server; the client shows preview + locked count.
 - Sponsored launches must be labelled 贊助 and never carry an organic rank.
 - Source code comes from a GitHub App install (read-only, chosen repos) or a web zip upload;
   both pass lib/sourceScan.ts checks and any failed check blocks submission (§22.6).
+
+## Discussion (docs/DESIGN.md §27)
+- Threads-style feed is the first Explore hub. Posting, liking, replying and reposting need sign-in.
+- A post may attach one of the author's own live listings and is then labelled 作者作品; max 3 such
+  posts a day, enforced by lib/posts.ts on both client and server. Replies never carry attachments.
 
 ## Creator analytics (docs/DESIGN.md §26)
 - First-party, server-aggregated totals only; never send or show individual viewers or raw events.

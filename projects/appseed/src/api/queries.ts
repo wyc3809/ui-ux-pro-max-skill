@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RangeDays } from "@/lib/analytics";
+import type { PostSort } from "@/lib/posts";
 import { toggleVote } from "@/lib/launch";
 import { api, type SearchParams } from "./mockServer";
-import type { Comment, Engagement, Launch } from "./types";
+import type { Comment, Engagement, Launch, Post, PostAttachment } from "./types";
 
 export const qk = {
   templates: ["templates"] as const,
@@ -24,6 +25,8 @@ export const qk = {
   comments: (key: string) => ["comments", key] as const,
   githubRepos: ["github-repos"] as const,
   analytics: (range: RangeDays, slug: string | null) => ["analytics", range, slug ?? "all"] as const,
+  posts: (sort: PostSort) => ["posts", sort] as const,
+  thread: (id: string) => ["thread", id] as const,
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -181,6 +184,52 @@ export function useDeleteComment(key: string) {
     onError: (_e, _id, ctx) => {
       qc.setQueryData(qk.comments(key), ctx?.prev);
       qc.invalidateQueries({ queryKey: qk.engagement(key) });
+    },
+  });
+}
+
+export const usePosts = (sort: PostSort) => useQuery({ queryKey: qk.posts(sort), queryFn: () => api.posts(sort), placeholderData: (prev) => prev });
+export const useThread = (id: string) => useQuery({ queryKey: qk.thread(id), queryFn: () => api.thread(id) });
+
+type Thread = { post: Post; replies: Post[] };
+
+/** Applies a change to a post wherever it is cached: both feed orders and any open thread. */
+function patchPostCaches(qc: ReturnType<typeof useQueryClient>, id: string, fn: (p: Post) => Post) {
+  for (const sort of ["latest", "top"] as const) qc.setQueryData<Post[]>(qk.posts(sort), (list) => list?.map((p) => (p.id === id ? fn(p) : p)));
+  qc.setQueriesData<Thread>({ queryKey: ["thread"] }, (t) => (t ? { post: t.post.id === id ? fn(t.post) : t.post, replies: t.replies.map((r) => (r.id === id ? fn(r) : r)) } : t));
+}
+
+/** Optimistic like or repost on a post; rolled back by refetching if the server refuses. */
+export function usePostToggle(kind: "like" | "repost") {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => (kind === "like" ? api.togglePostLike(id) : api.toggleRepost(id)),
+    onMutate: (id) =>
+      patchPostCaches(qc, id, (p) =>
+        kind === "like" ? { ...p, liked: !p.liked, likes: p.likes + (p.liked ? -1 : 1) } : { ...p, reposted: !p.reposted, reposts: p.reposts + (p.reposted ? -1 : 1) },
+      ),
+    onError: () => qc.invalidateQueries({ queryKey: ["posts"] }),
+  });
+}
+
+export function useCreatePost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { body: string; attachment?: PostAttachment; parentId?: string; user: { id: string; name: string; handle: string } }) => api.createPost(v),
+    onSuccess: (post) => {
+      qc.invalidateQueries({ queryKey: ["posts"] });
+      if (post.parentId) qc.invalidateQueries({ queryKey: qk.thread(post.parentId) });
+    },
+  });
+}
+
+export function useReportPost() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.reportPost(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({ queryKey: ["thread"] });
     },
   });
 }

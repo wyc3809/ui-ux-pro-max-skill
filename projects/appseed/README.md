@@ -15,6 +15,16 @@
 | 狀態 | TanStack Query（伺服器狀態，「已購」只由伺服器決定）、Zustand + MMKV（收藏、搜尋紀錄、設定、上載草稿） |
 | 多語言 | zh-Hant／en，key 有型別；書面語由測試檢查 |
 
+## 討論區（§27）
+
+- 探索第一個分頁：Threads 式帖子，讚好、回覆、轉發、分享、檢舉；最新／熱門排序
+- 可附上自己的作品宣傳，標示「作者作品」，每天最多 3 則
+
+## 買斷轉移（§22.2）
+
+- 只轉讓 App（App Store／Google Play 官方轉移），不轉讓開發者帳戶
+- 上架前檢查轉移條件；收入只用唯讀權限核實；交接清單全部確認後才放款
+
 ## 創作者數據報告（§26）
 
 - 參考 App Store Connect：7／30／90 日、按作品篩選、8 個數據格（瀏覽、讚好、分享、收藏、留言、銷量、收入、轉換率）連升跌
@@ -55,7 +65,7 @@
 
 ```bash
 npm install
-npm test             # 92 個測試
+npm test             # 107 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）
