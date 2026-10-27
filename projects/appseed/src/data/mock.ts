@@ -1,11 +1,12 @@
 import type { Creator, FileNode, Listing, StoryStep, Template } from "@/api/types";
 
 /** Fictional creators, templates and reviews only (§17). */
+// Social handles carry an appseed demo prefix so they never point at a real person.
 export const creators: Creator[] = [
-  { handle: "kaylee-builds", name: "Kaylee Ho", bio: "一人開發者，專做記帳和生活工具。", avatarHue: 262, founding: true, totalSales: 1284, avgRating: 4.8 },
-  { handle: "harbourcode", name: "Harbour Code", bio: "香港本地資料 App，政府開放數據愛好者。", avatarHue: 196, founding: true, totalSales: 932, avgRating: 4.6 },
-  { handle: "mintloop", name: "Mint Loop", bio: "用 Claude Code 寫小遊戲和 AI 玩具。", avatarHue: 152, founding: false, totalSales: 418, avgRating: 4.4 },
-  { handle: "shopfront-lab", name: "Shopfront Lab", bio: "為小店做排隊、發票和會員系統。", avatarHue: 24, founding: false, totalSales: 276, avgRating: 4.7 },
+  { handle: "kaylee-builds", name: "Kaylee Ho", bio: "一人開發者，專做記帳和生活工具。", avatarHue: 262, founding: true, totalSales: 1284, avgRating: 4.8, links: { x: "appseeddemo_kh", instagram: "appseed.demo.kaylee", github: "appseed-demo-kaylee", threads: "appseed.demo.kaylee", website: "https://kaylee.example.com" } },
+  { handle: "harbourcode", name: "Harbour Code", bio: "香港本地資料 App，政府開放數據愛好者。", avatarHue: 196, founding: true, totalSales: 932, avgRating: 4.6, links: { github: "appseed-demo-harbour", linkedin: "appseed-demo-harbour", website: "https://harbourcode.example.com" } },
+  { handle: "mintloop", name: "Mint Loop", bio: "用 Claude Code 寫小遊戲和 AI 玩具。", avatarHue: 152, founding: false, totalSales: 418, avgRating: 4.4, links: { x: "appseeddemo_ml", youtube: "appseed-demo-mintloop", github: "appseed-demo-mintloop" } },
+  { handle: "shopfront-lab", name: "Shopfront Lab", bio: "為小店做排隊、發票和會員系統。", avatarHue: 24, founding: false, totalSales: 276, avgRating: 4.7, links: { instagram: "appseed.demo.shopfront", threads: "appseed.demo.shopfront" } },
 ];
 
 const expoTree = (extra: FileNode[] = []): FileNode[] => [

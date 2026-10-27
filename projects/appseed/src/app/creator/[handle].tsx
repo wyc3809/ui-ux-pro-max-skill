@@ -15,6 +15,7 @@ import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 import { space, font } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
+import { SocialLinksRow } from "@/components/creator/CreatorCard";
 
 export default function CreatorScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
@@ -57,6 +58,9 @@ export default function CreatorScreen() {
               <Txt tone="fgMuted" style={{ textAlign: "center", marginTop: 4 }}>
                 {creator.bio}
               </Txt>
+              <View style={{ paddingTop: 8 }}>
+                <SocialLinksRow c={creator} center />
+              </View>
             </Reveal>
             <Reveal kind="card" index={1} style={{ paddingHorizontal: space.gutter }}>
               <Card style={{ flexDirection: "row" }}>

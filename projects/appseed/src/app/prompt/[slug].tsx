@@ -37,6 +37,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { font, nested, radius } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
+import { CreatorCard } from "@/components/creator/CreatorCard";
 
 /** Prompt detail: free preview, locked remainder that types itself in after purchase, variable filler, copy. */
 export default function PromptScreen() {
@@ -206,6 +207,8 @@ export default function PromptScreen() {
               ))}
             </Card>
           </Section>
+
+          <CreatorCard handle={p.creator} />
 
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="prompt" slug={p.slug} />

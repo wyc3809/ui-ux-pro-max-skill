@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -53,6 +54,8 @@ export default function MeScreen() {
               )}
               {user && (
                 <>
+                  <RowDivider />
+                  <ListRow icon="pen" title={t("creator.edit")} detail={t("creator.editBody")} onPress={() => router.push("/profile")} />
                   <RowDivider />
                   <ListRow
                     icon="git"

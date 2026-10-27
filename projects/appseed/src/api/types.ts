@@ -1,3 +1,4 @@
+import type { SocialLinks } from "@/lib/socialLinks";
 import type { VerifySource } from "@/lib/transfer";
 import type { LicenseKind } from "@/lib/license";
 import type { TemplateStatus } from "@/lib/status";
@@ -14,6 +15,8 @@ export type Creator = {
   founding: boolean;
   totalSales: number;
   avgRating: number;
+  /** Stored as bare handles (website as an https URL); see lib/socialLinks.ts. */
+  links?: SocialLinks;
 };
 
 export type StoryStep = {

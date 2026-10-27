@@ -15,6 +15,17 @@
 | 狀態 | TanStack Query（伺服器狀態，「已購」只由伺服器決定）、Zustand + MMKV（收藏、搜尋紀錄、設定、上載草稿） |
 | 多語言 | zh-Hant／en，key 有型別；書面語由測試檢查 |
 
+## 排行榜與演算法（§28）
+
+- 開 App 先見排行榜（今日／本週／本月），再到討論；名次變化 ▲▼
+- 排行榜：可信度加權、防刷票、留言和分享加分、按期間遞減；討論「為你推薦」：個人化、新帖曝光、多樣性
+- 兩者都有「ⓘ」說明 Sheet
+
+## 創作者資料（§29）
+
+- 每個作品下方有創作者卡，連 X、Instagram、GitHub、Threads、LinkedIn、YouTube、網站
+- 只存用戶名，網址由 App 組合，防止假連結
+
 ## 討論區（§27）
 
 - 探索第一個分頁：Threads 式帖子，讚好、回覆、轉發、分享、檢舉；最新／熱門排序
@@ -65,7 +76,7 @@
 
 ```bash
 npm install
-npm test             # 107 個測試
+npm test             # 124 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

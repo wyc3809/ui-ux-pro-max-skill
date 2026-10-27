@@ -42,6 +42,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { HandoverList, VerifiedLine } from "@/components/market/Transfer";
 import { handoverItems } from "@/lib/transfer";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
+import { CreatorCard } from "@/components/creator/CreatorCard";
 
 const STEP_KEYS = { agree: "buyout.stepAgree", deposit: "buyout.stepDeposit", transfer: "buyout.stepTransfer", verify: "buyout.stepVerify", release: "buyout.stepRelease" } as const;
 const hk = (n: number) => formatPrice(n, "HKD", "HK$0");
@@ -194,6 +195,8 @@ export default function BuyoutScreen() {
               </Txt>
             </Card>
           </Section>
+
+          <CreatorCard handle={b.seller} />
 
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="buyout" slug={b.slug} />

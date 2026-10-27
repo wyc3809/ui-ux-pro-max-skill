@@ -46,6 +46,7 @@ export const PHOSPHOR_REGULAR = {
   "gear-six": 57970,
   "git-branch": 57976,
   "git-merge": 57984,
+  "github-logo": 58742,
   "globe": 57992,
   "google-logo": 58002,
   "grid-four": 58006,
@@ -54,6 +55,7 @@ export const PHOSPHOR_REGULAR = {
   "heart": 58024,
   "image": 58058,
   "info": 58062,
+  "instagram-logo": 58064,
   "laptop": 58758,
   "lightning": 58078,
   "link": 58082,
@@ -105,6 +107,7 @@ export const PHOSPHOR_REGULAR = {
   "x": 58614,
   "x-circle": 58616,
   "x-logo": 58556,
+  "youtube-logo": 58620,
 } as const;
 
 export const PHOSPHOR_FILL = {
@@ -150,6 +153,7 @@ export const PHOSPHOR_FILL = {
   "gear-six": 57970,
   "git-branch": 57976,
   "git-merge": 57984,
+  "github-logo": 58742,
   "globe": 57992,
   "google-logo": 58002,
   "grid-four": 58006,
@@ -158,6 +162,7 @@ export const PHOSPHOR_FILL = {
   "heart": 58024,
   "image": 58058,
   "info": 58062,
+  "instagram-logo": 58064,
   "laptop": 58758,
   "lightning": 58078,
   "link": 58082,
@@ -209,6 +214,7 @@ export const PHOSPHOR_FILL = {
   "x": 58614,
   "x-circle": 58616,
   "x-logo": 58556,
+  "youtube-logo": 58620,
 } as const;
 
 export type PhosphorGlyph = keyof typeof PHOSPHOR_REGULAR;

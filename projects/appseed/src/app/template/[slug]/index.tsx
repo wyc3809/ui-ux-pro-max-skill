@@ -45,6 +45,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space, font } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
+import { CreatorCard } from "@/components/creator/CreatorCard";
 
 type Seg = "overview" | "story" | "files" | "reviews" | "versions";
 const SEGS: Seg[] = ["overview", "story", "files", "reviews", "versions"];
@@ -130,6 +131,9 @@ export default function TemplateScreen() {
                 )}
               </DirectionalSwap>
             </Reveal>
+            <View style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
+              <CreatorCard handle={tpl.creator} />
+            </View>
             <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
               <CommentsSection kind="template" slug={tpl.slug} />
               <Footer t={tpl} />

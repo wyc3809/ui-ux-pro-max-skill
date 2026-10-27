@@ -3,6 +3,7 @@ import { buyouts, launches, prompts } from "@/data/marketplace";
 import { buildReport } from "@/data/analytics";
 import { SEED_POSTS, SEED_REPLIES } from "@/data/posts";
 import { forYou, type Viewer } from "@/lib/feed";
+import { BIO_MAX, normalizeSocial, SOCIALS, type SocialLinks } from "@/lib/socialLinks";
 import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/posts";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
@@ -11,7 +12,7 @@ import { MOVEMENT_HOURS, rankBoard, sponsoredPick, withMovement, type Period } f
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { AuthResult, BuyoutListing, Comment, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
+import type { AuthResult, BuyoutListing, Comment, Creator, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
 import { normalizeEmail, type AuthProvider } from "@/lib/auth";
 
 /**
@@ -44,6 +45,17 @@ const VIEWS_KEY = "mock-server:views";
 const SHARES_KEY = "mock-server:shares";
 const COMMENTS_KEY = "mock-server:comments";
 const POSTS_KEY = "mock-server:posts";
+const PROFILES_KEY = "mock-server:profiles";
+
+type ProfileEdit = { name: string; bio: string; links: SocialLinks };
+/** Seed creators merged with any profile edits; a signed-in user without listings gets a profile on first save. */
+function creatorProfile(handle: string): Creator | null {
+  const edit = readJson<Record<string, ProfileEdit>>(PROFILES_KEY, {})[handle];
+  const seed = creators.find((c) => c.handle === handle);
+  if (!seed && !edit) return null;
+  const base: Creator = seed ?? { handle, name: edit!.name, bio: "", avatarHue: 262, founding: false, totalSales: 0, avgRating: 0 };
+  return edit ? { ...base, ...edit } : base;
+}
 const POST_LIKES_KEY = "mock-server:post-likes";
 const POST_REPOSTS_KEY = "mock-server:post-reposts";
 const POST_HIDDEN_KEY = "mock-server:post-hidden";
@@ -183,8 +195,20 @@ export function searchTemplates(list: Template[], p: SearchParams): Template[] {
 export const api = {
   templates: () => wait(templates),
   template: (slug: string) => wait(templates.find((t) => t.slug === slug) ?? null),
-  creator: (handle: string) =>
-    wait({ creator: creators.find((c) => c.handle === handle) ?? null, templates: templates.filter((t) => t.creator === handle) }),
+  creator: (handle: string) => wait({ creator: creatorProfile(handle), templates: templates.filter((t) => t.creator === handle) }),
+  /** Links are normalised again here, so a stored link can only be a bare handle or an https website. */
+  saveProfile: async ({ handle, name, bio, links }: { handle: string } & ProfileEdit) => {
+    await wait(null, 420);
+    const clean: SocialLinks = {};
+    for (const k of SOCIALS) {
+      const r = links[k] ? normalizeSocial(k, links[k]!) : null;
+      if (r && "error" in r) throw new Error(r.error);
+      if (r && r.value) clean[k] = r.value;
+    }
+    if (bio.trim().length > BIO_MAX) throw new Error("bioTooLong");
+    mmkv.set(PROFILES_KEY, JSON.stringify({ ...readJson<Record<string, ProfileEdit>>(PROFILES_KEY, {}), [handle]: { name: name.trim(), bio: bio.trim(), links: clean } }));
+    return creatorProfile(handle)!;
+  },
   search: (p: SearchParams) => wait(searchTemplates([...templates], p), 180),
   purchases: () => wait(readPurchases()),
   purchase: async (slug: string) => {
@@ -388,7 +412,8 @@ export const api = {
   analytics: (range: RangeDays, slug: string | null) => wait(buildReport(range, slug), 360),
 };
 
-export const findCreator = (handle: string) => creators.find((c) => c.handle === handle);
+/** Synchronous lookup for cards; includes profile edits. */
+export const findCreator = (handle: string) => creatorProfile(handle) ?? undefined;
 export const findTemplate = (slug: string) => templates.find((t) => t.slug === slug);
 
 /** Any listing by kind, for attachment cards: name, tagline, cover and owner. */

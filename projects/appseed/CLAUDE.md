@@ -34,8 +34,18 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Source code comes from a GitHub App install (read-only, chosen repos) or a web zip upload;
   both pass lib/sourceScan.ts checks and any failed check blocks submission (§22.6).
 
+## Leaderboard & ranking (docs/DESIGN.md §28)
+- Explore opens on the leaderboard, then Discuss. Ranking lives in lib/ranking.ts (trust-weighted votes,
+  vote-ring halving, period decay, reports, unranked sponsored slot); For you lives in lib/feed.ts. Every
+  ranking surface has an ⓘ sheet explaining it in plain language; keep the sheet in sync with the code.
+
+## Creator profiles (docs/DESIGN.md §29)
+- Every listing shows a CreatorCard with social links. Store bare handles and build URLs with
+  lib/socialLinks.ts so a link can only point at its network; websites must be https.
+- Demo data uses fictional handles with an appseed demo prefix.
+
 ## Discussion (docs/DESIGN.md §27)
-- Threads-style feed is the first Explore hub. Posting, liking, replying and reposting need sign-in.
+- Threads-style feed is the second Explore hub. Posting, liking, replying and reposting need sign-in.
 - A post may attach one of the author's own live listings and is then labelled 作者作品; max 3 such
   posts a day, enforced by lib/posts.ts on both client and server. Replies never carry attachments.
 

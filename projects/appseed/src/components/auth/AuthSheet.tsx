@@ -108,6 +108,8 @@ export function AuthSheet() {
     haptic("success");
     const id = setTimeout(() => {
       toast(t(welcome.returning ? "auth.welcomeBack" : "auth.welcome", { name: welcome.user.name }));
+      // Clear the welcome so a later re-render (t changes identity) can never toast it again.
+      setWelcome(null);
       finish();
     }, 1300);
     return () => clearTimeout(id);

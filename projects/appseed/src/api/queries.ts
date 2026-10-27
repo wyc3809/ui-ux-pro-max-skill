@@ -37,6 +37,14 @@ const HOUR = 60 * 60 * 1000;
 export const useTemplates = () => useQuery({ queryKey: qk.templates, queryFn: api.templates, staleTime: 10 * 60 * 1000 });
 export const useTemplate = (slug: string) => useQuery({ queryKey: qk.template(slug), queryFn: () => api.template(slug), staleTime: HOUR });
 export const useCreator = (handle: string) => useQuery({ queryKey: qk.creator(handle), queryFn: () => api.creator(handle) });
+
+export function useSaveProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.saveProfile,
+    onSuccess: (c) => qc.invalidateQueries({ queryKey: qk.creator(c.handle) }),
+  });
+}
 export const useSearch = (p: SearchParams) =>
   useQuery({ queryKey: qk.search(p), queryFn: () => api.search(p), placeholderData: (prev) => prev });
 export const usePurchases = () => useQuery({ queryKey: qk.purchases, queryFn: api.purchases });

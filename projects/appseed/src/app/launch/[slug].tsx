@@ -33,6 +33,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { font, nested, radius } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
+import { CreatorCard } from "@/components/creator/CreatorCard";
 
 /** A promoted vibe-coded app: maker's story, tools used, links, and the template / prompt behind it. */
 export default function LaunchScreen() {
@@ -158,6 +159,7 @@ export default function LaunchScreen() {
 
           {l.relatedTemplate && <RelatedTemplate slug={l.relatedTemplate} />}
           {l.relatedPrompt && <RelatedPrompt slug={l.relatedPrompt} />}
+          <CreatorCard handle={l.maker} />
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="launch" slug={l.slug} />
           </View>
