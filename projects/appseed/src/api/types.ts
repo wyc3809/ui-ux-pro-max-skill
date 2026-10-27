@@ -130,6 +130,11 @@ export type Launch = {
   comments: number;
   launchedAt: string;
   boosted: boolean;
+  /** Ranking signals (§28); the server aggregates them from raw votes, shares and reports. */
+  shares: number;
+  trustedShare: number;
+  newAccountShare: number;
+  reports: number;
   story: string;
   links: { label: string; url: string }[];
   relatedTemplate?: string;

@@ -1,0 +1,19 @@
+# The app opens on the leaderboard; periods switch, the algorithm is explained, voting updates the row (§28)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- assertVisible: "今日排行"
+- assertVisible: "贊助"
+- tapOn: "排名如何計算"
+- assertVisible: "每票按帳戶可信度計算.*"
+- tapOn: "完成"
+- tapOn: "本週"
+- assertVisible: "本週排行"
+- tapOn: "本月"
+- assertVisible: "本月排行"
+- assertVisible: "Focus Fern"
+- tapOn: "討論"
+- assertVisible: "為你推薦"
+- tapOn: "推薦方式"
+- assertVisible: "不會連續出現同一位作者.*"

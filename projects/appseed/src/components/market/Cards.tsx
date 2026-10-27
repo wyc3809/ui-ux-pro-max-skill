@@ -9,6 +9,7 @@ import { Tag } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { ZoomLink, ZoomSource } from "@/components/ui/ZoomLink";
+import type { Movement } from "@/lib/ranking";
 import { PriceTag } from "@/components/ui/PriceTag";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { Txt } from "@/components/ui/Txt";
@@ -154,7 +155,7 @@ function Metric({ label, value, strong }: { label: string; value: string; strong
 }
 
 /** Launch board row: rank, cover, name (+ sponsored disclosure), built-with line, upvote. */
-export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boolean }; rank?: number; query?: string }) {
+export function LaunchRow({ l, rank, movement, query = "" }: { l: Launch & { voted?: boolean }; rank?: number; movement?: Movement; query?: string }) {
   const { c, card } = useTheme();
   const t = useT();
   const vote = useVote();
@@ -166,9 +167,12 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
           <Icon name="megaphone" size={15} color={c.fgSubtle} enter={false} />
         </View>
       ) : rank == null ? null : (
-        <Txt variant="section" tone={rank <= 3 ? "accent" : "fgSubtle"} tabular style={{ width: 20, textAlign: "center", fontFamily: font.bold }}>
-          {rank}
-        </Txt>
+        <View style={{ width: 24, alignItems: "center" }}>
+          <Txt variant="section" tone={rank <= 3 ? "accent" : "fgSubtle"} tabular style={{ textAlign: "center", fontFamily: font.bold }}>
+            {rank}
+          </Txt>
+          {movement && <MovementBadge m={movement} />}
+        </View>
       )}
       <Cover t={l} style={{ width: 56, aspectRatio: 1 }} rounded={nested(radius.row, gap.sm)} />
       <View style={{ flex: 1, gap: 4 }}>
@@ -189,3 +193,27 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
     </PressableScale>
   );
 }
+
+/** Rank change since the board six hours ago: ▲2 in green, ▼1 in red, a dot for no change, 新 for new entries. */
+export function MovementBadge({ m }: { m: Movement }) {
+  const { c } = useTheme();
+  const t = useT();
+  const label = m.kind === "up" ? t("board.up", { n: m.by }) : m.kind === "down" ? t("board.down", { n: m.by }) : m.kind === "new" ? t("board.fresh") : t("board.same");
+  if (m.kind === "same") return <View accessible accessibilityLabel={label} style={{ width: 4, height: 4, marginTop: 4, borderRadius: radius.chip, backgroundColor: c.fgSubtle }} />;
+  if (m.kind === "new")
+    return (
+      <Txt variant="caption" tone="accent" accessibilityLabel={label} numberOfLines={1} style={{ fontFamily: font.semibold }}>
+        {t("board.freshShort")}
+      </Txt>
+    );
+  const up = m.kind === "up";
+  return (
+    <View accessible accessibilityLabel={label} style={{ flexDirection: "row", alignItems: "center" }}>
+      <Icon name={up ? "arrowUp" : "arrowDown"} size={10} color={up ? c.live : c.danger} enter={false} />
+      <Txt variant="caption" tabular style={{ color: up ? c.live : c.danger }}>
+        {m.by}
+      </Txt>
+    </View>
+  );
+}
+

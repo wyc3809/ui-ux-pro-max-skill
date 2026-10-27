@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type SharedValue } from "react-native-reanimated";
-import { useBuyouts, useLaunches, usePrompts, useTemplates, useVote } from "@/api/queries";
+import { useBuyouts, useLaunches, useLeaderboard, usePrompts, useTemplates, useVote } from "@/api/queries";
 import type { CategoryKey, Launch, Template } from "@/api/types";
 import { DiscussFeed } from "@/components/feed/DiscussFeed";
 import { BuyoutCard, LaunchRow, PromptCard } from "@/components/market/Cards";
@@ -26,19 +26,23 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
-import { crossfadeIn} from "@/theme/animations";
+import { crossfadeIn, reorder } from "@/theme/animations";
+import { PERIODS, type Period } from "@/lib/ranking";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ExplainSheet } from "@/components/ui/ExplainSheet";
 import { useTheme } from "@/theme/ThemeProvider";
 import { gap, nested, radius, space } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 
 const CATEGORIES: (CategoryKey | "all")[] = ["all", "tools", "finance", "ai", "games", "hk", "merchant"];
 
-type Hub = "discuss" | "launches" | "templates" | "prompts" | "buyouts";
-const HUBS: Hub[] = ["discuss", "launches", "templates", "prompts", "buyouts"];
+type Hub = "launches" | "discuss" | "templates" | "prompts" | "buyouts";
+/** The leaderboard opens first, then the discussion feed (§28). */
+const HUBS: Hub[] = ["launches", "discuss", "templates", "prompts", "buyouts"];
 
 export default function Explore() {
   const t = useT();
-  const [hub, setHub] = useState<Hub>("discuss");
+  const [hub, setHub] = useState<Hub>("launches");
   const templates = useTemplates();
   const launches = useLaunches();
   const prompts = usePrompts();
@@ -53,8 +57,8 @@ export default function Explore() {
           <SegmentedControl value={hub} onChange={setHub} options={HUBS.map((h) => ({ value: h, label: t(`hub.${h}`) }))} />
         </Reveal>
         <DirectionalSwap value={hub} order={HUBS}>
-          {hub === "discuss" && <DiscussFeed />}
           {hub === "launches" && <LaunchesFeed />}
+          {hub === "discuss" && <DiscussFeed />}
           {hub === "templates" && <TemplatesFeed />}
           {hub === "prompts" && <PromptsFeed />}
           {hub === "buyouts" && <BuyoutsFeed />}
@@ -64,33 +68,56 @@ export default function Explore() {
   );
 }
 
-/** 新作推廣: the day's top launch as a hero, then the ranked board (sponsored slot disclosed), then a call to promote. */
+/**
+ * 排行榜: the first thing people see. Today, this week or this month, ranked by the leaderboard algorithm
+ * (lib/ranking.ts, explained in a sheet); the top launch gets the hero card, the rest list with rank movement,
+ * and the one sponsored slot sits second, labelled and unranked.
+ */
 function LaunchesFeed() {
   const t = useT();
   const { c } = useTheme();
-  const { data } = useLaunches();
-  if (!data) return <ListSkeleton />;
-  // The top organic launch gets the hero card; the ranked list continues from #2 (sponsored slot keeps its place).
-  const top = data.find((l) => !l.boosted);
-  const rest = data.filter((l) => l !== top);
+  const [period, setPeriod] = useState<Period>("today");
+  const [how, setHow] = useState(false);
+  const { data } = useLeaderboard(period);
+  const top = data?.board[0];
+  const rest = data?.board.slice(1) ?? [];
+  const title = { today: t("board.titleToday"), week: t("board.titleWeek"), month: t("board.titleMonth") }[period];
   return (
     <View style={{ gap: 24, paddingTop: 16 }}>
-      {top && (
-        <Section eyebrow={t("feed.launchesEyebrow")} title={t("feed.launchesTitle")} index={0}>
-          <LaunchHero l={top} />
-        </Section>
+      <Reveal style={{ flexDirection: "row", alignItems: "center", gap: gap.sm, paddingHorizontal: space.gutter }}>
+        {PERIODS.map((p) => (
+          <Chip key={p} label={t(`board.${p}`)} selected={period === p} onPress={() => setPeriod(p)} />
+        ))}
+        <View style={{ flex: 1 }} />
+        <PressableScale onPress={() => setHow(true)} hitSlop={8} accessibilityLabel={t("board.how")}>
+          <Icon name="info" size={20} color={c.fgSubtle} />
+        </PressableScale>
+      </Reveal>
+      {!data ? (
+        <ListSkeleton />
+      ) : !top ? (
+        <EmptyState icon="trophy" title={t("board.empty")} body={t("board.emptyBody")} action={{ label: t("board.week"), onPress: () => setPeriod("week") }} />
+      ) : (
+        <>
+          <Section eyebrow={t("feed.launchesEyebrow")} title={title} index={0}>
+            <LaunchHero l={top} period={period} />
+          </Section>
+          <Section index={1}>
+            <View style={{ gap: 12 }}>
+              {/* Sponsored keeps the second visual slot, directly under the hero, with no rank. */}
+              {data.sponsored && <LaunchRow l={data.sponsored} />}
+              {rest.map((l) => (
+                <Animated.View key={l.slug} layout={reorder}>
+                  <LaunchRow l={l} rank={l.rank} movement={l.movement} />
+                </Animated.View>
+              ))}
+            </View>
+          </Section>
+        </>
       )}
-      <Section index={1}>
-        <View style={{ gap: 12 }}>
-          {rest.map((l) => (
-            // Sponsored launches carry no rank number; organic ranks count only organic launches.
-            <LaunchRow key={l.slug} l={l} rank={l.boosted ? undefined : rest.filter((x) => !x.boosted).indexOf(l) + (top ? 2 : 1)} />
-          ))}
-        </View>
-      </Section>
       <Reveal index={2} style={{ paddingHorizontal: space.gutter }}>
         <PressableScale onPress={() => requireAuth("auth.reasonList", () => router.push("/studio/new-launch"))} hapticKind="tap" accessibilityLabel={t("listing.launch")} style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: c.accentSoft }}>
-          <Icon name="rocket" size={26} color={c.accent} active loop="breathe" />
+          <Icon name="rocket" size={24} color={c.accent} active loop="breathe" />
           <View style={{ flex: 1 }}>
             <Txt variant="bodyStrong" tone="accent">
               {t("listing.launch")}
@@ -99,14 +126,27 @@ function LaunchesFeed() {
               {t("listing.launchBody")}
             </Txt>
           </View>
-          <Icon name="chevronRight" size={18} color={c.accent} enter={false} />
+          <Icon name="chevronRight" size={16} color={c.accent} enter={false} />
         </PressableScale>
       </Reveal>
+      <ExplainSheet
+        open={how}
+        onClose={() => setHow(false)}
+        title={t("board.how")}
+        points={[
+          { icon: "shield", text: t("board.how1") },
+          { icon: "people", text: t("board.how2") },
+          { icon: "comment", text: t("board.how3") },
+          { icon: "timer", text: t("board.how4") },
+          { icon: "flag", text: t("board.how5") },
+          { icon: "megaphone", text: t("board.how6") },
+        ]}
+      />
     </View>
   );
 }
 
-function LaunchHero({ l }: { l: Launch & { voted: boolean } }) {
+function LaunchHero({ l, period }: { l: Launch & { voted: boolean }; period: Period }) {
   const { c, card } = useTheme();
   const t = useT();
   const vote = useVote();
@@ -118,7 +158,7 @@ function LaunchHero({ l }: { l: Launch & { voted: boolean } }) {
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Icon name="trophy" size={16} color={c.rating} active motion="wiggle" trigger={l.slug} />
             <Txt variant="eyebrow" tone="fgSubtle">
-              {t("launch.rank", { n: 1 })}
+              {t("launch.rank", { n: 1, period: t(`board.${period}`).toLowerCase() })}
             </Txt>
           </View>
           <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 28 }}>

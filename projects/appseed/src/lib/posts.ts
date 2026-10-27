@@ -54,7 +54,7 @@ export function postScore(p: Rankable, now: number): number {
   return (p.likes + 2 * p.replies + 3 * p.reposts + 1) / Math.pow(hours + 2, 1.5);
 }
 
-export type PostSort = "latest" | "top";
+export type PostSort = "forYou" | "top" | "latest";
 
 export function sortPosts<T extends Rankable>(posts: T[], sort: PostSort, now = Date.now()): T[] {
   const copy = [...posts];

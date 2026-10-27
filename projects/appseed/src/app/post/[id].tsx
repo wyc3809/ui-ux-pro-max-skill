@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useThread } from "@/api/queries";
@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
+import { useSeenPosts } from "@/store/seenPosts";
 import { useSession } from "@/store/session";
 import { rowIn } from "@/theme/animations";
 import { gap } from "@/theme/tokens";
@@ -24,6 +25,8 @@ export default function ThreadScreen() {
   const t = useT();
   const user = useSession((s) => s.user);
   const { data } = useThread(id);
+  const markSeen = useSeenPosts((s) => s.mark);
+  useEffect(() => markSeen(id), [id, markSeen]);
   const [replying, setReplying] = useState(false);
   const report = useReportFlow();
   const [now] = useState(Date.now());

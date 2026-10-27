@@ -6,6 +6,7 @@ import type { Post } from "@/api/types";
 import { Chip } from "@/components/ui/Chip";
 import { ConfirmSheet } from "@/components/ui/ConfirmSheet";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ExplainSheet } from "@/components/ui/ExplainSheet";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Reveal } from "@/components/ui/Reveal";
@@ -20,6 +21,9 @@ import { reorder, rowIn } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { gap, space } from "@/theme/tokens";
 import { ComposeSheet } from "./ComposeSheet";
+import { useViewer } from "./useViewer";
+
+const SORTS: PostSort[] = ["forYou", "top", "latest"];
 import { AVATAR, Avatar, PostItem } from "./Post";
 
 /** Hairline between posts, inset to line up with the text column like Threads. */
@@ -57,8 +61,10 @@ export function DiscussFeed() {
   const { c } = useTheme();
   const t = useT();
   const user = useSession((s) => s.user);
-  const [sort, setSort] = useState<PostSort>("latest");
-  const { data } = usePosts(sort);
+  const [sort, setSort] = useState<PostSort>("forYou");
+  const viewer = useViewer();
+  const { data } = usePosts(sort, viewer);
+  const [how, setHow] = useState(false);
   const [compose, setCompose] = useState<{ parent?: Post } | null>(null);
   const report = useReportFlow();
   const [now] = useState(Date.now());
@@ -79,9 +85,14 @@ export function DiscussFeed() {
           <Icon name="compose" size={20} color={c.accent} motion="bounce" />
         </PressableScale>
       </Reveal>
-      <Reveal index={1} style={{ flexDirection: "row", gap: gap.sm }}>
-        <Chip label={t("discuss.latest")} selected={sort === "latest"} onPress={() => setSort("latest")} />
-        <Chip label={t("discuss.top")} selected={sort === "top"} onPress={() => setSort("top")} />
+      <Reveal index={1} style={{ flexDirection: "row", alignItems: "center", gap: gap.sm }}>
+        {SORTS.map((s) => (
+          <Chip key={s} label={t(`discuss.${s}`)} selected={sort === s} onPress={() => setSort(s)} />
+        ))}
+        <View style={{ flex: 1 }} />
+        <PressableScale onPress={() => setHow(true)} hitSlop={8} accessibilityLabel={t("discuss.how")}>
+          <Icon name="info" size={20} color={c.fgSubtle} />
+        </PressableScale>
       </Reveal>
 
       {!data ? (
@@ -103,6 +114,19 @@ export function DiscussFeed() {
         </View>
       )}
 
+      <ExplainSheet
+        open={how}
+        onClose={() => setHow(false)}
+        title={t("discuss.how")}
+        points={[
+          { icon: "chat", text: t("discuss.how1") },
+          { icon: "heart", text: t("discuss.how2") },
+          { icon: "sparkles", text: t("discuss.how3") },
+          { icon: "eye", text: t("discuss.how4") },
+          { icon: "people", text: t("discuss.how5") },
+          { icon: "shield", text: t("discuss.how6") },
+        ]}
+      />
       <ComposeSheet open={!!compose} parent={compose?.parent} onClose={() => setCompose(null)} />
       {report.sheet}
     </View>

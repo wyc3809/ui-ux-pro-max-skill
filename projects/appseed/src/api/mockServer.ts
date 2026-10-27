@@ -2,10 +2,12 @@ import { githubLogin, githubRepos, repoManifests, zipManifest } from "@/data/git
 import { buyouts, launches, prompts } from "@/data/marketplace";
 import { buildReport } from "@/data/analytics";
 import { SEED_POSTS, SEED_REPLIES } from "@/data/posts";
+import { forYou, type Viewer } from "@/lib/feed";
 import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/posts";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
 import { rankLaunches, toggleVote } from "@/lib/launch";
+import { MOVEMENT_HOURS, rankBoard, sponsoredPick, withMovement, type Period } from "@/lib/ranking";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
@@ -121,10 +123,33 @@ function report(m: SourceManifest): ScanReport {
   return { checks: scanSource(m), stack: detectStack(m.dependencies), files: m.files, fileCount: countFiles(m.files), sizeBytes: m.sizeBytes };
 }
 
+/** The fictional launch dates are re-anchored so the newest launch is always a few hours old. */
+const NEWEST = Math.max(...launches.map((l) => Date.parse(l.launchedAt)));
+const anchored = (l: Launch, now = Date.now()): Launch => ({ ...l, launchedAt: new Date(Date.parse(l.launchedAt) + (now - 3 * 3_600_000 - NEWEST)).toISOString() });
+
 function withVotes(l: Launch): Launch & { voted: boolean } {
   const votes = readJson<string[]>(VOTES_KEY, []);
   const voted = votes.includes(l.slug);
-  return { ...l, upvotes: l.upvotes + (voted ? 1 : 0), voted };
+  return { ...anchored(l), upvotes: l.upvotes + (voted ? 1 : 0), voted };
+}
+
+/**
+ * Leaderboard for a period, with rank movement against the board MOVEMENT_HOURS ago. The real server keeps
+ * snapshots; here the earlier vote counts are estimated from how votes accrue over a launch's first days.
+ */
+function leaderboard(period: Period) {
+  const now = Date.now();
+  const all = launches.map(withVotes);
+  const then = now - MOVEMENT_HOURS * 3_600_000;
+  const earlier = all
+    .filter((l) => Date.parse(l.launchedAt) <= then)
+    .map((l) => {
+      const age = (now - Date.parse(l.launchedAt)) / 3_600_000;
+      const share = Math.pow((age - MOVEMENT_HOURS) / age, 0.6);
+      return { ...l, upvotes: Math.round(l.upvotes * share), comments: Math.round(l.comments * share), shares: Math.round(l.shares * share) };
+    });
+  const board = withMovement(rankBoard(all, period, now), rankBoard(earlier, period, then));
+  return { board, sponsored: sponsoredPick(all, period, now) ?? null };
 }
 
 export type SearchParams = {
@@ -192,6 +217,7 @@ export const api = {
     return offer;
   },
   launches: () => wait(rankLaunches(launches.map(withVotes), new Date())),
+  leaderboard: (period: Period) => wait(leaderboard(period), 320),
   launch: (slug: string) => {
     const l = launches.find((x) => x.slug === slug);
     return wait(l ? withVotes(l) : null);
@@ -313,7 +339,11 @@ export const api = {
     return { fileName: "my-app.zip", report: report(zipManifest) };
   },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
-  posts: (sort: PostSort) => wait(sortPosts(decorate(readPosts().filter((p) => !p.parentId)), sort), 320),
+  /** For you is ranked per viewer (§28); the real server builds the viewer profile from its own records. */
+  posts: (sort: PostSort, viewer: Viewer) => {
+    const list = decorate(readPosts().filter((p) => !p.parentId));
+    return wait(sort === "forYou" ? forYou(list, viewer) : sortPosts(list, sort), 320);
+  },
   thread: (id: string) => {
     const all = decorate(readPosts());
     const post = all.find((p) => p.id === id);

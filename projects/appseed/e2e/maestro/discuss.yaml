@@ -2,6 +2,8 @@
 appId: app.appseed.mobile
 ---
 - launchApp
+- tapOn: "討論"
+- assertVisible: "為你推薦"
 - assertVisible: "有甚麼新作想分享？"
 - tapOn: "有甚麼新作想分享？"
 - tapOn: "分享你的新作、進度或問題"

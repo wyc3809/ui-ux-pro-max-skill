@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { RangeDays } from "@/lib/analytics";
+import type { Viewer } from "@/lib/feed";
 import type { PostSort } from "@/lib/posts";
+import type { Period } from "@/lib/ranking";
 import { toggleVote } from "@/lib/launch";
 import { api, type SearchParams } from "./mockServer";
 import type { Comment, Engagement, Launch, Post, PostAttachment } from "./types";
@@ -25,7 +27,8 @@ export const qk = {
   comments: (key: string) => ["comments", key] as const,
   githubRepos: ["github-repos"] as const,
   analytics: (range: RangeDays, slug: string | null) => ["analytics", range, slug ?? "all"] as const,
-  posts: (sort: PostSort) => ["posts", sort] as const,
+  leaderboard: (period: Period) => ["leaderboard", period] as const,
+  posts: (sort: PostSort, viewer: string) => ["posts", sort, viewer] as const,
   thread: (id: string) => ["thread", id] as const,
 };
 
@@ -63,6 +66,8 @@ export const useBuyouts = () => useQuery({ queryKey: qk.buyouts, queryFn: api.bu
 export const useBuyout = (slug: string) => useQuery({ queryKey: qk.buyout(slug), queryFn: () => api.buyout(slug) });
 export const useOffers = () => useQuery({ queryKey: qk.offers, queryFn: api.offers });
 export const useLaunches = () => useQuery({ queryKey: qk.launches, queryFn: api.launches });
+/** Keeps the previous board on screen while another period loads, so rows reorder instead of blanking. */
+export const useLeaderboard = (period: Period) => useQuery({ queryKey: qk.leaderboard(period), queryFn: () => api.leaderboard(period), placeholderData: (prev) => prev });
 export const useLaunch = (slug: string) => useQuery({ queryKey: qk.launch(slug), queryFn: () => api.launch(slug) });
 
 /** Same rule as templates: prompt ownership comes from the server only. */
@@ -91,9 +96,14 @@ export function useMakeOffer() {
 type VotedLaunch = Launch & { voted: boolean };
 
 /** Optimistic upvote: the count rolls and the arrow fills on tap; rolled back if the server refuses. */
+type Board = Awaited<ReturnType<typeof api.leaderboard>>;
+
 export function useVote() {
   const qc = useQueryClient();
-  const flip = (l: VotedLaunch) => ({ ...l, ...(({ count, voted }) => ({ upvotes: count, voted }))(toggleVote(l.upvotes, l.voted)) });
+  const flip = <T extends VotedLaunch>(l: T): T => {
+    const { count, voted } = toggleVote(l.upvotes, l.voted);
+    return { ...l, upvotes: count, voted };
+  };
   return useMutation({
     mutationFn: api.vote,
     onMutate: async (slug: string) => {
@@ -102,12 +112,17 @@ export function useVote() {
       const prevOne = qc.getQueryData<VotedLaunch | null>(qk.launch(slug));
       qc.setQueryData<VotedLaunch[]>(qk.launches, (list) => list?.map((l) => (l.slug === slug ? flip(l) : l)));
       qc.setQueryData<VotedLaunch | null>(qk.launch(slug), (l) => (l ? flip(l) : l));
+      // The vote shows at once on the board; the order is recomputed by the server when it settles.
+      qc.setQueriesData<Board>({ queryKey: ["leaderboard"] }, (b) =>
+        b ? { board: b.board.map((l) => (l.slug === slug ? flip(l) : l)), sponsored: b.sponsored?.slug === slug ? flip(b.sponsored) : b.sponsored } : b,
+      );
       return { prevList, prevOne };
     },
     onError: (_e, slug, ctx) => {
       qc.setQueryData(qk.launches, ctx?.prevList);
       qc.setQueryData(qk.launch(slug), ctx?.prevOne);
     },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["leaderboard"] }),
   });
 }
 
@@ -188,14 +203,16 @@ export function useDeleteComment(key: string) {
   });
 }
 
-export const usePosts = (sort: PostSort) => useQuery({ queryKey: qk.posts(sort), queryFn: () => api.posts(sort), placeholderData: (prev) => prev });
+/** The viewer is part of the key so signing in or out re-ranks For you. */
+export const usePosts = (sort: PostSort, viewer: Viewer) =>
+  useQuery({ queryKey: qk.posts(sort, viewer.userId ?? "anon"), queryFn: () => api.posts(sort, viewer), placeholderData: (prev) => prev });
 export const useThread = (id: string) => useQuery({ queryKey: qk.thread(id), queryFn: () => api.thread(id) });
 
 type Thread = { post: Post; replies: Post[] };
 
 /** Applies a change to a post wherever it is cached: both feed orders and any open thread. */
 function patchPostCaches(qc: ReturnType<typeof useQueryClient>, id: string, fn: (p: Post) => Post) {
-  for (const sort of ["latest", "top"] as const) qc.setQueryData<Post[]>(qk.posts(sort), (list) => list?.map((p) => (p.id === id ? fn(p) : p)));
+  qc.setQueriesData<Post[]>({ queryKey: ["posts"] }, (list) => list?.map((p) => (p.id === id ? fn(p) : p)));
   qc.setQueriesData<Thread>({ queryKey: ["thread"] }, (t) => (t ? { post: t.post.id === id ? fn(t.post) : t.post, replies: t.replies.map((r) => (r.id === id ? fn(r) : r)) } : t));
 }
 
