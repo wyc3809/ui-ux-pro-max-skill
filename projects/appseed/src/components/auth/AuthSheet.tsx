@@ -17,11 +17,12 @@ import { isValidEmail, resendIn, suggestHandle, validateHandle, type HandleError
 import { haptic } from "@/lib/haptic";
 import { useAuthGate } from "@/store/authGate";
 import { useSession } from "@/store/session";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
 import { OtpInput } from "./OtpInput";
 import { ProviderButton } from "./ProviderButton";
+import { Reveal } from "@/components/ui/Reveal";
 
 type Step = "choose" | "code" | "profile" | "done";
 const STEPS: Step[] = ["choose", "code", "profile", "done"];
@@ -220,9 +221,9 @@ function CodeStep({ email, sentAt, onResent, onBack, onLanded }: { email: string
         {verifying ? (
           <Icon name="refresh" size={18} color={c.accent} loop="spin" />
         ) : error ? (
-          <Animated.View entering={enterAt(0)}>
+          <Reveal>
             <Txt tone="danger">{t("auth.codeWrong")}</Txt>
-          </Animated.View>
+          </Reveal>
         ) : null}
       </View>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -327,12 +328,12 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
       <Field inSheet label={t("auth.name")} value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
       <Field inSheet label={t("auth.handle")} value={handle} onChangeText={(v) => setHandle(v.toLowerCase().replace(/\s/g, ""))} autoCapitalize="none" autoCorrect={false} />
       {status && (
-        <Animated.View key={status.label} entering={enterAt(0)} style={{ flexDirection: "row", gap: 6, alignItems: "center", marginTop: -6 }}>
+        <Reveal key={status.label} style={{ flexDirection: "row", gap: 6, alignItems: "center", marginTop: -6 }}>
           <Icon name={status.icon} size={15} color={c[status.tone]} active loop={availability === "checking" && !formatError ? "breathe" : undefined} />
           <Txt variant="caption" tone={status.tone}>
             @{handle} · {status.label}
           </Txt>
-        </Animated.View>
+        </Reveal>
       )}
       <ShakeView shakeKey={shakeKey}>
         <Button label={t("auth.create")} loading={creating} onPress={create} />
@@ -371,11 +372,11 @@ function DoneStep({ name, returning }: { name: string; returning: boolean }) {
           <Icon name="checkCircle" size={44} color={c.live} active enterDelay={80} />
         </View>
       </View>
-      <Animated.View entering={enterAt(1)}>
+      <Reveal index={1}>
         <Txt variant="heroTitle" style={{ textAlign: "center" }}>
           {t(returning ? "auth.welcomeBack" : "auth.welcome", { name })}
         </Txt>
-      </Animated.View>
+      </Reveal>
     </View>
   );
 }

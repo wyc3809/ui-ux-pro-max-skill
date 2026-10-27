@@ -39,9 +39,11 @@ import { requireAuth } from "@/store/authGate";
 import { formatBytes, formatCount, formatDate } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
-import { enterAt, popIn, slideInAt } from "@/theme/animations";
+import { popIn, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { motion, radius, space, font } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
+import { ZoomTarget } from "@/components/ui/ZoomLink";
 
 type Seg = "overview" | "story" | "files" | "reviews" | "versions";
 const SEGS: Seg[] = ["overview", "story", "files", "reviews", "versions"];
@@ -99,10 +101,10 @@ export default function TemplateScreen() {
       <Animated.ScrollView ref={jumpTo.ref} onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: clearance }}>
         {tpl ? (
           <>
-            <Animated.View entering={enterAt(0)} style={{ paddingHorizontal: space.gutter }}>
+            <Reveal style={{ paddingHorizontal: space.gutter }}>
               <Hero t={tpl} />
-            </Animated.View>
-            <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
+            </Reveal>
+            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
               <EngagementPanel
                 kind="template"
                 slug={tpl.slug}
@@ -110,11 +112,11 @@ export default function TemplateScreen() {
                 extra={{ icon: "remix", label: t("engage.remixes"), value: (launches ?? []).filter((l) => l.relatedTemplate === tpl.slug).length }}
                 onComments={jumpTo.jump}
               />
-            </Animated.View>
-            <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter, paddingTop: 20, paddingBottom: 16 }}>
+            </Reveal>
+            <Reveal index={1} style={{ paddingHorizontal: space.gutter, paddingTop: 20, paddingBottom: 16 }}>
               <SegmentedControl value={seg} onChange={setSeg} options={SEGS.map((s) => ({ value: s, label: t(`template.${s}`) }))} />
-            </Animated.View>
-            <Animated.View entering={enterAt(2)} style={{ paddingHorizontal: space.gutter }}>
+            </Reveal>
+            <Reveal index={2} style={{ paddingHorizontal: space.gutter }}>
               <DirectionalSwap value={seg} order={SEGS}>
                 {seg === "overview" && <Overview t={tpl} onLicense={() => setSheet("license")} />}
                 {seg === "story" && <StoryPreview t={tpl} owned={owned} />}
@@ -126,7 +128,7 @@ export default function TemplateScreen() {
                   </Card>
                 )}
               </DirectionalSwap>
-            </Animated.View>
+            </Reveal>
             <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 20 }}>
               <CommentsSection kind="template" slug={tpl.slug} />
               <Footer t={tpl} />
@@ -171,7 +173,9 @@ function Hero({ t: tpl }: { t: Template }) {
   const creator = findCreator(tpl.creator);
   return (
     <View style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 14 }, card]}>
-      <MediaCarousel t={tpl} />
+      <ZoomTarget>
+        <MediaCarousel t={tpl} />
+      </ZoomTarget>
       <View style={{ paddingHorizontal: 6, gap: 6 }}>
         <Txt variant="heroTitle" numberOfLines={2} accessibilityRole="header">
           {tpl.name}

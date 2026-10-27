@@ -1,7 +1,6 @@
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { Linking, Platform, Share, View } from "react-native";
-import Animated from "react-native-reanimated";
 import { findCreator } from "@/api/mockServer";
 import { useEngagement, useLaunch, usePrompt, useTemplate, useVote } from "@/api/queries";
 import { CommentsSection } from "@/components/engage/CommentsSection";
@@ -29,9 +28,11 @@ import { useT } from "@/i18n";
 import { itemKey } from "@/lib/engagement";
 import { formatDate } from "@/lib/format";
 import { requireAuth } from "@/store/authGate";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, font } from "@/theme/tokens";
+import { font, nested, radius } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
+import { ZoomTarget } from "@/components/ui/ZoomLink";
 
 /** A promoted vibe-coded app: maker's story, tools used, links, and the template / prompt behind it. */
 export default function LaunchScreen() {
@@ -80,9 +81,11 @@ export default function LaunchScreen() {
         <Skeleton height={320} radius={radius.hero} />
       ) : (
         <>
-          <Animated.View entering={enterAt(0)}>
+          <Reveal kind="card">
             <Card style={{ gap: 12, padding: 12, borderRadius: radius.hero }}>
-              <Cover t={l} />
+              <ZoomTarget>
+                <Cover t={l} rounded={nested(radius.hero, 12)} />
+              </ZoomTarget>
               <View style={{ paddingHorizontal: 6, gap: 6 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                   <Txt variant="eyebrow" tone="fgSubtle">
@@ -122,7 +125,7 @@ export default function LaunchScreen() {
                 ))}
               </View>
             </Card>
-          </Animated.View>
+          </Reveal>
 
           <EngagementPanel
             kind="launch"

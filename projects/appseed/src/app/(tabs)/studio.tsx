@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { View } from "react-native";
-import Animated from "react-native-reanimated";
 import { useStudio } from "@/api/queries";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
 import { TabScene } from "@/components/shell/TabScene";
@@ -18,9 +17,10 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default function StudioScreen() {
   const t = useT();
@@ -38,7 +38,7 @@ export default function StudioScreen() {
             </>
           ) : (
             <>
-              <Animated.View entering={enterAt(0)}>
+              <Reveal kind="card">
                 <Card style={{ gap: 4 }}>
                   <Txt variant="eyebrow" tone="fgSubtle">
                     {t("studio.revenue")}
@@ -47,7 +47,7 @@ export default function StudioScreen() {
                   <View style={{ height: 16 }} />
                   <SalesChart data={data.sales} label={t("studio.last30")} />
                 </Card>
-              </Animated.View>
+              </Reveal>
               <Section title={t("studio.myTemplates")} index={1} inset={false}>
                 <Card padded={false}>
                   {data.listings.map((l, i) => (
@@ -58,10 +58,10 @@ export default function StudioScreen() {
                   ))}
                 </Card>
               </Section>
-              <Animated.View entering={enterAt(2)} style={{ gap: 16 }}>
+              <Reveal index={2} style={{ gap: 16 }}>
                 <PayoutCard amount={data.payout} next={data.nextPayout} />
                 <Button label={t("listing.choose")} icon={<Icon name="plus" size={19} color={c.accentFg} enterDelay={300} motion="spin" trigger={chooser} />} onPress={() => requireAuth("auth.reasonList", () => setChooser(true))} />
-              </Animated.View>
+              </Reveal>
             </>
           )}
         </View>

@@ -1,4 +1,3 @@
-import Animated from "react-native-reanimated";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { ListingWizard } from "@/components/studio/ListingWizard";
 import { SourcePicker } from "@/components/studio/SourcePicker";
@@ -10,7 +9,8 @@ import { escrowFee, revenueMultiple } from "@/lib/buyout";
 import { missingBuyoutFields, type BuyoutDraft } from "@/lib/listing";
 import { formatPrice } from "@/lib/price";
 import { useFormDraft } from "@/store/formDrafts";
-import { enterAt } from "@/theme/animations";
+import { Reveal } from "@/components/ui/Reveal";
+
 
 const INCLUDED = ["source", "design", "appStore", "play", "domain", "subscribers", "social", "handover"] as const;
 const EMPTY: BuyoutDraft = { step: 0, name: "", tagline: "", monthlyRevenue: "", mau: "", source: null, included: [], reason: "", asking: "" };
@@ -59,12 +59,12 @@ export default function NewBuyout() {
         <>
           <Field label={t("form.asking")} value={d.asking} onChangeText={(v) => patch({ asking: v })} keyboardType="number-pad" />
           {asking > 0 && (
-            <Animated.View entering={enterAt(0)} style={{ gap: 4 }}>
+            <Reveal style={{ gap: 4 }}>
               <Txt tone="fgMuted">{multiple == null ? t("buyout.preRevenue") : t("buyout.multiple", { x: multiple })}</Txt>
               <Txt variant="caption" tone="fgSubtle">
                 {t("buyout.escrowFee")} {formatPrice(escrowFee(asking), "HKD", "")}
               </Txt>
-            </Animated.View>
+            </Reveal>
           )}
           <Note text={t("buyout.escrowNote")} />
         </>

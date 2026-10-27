@@ -1,5 +1,4 @@
 import { View } from "react-native";
-import Animated from "react-native-reanimated";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { ListingWizard } from "@/components/studio/ListingWizard";
 import { Chip, Tag } from "@/components/ui/Chip";
@@ -10,9 +9,10 @@ import { missingPromptFields, promptDraftVariables, type PromptDraft } from "@/l
 import { formatPrice } from "@/lib/price";
 import { PROMPT_TIERS, splitPreview } from "@/lib/prompt";
 import { useFormDraft } from "@/store/formDrafts";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, font } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
 
 const TOOLS = ["Claude Code", "Claude", "Cursor", "v0", "Windsurf"];
 const EMPTY: PromptDraft = { step: 0, title: "", summary: "", tool: null, text: "", previewLines: 2, tier: null };
@@ -47,7 +47,7 @@ export default function NewPrompt() {
           </Group>
           <Field label={t("form.promptText")} hint={t("form.promptTextHint")} value={d.text} onChangeText={(text) => patch({ text })} multiline autoCapitalize="none" keyboardType="ascii-capable" />
           {vars.length > 0 && (
-            <Animated.View entering={enterAt(0)} style={{ gap: 8 }}>
+            <Reveal style={{ gap: 8 }}>
               <Txt variant="caption" tone="fgMuted">
                 {t("form.detectedVars", { n: vars.length })}
               </Txt>
@@ -56,7 +56,7 @@ export default function NewPrompt() {
                   <Tag key={v} label={`{{${v}}}`} index={i} />
                 ))}
               </View>
-            </Animated.View>
+            </Reveal>
           )}
         </>
       )}

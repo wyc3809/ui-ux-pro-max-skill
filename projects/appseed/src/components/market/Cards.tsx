@@ -8,6 +8,7 @@ import { Cover } from "@/components/template/Cover";
 import { Tag } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
+import { ZoomLink, ZoomSource } from "@/components/ui/ZoomLink";
 import { PriceTag } from "@/components/ui/PriceTag";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { Txt } from "@/components/ui/Txt";
@@ -19,7 +20,7 @@ import { highlight } from "@/lib/search";
 import { toneColors } from "@/lib/status";
 import { popIn } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space, font } from "@/theme/tokens";
+import { font, gap, nested, radius, space } from "@/theme/tokens";
 import { SoldStamp, UpvoteButton } from "./UpvoteButton";
 
 /** Text with query hits in accent bold (§5). */
@@ -50,9 +51,11 @@ export function PromptCard({ p, width }: { p: PromptListing; width?: number }) {
   const { c, card } = useTheme();
   const owned = useOwnsPrompt(p.slug);
   return (
-    <PressableScale onPress={() => router.push(`/prompt/${p.slug}`)} accessibilityLabel={p.title} style={[{ width, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 10, gap: 10 }, card]}>
-      <Cover t={p} style={{ aspectRatio: 16 / 9 }} />
-      <View style={{ paddingHorizontal: 4, paddingBottom: 4, gap: 6 }}>
+    <ZoomLink href={`/prompt/${p.slug}`} accessibilityLabel={p.title} style={[{ width, backgroundColor: c.bgElevated, borderRadius: radius.card, padding: gap.sm, gap: gap.sm }, card]}>
+      <ZoomSource>
+        <Cover t={p} style={{ aspectRatio: 16 / 9 }} rounded={nested(radius.card, gap.sm)} />
+      </ZoomSource>
+      <View style={{ paddingHorizontal: gap.sm, paddingBottom: gap.sm, gap: gap.xs }}>
         <Txt variant="bodyStrong" numberOfLines={2}>
           {p.title}
         </Txt>
@@ -62,12 +65,12 @@ export function PromptCard({ p, width }: { p: PromptListing; width?: number }) {
             {p.tool}
           </Txt>
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: gap.xs }}>
           <RatingStars value={p.rating} count={p.reviewCount} compact />
           <PriceTag amount={p.price} owned={owned} variant="bodyStrong" />
         </View>
       </View>
-    </PressableScale>
+    </ZoomLink>
   );
 }
 
@@ -75,9 +78,11 @@ export function PromptRow({ p, query = "" }: { p: PromptListing; query?: string 
   const { c, card } = useTheme();
   const owned = useOwnsPrompt(p.slug);
   return (
-    <PressableScale onPress={() => router.push(`/prompt/${p.slug}`)} scaleTo={0.98} accessibilityLabel={p.title} style={[{ flexDirection: "row", gap: 12, padding: 10, backgroundColor: c.bgElevated, borderRadius: radius.row, marginHorizontal: space.gutter }, card]}>
-      <Cover t={p} style={{ width: 88, aspectRatio: 1 }} rounded={12} />
-      <View style={{ flex: 1, gap: 4, justifyContent: "center" }}>
+    <ZoomLink href={`/prompt/${p.slug}`} accessibilityLabel={p.title} style={[{ flexDirection: "row", gap: gap.md, padding: gap.sm, backgroundColor: c.bgElevated, borderRadius: radius.row, marginHorizontal: space.gutter }, card]}>
+      <ZoomSource>
+        <Cover t={p} style={{ width: 88, aspectRatio: 1 }} rounded={nested(radius.row, gap.sm)} />
+      </ZoomSource>
+      <View style={{ flex: 1, gap: gap.xs, justifyContent: "center" }}>
         <Hl text={p.title} query={query} />
         <Txt variant="caption" tone="fgSubtle" numberOfLines={1}>
           Prompt · {p.tool}
@@ -87,7 +92,7 @@ export function PromptRow({ p, query = "" }: { p: PromptListing; query?: string 
           <PriceTag amount={p.price} owned={owned} variant="bodyStrong" />
         </View>
       </View>
-    </PressableScale>
+    </ZoomLink>
   );
 }
 
@@ -97,10 +102,12 @@ export function BuyoutCard({ b, query = "" }: { b: BuyoutListing; query?: string
   const t = useT();
   const multiple = revenueMultiple(b.asking, b.monthlyRevenue);
   return (
-    <PressableScale onPress={() => router.push(`/buyout/${b.slug}`)} scaleTo={0.98} accessibilityLabel={b.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.card, padding: 12, gap: 12, marginHorizontal: space.gutter, opacity: b.status === "sold" ? 0.82 : 1 }, card]}>
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        <Cover t={b} style={{ width: 72, aspectRatio: 1 }} rounded={14} />
-        <View style={{ flex: 1, gap: 4 }}>
+    <ZoomLink href={`/buyout/${b.slug}`} accessibilityLabel={b.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.card, padding: gap.md, gap: gap.md, marginHorizontal: space.gutter, opacity: b.status === "sold" ? 0.82 : 1 }, card]}>
+      <View style={{ flexDirection: "row", gap: gap.md }}>
+        <ZoomSource>
+          <Cover t={b} style={{ width: 72, aspectRatio: 1 }} rounded={nested(radius.card, gap.md)} />
+        </ZoomSource>
+        <View style={{ flex: 1, gap: gap.xs }}>
           <Hl text={b.name} query={query} />
           <Txt variant="caption" tone="fgMuted" numberOfLines={2}>
             {b.tagline}
@@ -118,7 +125,7 @@ export function BuyoutCard({ b, query = "" }: { b: BuyoutListing; query?: string
           </View>
         </View>
       </View>
-      <View style={{ flexDirection: "row", borderRadius: radius.inset, backgroundColor: c.bgMuted, paddingVertical: 10 }}>
+      <View style={{ flexDirection: "row", borderRadius: nested(radius.card, gap.md), backgroundColor: c.bgMuted, paddingVertical: gap.md }}>
         <Metric label={t("buyout.monthlyRevenue")} value={b.monthlyRevenue > 0 ? formatPrice(b.monthlyRevenue, "HKD", "") : t("buyout.preRevenue")} />
         <Metric label={t("buyout.mau")} value={formatCount(b.monthlyActive)} />
         <Metric label={t("buyout.asking")} value={formatPrice(b.asking, "HKD", "")} strong />
@@ -129,7 +136,7 @@ export function BuyoutCard({ b, query = "" }: { b: BuyoutListing; query?: string
         </Txt>
       )}
       {b.status === "sold" && <SoldStamp label={t("buyout.sold")} />}
-    </PressableScale>
+    </ZoomLink>
   );
 }
 
@@ -153,7 +160,7 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
   const vote = useVote();
   const maker = findCreator(l.maker);
   return (
-    <PressableScale onPress={() => router.push(`/launch/${l.slug}`)} scaleTo={0.98} accessibilityLabel={l.name} style={[{ flexDirection: "row", alignItems: "center", gap: 12, padding: 10, backgroundColor: c.bgElevated, borderRadius: radius.row, marginHorizontal: space.gutter }, card]}>
+    <PressableScale onPress={() => router.push(`/launch/${l.slug}`)} scaleTo={0.98} accessibilityLabel={l.name} style={[{ flexDirection: "row", alignItems: "center", gap: gap.md, padding: gap.sm, backgroundColor: c.bgElevated, borderRadius: radius.row, marginHorizontal: space.gutter }, card]}>
       {l.boosted ? (
         <View style={{ width: 20, alignItems: "center" }}>
           <Icon name="megaphone" size={15} color={c.fgSubtle} enter={false} />
@@ -163,7 +170,7 @@ export function LaunchRow({ l, rank, query = "" }: { l: Launch & { voted?: boole
           {rank}
         </Txt>
       )}
-      <Cover t={l} style={{ width: 56, aspectRatio: 1 }} rounded={14} />
+      <Cover t={l} style={{ width: 56, aspectRatio: 1 }} rounded={nested(radius.row, gap.sm)} />
       <View style={{ flex: 1, gap: 3 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
           <View style={{ flexShrink: 1 }}>

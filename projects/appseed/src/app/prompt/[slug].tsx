@@ -32,9 +32,11 @@ import { formatCount } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
 import { fillPrompt, promptVariables } from "@/lib/prompt";
-import { enterAt, slideInAt } from "@/theme/animations";
+import { slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, font } from "@/theme/tokens";
+import { font, nested, radius } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
+import { ZoomTarget } from "@/components/ui/ZoomLink";
 
 /** Prompt detail: free preview, locked remainder that types itself in after purchase, variable filler, copy. */
 export default function PromptScreen() {
@@ -100,9 +102,11 @@ export default function PromptScreen() {
         <Skeleton height={320} radius={radius.hero} />
       ) : (
         <>
-          <Animated.View entering={enterAt(0)}>
+          <Reveal kind="card">
             <Card style={{ gap: 12, padding: 12, borderRadius: radius.hero }}>
-              <Cover t={p} style={{ aspectRatio: 2 }} />
+              <ZoomTarget>
+                <Cover t={p} style={{ aspectRatio: 2 }} rounded={nested(radius.hero, 12)} />
+              </ZoomTarget>
               <View style={{ paddingHorizontal: 6, gap: 6 }}>
                 <Txt variant="eyebrow" tone="fgSubtle">
                   Prompt · {p.tool}
@@ -138,7 +142,7 @@ export default function PromptScreen() {
                 </Txt>
               </View>
             </Card>
-          </Animated.View>
+          </Reveal>
 
           <EngagementPanel
             kind="prompt"

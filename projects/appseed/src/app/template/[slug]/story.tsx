@@ -15,9 +15,10 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { mmkv } from "@/store/storage";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
 import { space } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
 
 /** Long-form reader (§10.4): progress bar, contents sheet, remembers reading position. */
 export default function StoryScreen() {
@@ -93,27 +94,27 @@ export default function StoryScreen() {
           </View>
         ) : (
           <>
-            <Animated.View entering={enterAt(0)} style={{ gap: 6, marginBottom: 28 }}>
+            <Reveal style={{ gap: 6, marginBottom: 28 }}>
               <Txt variant="eyebrow" tone="fgSubtle">
                 {t("template.story")}
               </Txt>
               <Txt variant="largeTitle" style={{ fontSize: 24, lineHeight: 32 }}>
                 {tpl.name}
               </Txt>
-            </Animated.View>
+            </Reveal>
             {tpl.story.slice(0, visible).map((s, i) => (
-              <Animated.View key={i} entering={enterAt(i + 1)} onLayout={(e) => (offsets.current[i] = e.nativeEvent.layout.y)}>
+              <Reveal key={i} index={i + 1} onLayout={(e) => (offsets.current[i] = e.nativeEvent.layout.y)}>
                 <StoryStep step={s} n={i + 1} last={i === visible - 1} longform />
-              </Animated.View>
+              </Reveal>
             ))}
             {!owned && tpl.story.length > visible && (
-              <Animated.View entering={enterAt(2)} style={{ marginTop: 28, padding: 20, borderRadius: 22, backgroundColor: c.accentSoft, alignItems: "center", gap: 12 }}>
+              <Reveal index={2} style={{ marginTop: 28, padding: 20, borderRadius: 22, backgroundColor: c.accentSoft, alignItems: "center", gap: 12 }}>
                 <Icon name="lock" size={24} color={c.accent} active motion="wiggle" loop="breathe" />
                 <Txt variant="bodyStrong" style={{ textAlign: "center" }}>
                   {t("template.unlockAll", { n: tpl.story.length })}
                 </Txt>
                 <Button label={t("cta.buy")} onPress={() => router.back()} />
-              </Animated.View>
+              </Reveal>
             )}
           </>
         )}

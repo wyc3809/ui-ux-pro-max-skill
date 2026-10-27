@@ -18,10 +18,11 @@ import { formatBytes, formatDate } from "@/lib/format";
 import { haptic } from "@/lib/haptic";
 import { matches } from "@/lib/search";
 import { isBlocking } from "@/lib/sourceScan";
-import { enterAt, slideInAt } from "@/theme/animations";
+import { slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, font } from "@/theme/tokens";
 import { ScanChecklist } from "./ScanChecklist";
+import { Reveal } from "@/components/ui/Reveal";
 
 type Props = { value: SourceChoice | null; onChange: (v: SourceChoice | null) => void; onStack?: (stack: string[]) => void };
 
@@ -173,7 +174,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
           )}
         </>
       ) : (
-        <Animated.View entering={enterAt(0)} style={{ gap: 14 }}>
+        <Reveal style={{ gap: 14 }}>
           {repo && <RepoRow r={repo} index={0} selected onPress={() => onChange({ kind: "github", repo: "", branch: "", report: null })} />}
           {repo && repo.branches.length > 1 && (
             <View style={{ gap: 8 }}>
@@ -188,7 +189,7 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
             </View>
           )}
           <ScanResult report={value.report} scanning={scan.isPending} onRescan={() => run(value.repo, value.branch)} onChooseOther={() => onChange({ kind: "github", repo: "", branch: "", report: null })} />
-        </Animated.View>
+        </Reveal>
       )}
     </>
   );
@@ -239,7 +240,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
         <ScanChecklist report={report} />
       </View>
       {report && settled && (
-        <Animated.View entering={enterAt(0)} style={{ gap: 12 }}>
+        <Reveal style={{ gap: 12 }}>
           {blocking > 0 ? (
             <View style={{ gap: 10, padding: 14, borderRadius: radius.inset, backgroundColor: c.dangerSoft }}>
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
@@ -284,7 +285,7 @@ function ScanResult({ report, scanning, onRescan, onChooseOther }: { report: Sca
               <FileTree nodes={report.files} />
             </>
           )}
-        </Animated.View>
+        </Reveal>
       )}
     </View>
   );
@@ -343,13 +344,13 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
         </PressableScale>
       </View>
       {Platform.OS !== "web" ? (
-        <Animated.View entering={enterAt(0)} style={{ gap: 12, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+        <Reveal style={{ gap: 12, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
           <View style={{ flexDirection: "row", gap: 10 }}>
             <Icon name="laptop" size={20} color={c.pending} active loop="breathe" />
             <Txt style={{ flex: 1 }}>{t("source.zipMobile")}</Txt>
           </View>
           <Button label={t("source.emailLink")} variant="secondary" icon={<Icon name="mail" size={17} color={c.fg} />} onPress={() => toast(t("source.emailed"))} />
-        </Animated.View>
+        </Reveal>
       ) : !value.fileName ? (
         <Button label={t("source.chooseZip")} icon={<Icon name="download" size={18} color={c.accentFg} />} onPress={start} />
       ) : (

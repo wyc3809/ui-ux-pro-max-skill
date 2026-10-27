@@ -15,6 +15,7 @@ import { DirectionalSwap } from "@/components/ui/DirectionalSwap";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
+import { ZoomLink, ZoomSource } from "@/components/ui/ZoomLink";
 import { PriceTag } from "@/components/ui/PriceTag";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { SearchBarButton } from "@/components/ui/SearchBar";
@@ -24,9 +25,10 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
-import { crossfadeIn, enterAt } from "@/theme/animations";
+import { crossfadeIn} from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius, space } from "@/theme/tokens";
+import { gap, nested, radius, space } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
 
 const CATEGORIES: (CategoryKey | "all")[] = ["all", "tools", "finance", "ai", "games", "hk", "merchant"];
 
@@ -45,10 +47,10 @@ export default function Explore() {
   return (
     <TabScene index={0}>
       <LargeTitleScreen title={t("explore.title")} right={<HeaderButton icon="settings" motion="spin" label={t("a11y.settings")} onPress={() => router.navigate("/me")} />} onRefresh={refetch}>
-        <Animated.View entering={enterAt(0)} style={{ paddingHorizontal: space.gutter, gap: 14 }}>
+        <Reveal style={{ paddingHorizontal: space.gutter, gap: 14 }}>
           <SearchBarButton placeholder={t("explore.searchPlaceholder")} label={t("a11y.search")} onPress={() => router.push("/search")} />
           <SegmentedControl value={hub} onChange={setHub} options={HUBS.map((h) => ({ value: h, label: t(`hub.${h}`) }))} />
-        </Animated.View>
+        </Reveal>
         <DirectionalSwap value={hub} order={HUBS}>
           {hub === "launches" && <LaunchesFeed />}
           {hub === "templates" && <TemplatesFeed />}
@@ -84,7 +86,7 @@ function LaunchesFeed() {
           ))}
         </View>
       </Section>
-      <Animated.View entering={enterAt(2)} style={{ paddingHorizontal: space.gutter }}>
+      <Reveal index={2} style={{ paddingHorizontal: space.gutter }}>
         <PressableScale onPress={() => requireAuth("auth.reasonList", () => router.push("/studio/new-launch"))} hapticKind="tap" accessibilityLabel={t("listing.launch")} style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.card, backgroundColor: c.accentSoft }}>
           <Icon name="rocket" size={26} color={c.accent} active loop="breathe" />
           <View style={{ flex: 1 }}>
@@ -97,7 +99,7 @@ function LaunchesFeed() {
           </View>
           <Icon name="chevronRight" size={18} color={c.accent} enter={false} />
         </PressableScale>
-      </Animated.View>
+      </Reveal>
     </View>
   );
 }
@@ -108,9 +110,9 @@ function LaunchHero({ l }: { l: Launch & { voted: boolean } }) {
   const vote = useVote();
   return (
     <View style={{ paddingHorizontal: space.gutter }}>
-      <PressableScale onPress={() => router.push(`/launch/${l.slug}`)} accessibilityLabel={l.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 12 }, card]}>
-        <Cover t={l} rounded={radius.media} />
-        <View style={{ paddingHorizontal: 4, gap: 6 }}>
+      <PressableScale onPress={() => router.push(`/launch/${l.slug}`)} accessibilityLabel={l.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: gap.md, gap: gap.md }, card]}>
+        <Cover t={l} rounded={nested(radius.hero, gap.md)} />
+        <View style={{ paddingHorizontal: gap.xs, gap: gap.xs }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Icon name="trophy" size={16} color={c.rating} active motion="wiggle" trigger={l.slug} />
             <Txt variant="eyebrow" tone="fgSubtle">
@@ -175,10 +177,10 @@ function BuyoutsFeed() {
           ))}
         </View>
       </Section>
-      <Animated.View entering={enterAt(1)} style={{ marginHorizontal: space.gutter, flexDirection: "row", gap: 10, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+      <Reveal index={1} style={{ marginHorizontal: space.gutter, flexDirection: "row", gap: 10, padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
         <Icon name="shield" size={18} color={c.pending} active />
         <Txt style={{ flex: 1 }}>{t("buyout.escrowNote")}</Txt>
-      </Animated.View>
+      </Reveal>
     </View>
   );
 }
@@ -278,9 +280,11 @@ function FeaturedCard({ item, i, w, x }: { item: Template; i: number; w: number;
   });
   return (
     <Animated.View style={[{ width: w }, a]}>
-      <PressableScale onPress={() => router.push(`/template/${item.slug}`)} accessibilityLabel={item.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: 12, gap: 12 }, card]}>
-        <Cover t={item} rounded={radius.media} />
-        <View style={{ paddingHorizontal: 4, paddingBottom: 4, gap: 6 }}>
+      <ZoomLink href={`/template/${item.slug}`} accessibilityLabel={item.name} style={[{ backgroundColor: c.bgElevated, borderRadius: radius.hero, padding: gap.md, gap: gap.md }, card]}>
+        <ZoomSource>
+          <Cover t={item} rounded={nested(radius.hero, gap.md)} />
+        </ZoomSource>
+        <View style={{ paddingHorizontal: gap.xs, paddingBottom: gap.xs, gap: gap.xs }}>
           <Txt variant="heroTitle" style={{ fontSize: 20, lineHeight: 28 }} numberOfLines={1}>
             {item.name}
           </Txt>
@@ -292,7 +296,7 @@ function FeaturedCard({ item, i, w, x }: { item: Template; i: number; w: number;
             <PriceTag amount={item.price} />
           </View>
         </View>
-      </PressableScale>
+      </ZoomLink>
     </Animated.View>
   );
 }

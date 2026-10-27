@@ -1,6 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ScrollView, useWindowDimensions, View } from "react-native";
-import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCreator } from "@/api/queries";
 import { TemplateCard } from "@/components/template/TemplateCard";
@@ -12,9 +11,10 @@ import { Section } from "@/components/ui/Section";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { enterAt } from "@/theme/animations";
+
 import { useTheme } from "@/theme/ThemeProvider";
 import { space, font } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default function CreatorScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
@@ -41,7 +41,7 @@ export default function CreatorScreen() {
           <EmptyState icon="userX" title={t("search.emptyTitle")} body={t("search.emptyBody")} action={{ label: t("library.browse"), onPress: () => router.replace("/") }} />
         ) : (
           <>
-            <Animated.View entering={enterAt(0)} style={{ alignItems: "center", gap: 8, paddingHorizontal: space.gutter }}>
+            <Reveal style={{ alignItems: "center", gap: 8, paddingHorizontal: space.gutter }}>
               <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.accentSoft, alignItems: "center", justifyContent: "center" }}>
                 <Txt tone="accent" style={{ fontSize: 30, lineHeight: 36, fontFamily: font.bold }}>
                   {creator.name[0]}
@@ -57,14 +57,14 @@ export default function CreatorScreen() {
               <Txt tone="fgMuted" style={{ textAlign: "center", marginTop: 4 }}>
                 {creator.bio}
               </Txt>
-            </Animated.View>
-            <Animated.View entering={enterAt(1)} style={{ paddingHorizontal: space.gutter }}>
+            </Reveal>
+            <Reveal kind="card" index={1} style={{ paddingHorizontal: space.gutter }}>
               <Card style={{ flexDirection: "row" }}>
                 <Stat label={t("creator.templates")} value={<NumberRoll value={data.templates.length} />} />
                 <Stat label={t("creator.totalSales")} value={<NumberRoll value={creator.totalSales} />} />
                 <Stat label={t("creator.avgRating")} value={creator.avgRating.toFixed(1)} />
               </Card>
-            </Animated.View>
+            </Reveal>
             <Section title={t("creator.templates")} index={2}>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, paddingHorizontal: space.gutter }}>
                 {data.templates.map((x) => (

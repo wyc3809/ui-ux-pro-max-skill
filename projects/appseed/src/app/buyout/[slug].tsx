@@ -35,9 +35,11 @@ import { requireAuth } from "@/store/authGate";
 import { buyoutTone, ESCROW_STEPS, escrowFee, MIN_OFFER_RATIO, offerStep, revenueMultiple, validateOffer } from "@/lib/buyout";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
-import { enterAt, slideInAt } from "@/theme/animations";
+import { slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
-import { radius } from "@/theme/tokens";
+import { nested, radius } from "@/theme/tokens";
+import { Reveal } from "@/components/ui/Reveal";
+import { ZoomTarget } from "@/components/ui/ZoomLink";
 
 const STEP_KEYS = { agree: "buyout.stepAgree", deposit: "buyout.stepDeposit", transfer: "buyout.stepTransfer", verify: "buyout.stepVerify", release: "buyout.stepRelease" } as const;
 const hk = (n: number) => formatPrice(n, "HKD", "HK$0");
@@ -93,9 +95,11 @@ export default function BuyoutScreen() {
         <Skeleton height={320} radius={radius.hero} />
       ) : (
         <>
-          <Animated.View entering={enterAt(0)}>
+          <Reveal kind="card">
             <Card style={{ gap: 12, padding: 12, borderRadius: radius.hero, overflow: "hidden" }}>
-              <Cover t={b} />
+              <ZoomTarget>
+                <Cover t={b} rounded={nested(radius.hero, 12)} />
+              </ZoomTarget>
               <View style={{ paddingHorizontal: 6, gap: 6 }}>
                 <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                   <TonePill label={t(`buyout.${b.status}`)} tone={buyoutTone(b.status)} />
@@ -115,17 +119,17 @@ export default function BuyoutScreen() {
               </View>
               {sold && <SoldStamp label={t("buyout.sold")} />}
             </Card>
-          </Animated.View>
+          </Reveal>
 
           <EngagementPanel kind="buyout" slug={b.slug} title={b.name} extra={{ icon: "hand", label: t("engage.offers"), value: b.offers + (myOffer ? 1 : 0) }} onComments={jumpTo.jump} />
 
           {myOffer && (
-            <Animated.View entering={enterAt(1)} style={{ flexDirection: "row", gap: 10, alignItems: "center", padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
+            <Reveal index={1} style={{ flexDirection: "row", gap: 10, alignItems: "center", padding: 14, borderRadius: radius.inset, backgroundColor: c.pendingSoft }}>
               <Icon name="hand" size={18} color={c.pending} active motion="wiggle" />
               <Txt style={{ flex: 1 }}>
                 {t("mine.offers")} {hk(myOffer.amount)} · {t("mine.offerSent")}
               </Txt>
-            </Animated.View>
+            </Reveal>
           )}
 
           <Section index={1} inset={false}>
@@ -270,12 +274,12 @@ function OfferSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onC
         })}
       </View>
       {error ? (
-        <Animated.View entering={enterAt(0)} style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 10, borderRadius: radius.control, backgroundColor: c.warnSoft }}>
+        <Reveal style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 10, borderRadius: radius.control, backgroundColor: c.warnSoft }}>
           <Icon name="warning" size={16} color={c.warn} active motion="wiggle" />
           <Txt tone="warn" style={{ flex: 1 }}>
             {error}
           </Txt>
-        </Animated.View>
+        </Reveal>
       ) : (
         <Txt variant="caption" tone="fgSubtle" style={{ textAlign: "center" }}>
           {t("buyout.minOffer", { min: hk(min) })}
