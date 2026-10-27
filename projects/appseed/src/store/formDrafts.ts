@@ -28,5 +28,8 @@ export function useFormDraft<T extends object>(key: string, initial: T): [T, (pa
   const save = useDrafts((s) => s.save);
   const clear = useDrafts((s) => s.clear);
   const value = { ...initial, ...stored } as T;
-  return [value, (patch) => save(key, { ...value, ...patch }), () => clear(key)];
+  // Merge into the latest stored draft, not the render-time value: async callbacks (scan results)
+  // can patch twice in a row and must not overwrite each other.
+  const patch = (p: Partial<T>) => save(key, { ...initial, ...(useDrafts.getState().drafts[key] as Partial<T> | undefined), ...p });
+  return [value, patch, () => clear(key)];
 }

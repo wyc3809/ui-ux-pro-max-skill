@@ -24,6 +24,8 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Buyouts are business transfers paid via web escrow, never IAP; the app only takes offers.
 - Prompt full text is only sent to owners by the server; the client shows preview + locked count.
 - Sponsored launches must be labelled 贊助 and never carry an organic rank.
+- Source code comes from a GitHub App install (read-only, chosen repos) or a web zip upload;
+  both pass lib/sourceScan.ts checks and any failed check blocks submission (§22.6).
 
 ## Payments & access
 - Purchase state comes from the server only; never grant access on the client.

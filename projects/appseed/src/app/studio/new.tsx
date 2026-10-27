@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import type { CategoryKey } from "@/api/types";
 import { Field, Group, Note } from "@/components/studio/FormFields";
+import { SourcePicker } from "@/components/studio/SourcePicker";
 import { UploadStepper } from "@/components/studio/UploadStepper";
 import { Chip } from "@/components/ui/Chip";
 import { HeaderButton } from "@/components/ui/HeaderButton";
@@ -84,9 +85,8 @@ export default function UploadWizard() {
           )}
           {step === 1 && (
             <>
-              <Field label={t("upload.repo")} value={d.repoUrl} onChangeText={(repoUrl) => patch({ repoUrl })} placeholder="https://github.com/you/app" autoCapitalize="none" keyboardType="url" />
-              <Note text={t("upload.repoHint")} />
-              <Note text={t("upload.readmeRule")} />
+              <SourcePicker value={d.source} onChange={(source) => patch({ source })} onStack={(stack) => patch({ stack })} />
+              {!d.source && <Note text={t("upload.readmeRule")} />}
             </>
           )}
           {step === 2 && (

@@ -576,3 +576,23 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 - 已購分頁：**已購（模板）｜Prompt｜報價｜收藏**；收藏同時支援模板、Prompt 和買斷列表。
 - 搜尋可按類型篩選：不限／新作推廣／模板／Prompt／買斷 App；命中字以 `accent` 加粗。
+
+### 22.6 原始碼來源（上架模板和出售 App 共用）
+
+不強制連接 GitHub，但建議使用。`SourcePicker` 提供兩個來源，兩者都要通過同一套上架前檢查：
+
+| 來源 | 規格 |
+|---|---|
+| 連接 GitHub（推薦） | 以 **GitHub App** 安裝（不用個人 token）：只限創作者揀選的 repo、唯讀、可隨時取消。授權前用 Sheet 清楚列出權限。之後可以用 tag 發佈新版本；買家可以獲邀存取私有 repo；買斷時可以直接轉讓 repo |
+| 上載 zip | 只限網頁版。手機顯示提示和「把上載連結寄到我的電郵」，草稿保留 |
+
+**上架前檢查**（`lib/sourceScan.ts`，伺服器實際以 gitleaks、ClamAV、osv-scanner 執行）：
+
+| 檢查 | 結果 |
+|---|---|
+| 有 README、README 有運行步驟、沒有密鑰或 API key、大小在 200 MB 以內 | 不通過＝**阻止提交**，並顯示修正方法 |
+| 有 lockfile、有 LICENSE、偵測到框架（Expo SDK） | 只作建議 |
+
+- 檢查中每項以「呼吸」狀態顯示，結果到達後逐項變成通過／建議／不通過（間隔 180ms），結論在全部顯示後才出現。
+- 通過後自動填入技術棧（由 `package.json` 偵測），並顯示買家會看到的檔案樹（只有檔名）。
+- 「我的」顯示 GitHub 連接狀態，中斷連接用 ConfirmSheet；已上架的模板不受影響。

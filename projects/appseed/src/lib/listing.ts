@@ -1,7 +1,9 @@
+import type { SourceChoice } from "@/api/types";
 import { promptVariables } from "./prompt";
+import { sourceReady } from "./upload";
 
 export type PromptDraft = { step: number; title: string; summary: string; tool: string | null; text: string; previewLines: number; tier: number | null };
-export type BuyoutDraft = { step: number; name: string; tagline: string; monthlyRevenue: string; mau: string; included: string[]; reason: string; asking: string };
+export type BuyoutDraft = { step: number; name: string; tagline: string; monthlyRevenue: string; mau: string; source: SourceChoice | null; included: string[]; reason: string; asking: string };
 export type LaunchDraft = { step: number; name: string; tagline: string; aiTools: string[]; buildDays: string; link: string; boost: boolean };
 
 const num = (s: string) => (/^\d+$/.test(s.trim()) ? Number(s.trim()) : NaN);
@@ -36,8 +38,10 @@ export function missingBuyoutFields(d: BuyoutDraft, step: number): string[] {
     if (Number.isNaN(num(d.monthlyRevenue))) miss.push("monthlyRevenue");
     if (Number.isNaN(num(d.mau))) miss.push("mau");
   }
-  if (step === 2 && d.included.length === 0) miss.push("included");
-  if (step === 3) {
+  // A buyout transfers the code itself, so it goes through the same scan as a template.
+  if (step === 2 && !sourceReady(d.source)) miss.push("source");
+  if (step === 3 && d.included.length === 0) miss.push("included");
+  if (step === 4) {
     const a = num(d.asking);
     if (Number.isNaN(a) || a < 1000) miss.push("asking");
   }

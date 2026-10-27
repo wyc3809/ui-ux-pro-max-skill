@@ -1,9 +1,11 @@
+import { githubLogin, githubRepos, repoManifests, zipManifest } from "@/data/github";
 import { buyouts, launches, prompts } from "@/data/marketplace";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import { rankLaunches, toggleVote } from "@/lib/launch";
+import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { BuyoutListing, CategoryKey, Launch, Offer, Platform, PromptListing, Template } from "./types";
+import type { BuyoutListing, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template } from "./types";
 
 /**
  * Stand-in for Supabase until the backend exists (§19). Purchase state lives
@@ -24,6 +26,14 @@ function redactPrompt(p: PromptListing, owned: boolean): PromptListing {
   const lineCount = p.text.split("\n").length;
   if (owned || p.price === 0) return { ...p, lineCount };
   return { ...p, lineCount, text: p.text.split("\n").slice(0, p.previewLines).join("\n") + "\n" + "\u2588".repeat(24) };
+}
+
+const GITHUB_KEY = "mock-server:github";
+
+const countFiles = (nodes: FileNode[]): number => nodes.reduce((n, x) => n + (x.children ? countFiles(x.children) : 1), 0);
+
+function report(m: SourceManifest): ScanReport {
+  return { checks: scanSource(m), stack: detectStack(m.dependencies), files: m.files, fileCount: countFiles(m.files), sizeBytes: m.sizeBytes };
 }
 
 function withVotes(l: Launch): Launch & { voted: boolean } {
@@ -107,6 +117,29 @@ export const api = {
     mmkv.set(VOTES_KEY, JSON.stringify(voted ? votes.filter((v) => v !== slug) : [slug, ...votes]));
     const base = launches.find((x) => x.slug === slug)?.upvotes ?? 0;
     return wait(toggleVote(base + (voted ? 1 : 0), voted), 120);
+  },
+  /** GitHub App installation: read-only access to repos the creator picks. */
+  githubAccount: () => wait<{ login: string } | null>(mmkv.getString(GITHUB_KEY) ? { login: githubLogin } : null, 200),
+  connectGithub: async () => {
+    await wait(null, 1400);
+    mmkv.set(GITHUB_KEY, githubLogin);
+    return { login: githubLogin };
+  },
+  disconnectGithub: async () => {
+    await wait(null, 300);
+    mmkv.remove(GITHUB_KEY);
+    return null;
+  },
+  githubRepos: () => wait(githubRepos, 600),
+  scanRepo: async (repo: string) => {
+    await wait(null, 2400);
+    const m = repoManifests[repo];
+    if (!m) throw new Error("repo-not-found");
+    return report(m);
+  },
+  uploadZip: async () => {
+    await wait(null, 2400);
+    return { fileName: "my-app.zip", report: report(zipManifest) };
   },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
 };

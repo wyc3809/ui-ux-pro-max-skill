@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { SourceChoice } from "@/api/types";
 import type { PriceTier } from "@/lib/price";
 import type { LicenseKind } from "@/lib/license";
 import { mmkvStorage } from "./storage";
@@ -10,7 +11,9 @@ export type UploadDraft = {
   tagline: string;
   category: string | null;
   platforms: string[];
-  repoUrl: string;
+  source: SourceChoice | null;
+  /** Filled from the scan; the creator can still edit it later. */
+  stack: string[];
   screenshots: number;
   storySteps: { title: string; body: string }[];
   freePreviewSteps: number;
@@ -25,7 +28,8 @@ const empty: UploadDraft = {
   tagline: "",
   category: null,
   platforms: [],
-  repoUrl: "",
+  source: null,
+  stack: [],
   screenshots: 0,
   storySteps: [{ title: "", body: "" }],
   freePreviewSteps: 1,

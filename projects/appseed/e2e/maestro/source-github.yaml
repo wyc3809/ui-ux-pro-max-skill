@@ -1,0 +1,26 @@
+# Creator: connect GitHub → repo with a leaked key is blocked → clean repo passes → can continue (§22.6)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "創作"
+- tapOn: "你想上架甚麼？"
+- tapOn: "模板"
+- tapOn: "名稱"
+- inputText: "Pocket Ledger v2"
+- tapOn: "一句話簡介"
+- inputText: "離線記帳 App"
+- tapOn: "記帳理財"
+- tapOn: "iOS"
+- tapOn: "下一步"
+- tapOn: "連接 GitHub"
+- tapOn: "授權並連接"
+- tapOn: "kaylee-builds/menu-snap"
+- assertVisible: "有 1 項必須修正才可以提交"
+- tapOn: "下一步"
+- assertVisible: "請先填妥必填欄位"
+- tapOn: "揀選其他 repo"
+- tapOn: "kaylee-builds/pocket-ledger-v2"
+- assertVisible: "檢查通過，可以繼續"
+- tapOn: "下一步"
+- assertVisible: "媒體"

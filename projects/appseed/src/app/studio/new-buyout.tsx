@@ -1,6 +1,7 @@
 import Animated from "react-native-reanimated";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { ListingWizard } from "@/components/studio/ListingWizard";
+import { SourcePicker } from "@/components/studio/SourcePicker";
 import { Chip } from "@/components/ui/Chip";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
@@ -12,7 +13,7 @@ import { useFormDraft } from "@/store/formDrafts";
 import { enterAt } from "@/theme/animations";
 
 const INCLUDED = ["source", "design", "appStore", "play", "domain", "subscribers", "social", "handover"] as const;
-const EMPTY: BuyoutDraft = { step: 0, name: "", tagline: "", monthlyRevenue: "", mau: "", included: [], reason: "", asking: "" };
+const EMPTY: BuyoutDraft = { step: 0, name: "", tagline: "", monthlyRevenue: "", mau: "", source: null, included: [], reason: "", asking: "" };
 
 export default function NewBuyout() {
   const t = useT();
@@ -22,7 +23,7 @@ export default function NewBuyout() {
   return (
     <ListingWizard
       title={t("listing.buyout")}
-      steps={[t("form.buyoutS1"), t("form.buyoutS2"), t("form.buyoutS3"), t("form.buyoutS4")]}
+      steps={[t("form.buyoutS1"), t("form.buyoutS2"), t("source.title"), t("form.buyoutS3"), t("form.buyoutS4")]}
       step={d.step}
       setStep={(step) => patch({ step })}
       missing={(s) => missingBuyoutFields(d, s)}
@@ -46,14 +47,15 @@ export default function NewBuyout() {
           <Note text={t("form.proofHint")} />
         </>
       )}
-      {d.step === 2 && (
+      {d.step === 2 && <SourcePicker value={d.source} onChange={(source) => patch({ source })} />}
+      {d.step === 3 && (
         <Group label={t("form.includedItems")}>
           {INCLUDED.map((item) => (
             <Chip key={item} label={t(`included.${item}`)} selected={d.included.includes(item)} onPress={() => patch({ included: d.included.includes(item) ? d.included.filter((x) => x !== item) : [...d.included, item] })} />
           ))}
         </Group>
       )}
-      {d.step === 3 && (
+      {d.step === 4 && (
         <>
           <Field label={t("form.asking")} value={d.asking} onChangeText={(v) => patch({ asking: v })} keyboardType="number-pad" />
           {asking > 0 && (

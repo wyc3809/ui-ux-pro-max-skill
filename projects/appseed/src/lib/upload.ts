@@ -1,4 +1,6 @@
+import type { SourceChoice } from "@/api/types";
 import type { UploadDraft } from "@/store/uploadDraft";
+import { isBlocking } from "./sourceScan";
 
 export const UPLOAD_STEPS = 5;
 
@@ -13,7 +15,7 @@ export function missingFields(d: UploadDraft, step: number): string[] {
       if (d.platforms.length === 0) miss.push("platforms");
       break;
     case 1:
-      if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/?$/.test(d.repoUrl.trim())) miss.push("repoUrl");
+      if (!sourceReady(d.source)) miss.push("source");
       break;
     case 2:
       if (d.screenshots < 3) miss.push("screenshots");
@@ -28,4 +30,11 @@ export function missingFields(d: UploadDraft, step: number): string[] {
       break;
   }
   return miss;
+}
+
+/** Source is ready once it has been scanned and nothing blocks it (GitHub also needs a repo picked). */
+export function sourceReady(s: SourceChoice | null): boolean {
+  if (!s?.report) return false;
+  if (s.kind === "github" && !s.repo) return false;
+  return !isBlocking(s.report.checks);
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { View } from "react-native";
+import { useDisconnectGithub, useGithubAccount } from "@/api/queries";
+import { TonePill } from "@/components/market/Cards";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
 import { TabScene } from "@/components/shell/TabScene";
 import { Card } from "@/components/ui/Card";
@@ -18,7 +20,9 @@ export default function MeScreen() {
   const t = useT();
   const s = useSettings();
   const clearHistory = useHistory((h) => h.clear);
-  const [confirm, setConfirm] = useState<"history" | "account" | null>(null);
+  const [confirm, setConfirm] = useState<"history" | "account" | "github" | null>(null);
+  const { data: github } = useGithubAccount();
+  const disconnect = useDisconnectGithub();
   return (
     <TabScene index={3}>
       <LargeTitleScreen title={t("me.title")}>
@@ -26,6 +30,14 @@ export default function MeScreen() {
           <Section index={0} inset={false}>
             <Card padded={false}>
               <ListRow icon="user" title={t("me.guest")} detail={t("me.signIn")} onPress={() => toast(t("common.done"))} />
+              <RowDivider />
+              <ListRow
+                icon="git"
+                title="GitHub"
+                detail={github ? `@${github.login}` : t("source.notConnected")}
+                trailing={github ? <TonePill label={t("source.connected")} tone="live" /> : undefined}
+                onPress={github ? () => setConfirm("github") : undefined}
+              />
             </Card>
           </Section>
 
@@ -77,6 +89,14 @@ export default function MeScreen() {
             clearHistory();
             toast(t("common.done"));
           }}
+          onClose={() => setConfirm(null)}
+        />
+        <ConfirmSheet
+          open={confirm === "github"}
+          title={t("source.disconnect")}
+          body={t("source.disconnectConfirm")}
+          confirmLabel={t("source.disconnect")}
+          onConfirm={() => disconnect.mutate(undefined, { onSuccess: () => toast(t("common.done")) })}
           onClose={() => setConfirm(null)}
         />
         <ConfirmSheet open={confirm === "account"} title={t("me.deleteAccount")} body={t("me.clearHistoryConfirm")} confirmLabel={t("me.deleteAccount")} onConfirm={() => toast(t("common.done"))} onClose={() => setConfirm(null)} />

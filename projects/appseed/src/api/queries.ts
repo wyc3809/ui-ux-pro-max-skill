@@ -18,6 +18,8 @@ export const qk = {
   offers: ["offers"] as const,
   launches: ["launches"] as const,
   launch: (slug: string) => ["launch", slug] as const,
+  github: ["github"] as const,
+  githubRepos: ["github-repos"] as const,
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -98,3 +100,25 @@ export function useVote() {
     },
   });
 }
+
+export const useGithubAccount = () => useQuery({ queryKey: qk.github, queryFn: api.githubAccount });
+export const useGithubRepos = (enabled: boolean) => useQuery({ queryKey: qk.githubRepos, queryFn: api.githubRepos, enabled });
+
+export function useConnectGithub() {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: api.connectGithub, onSuccess: (acct) => qc.setQueryData(qk.github, acct) });
+}
+
+export function useDisconnectGithub() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.disconnectGithub,
+    onSuccess: () => {
+      qc.setQueryData(qk.github, null);
+      qc.removeQueries({ queryKey: qk.githubRepos });
+    },
+  });
+}
+
+export const useScanRepo = () => useMutation({ mutationFn: api.scanRepo });
+export const useUploadZip = () => useMutation({ mutationFn: api.uploadZip });

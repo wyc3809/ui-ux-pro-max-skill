@@ -134,3 +134,12 @@ export type Launch = {
 };
 
 export type Offer = { slug: string; amount: number; message: string; createdAt: string; status: "sent" | "countered" | "accepted" };
+
+export type GithubRepo = { fullName: string; private: boolean; language: string; updatedAt: string; defaultBranch: string; branches: string[] };
+
+export type ScanReport = { checks: import("@/lib/sourceScan").Check[]; stack: string[]; files: FileNode[]; fileCount: number; sizeBytes: number };
+
+/** Where a listing's source code comes from. Serializable so it lives in the auto-saved draft. */
+export type SourceChoice =
+  | { kind: "github"; repo: string; branch: string; report: ScanReport | null }
+  | { kind: "zip"; fileName: string | null; report: ScanReport | null };
