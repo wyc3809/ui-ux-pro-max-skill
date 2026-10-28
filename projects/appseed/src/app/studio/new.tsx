@@ -6,12 +6,12 @@ import { useState } from "react";
 import type { CategoryKey } from "@/api/types";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { SourcePicker } from "@/components/studio/SourcePicker";
+import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { UploadStepper } from "@/components/studio/UploadStepper";
 import { Chip } from "@/components/ui/Chip";
 import { HeaderButton } from "@/components/ui/HeaderButton";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
-import { Switch } from "@/components/ui/Switch";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
@@ -139,10 +139,7 @@ export default function UploadWizard() {
                   <Chip key={l} label={t(`license.${l}`)} selected={d.license === l} onPress={() => patch({ license: l })} />
                 ))}
               </Group>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
-                <Txt style={{ flex: 1 }}>{t("upload.original")}</Txt>
-                <Switch label={t("upload.original")} value={d.originalityConfirmed} onValueChange={(v) => patch({ originalityConfirmed: v })} />
-              </View>
+              <OwnershipAttest value={d.originalityConfirmed} onChange={(v) => patch({ originalityConfirmed: v })} />
             </>
           )}
         </ScrollView>

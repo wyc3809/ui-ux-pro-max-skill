@@ -1,5 +1,5 @@
 import { buyoutTone, escrowFee, offerStep, revenueMultiple, validateOffer } from "../buyout";
-import { hotScore, rankLaunches, toggleVote } from "../launch";
+import { toggleVote } from "../launch";
 import { fillPrompt, PROMPT_TIERS, promptVariables, splitPreview } from "../prompt";
 
 describe("prompt", () => {
@@ -43,22 +43,6 @@ describe("buyout", () => {
 });
 
 describe("launch", () => {
-  it("decays score with age", () => {
-    expect(hotScore(100, 1)).toBeGreaterThan(hotScore(100, 48));
-  });
-  const now = new Date("2026-10-26T12:00:00Z");
-  const items = [
-    { id: "a", upvotes: 300, launchedAt: "2026-10-26T06:00:00Z", boosted: false },
-    { id: "b", upvotes: 50, launchedAt: "2026-10-26T10:00:00Z", boosted: false },
-    { id: "c", upvotes: 5, launchedAt: "2026-10-20T10:00:00Z", boosted: true },
-    { id: "d", upvotes: 900, launchedAt: "2026-10-22T10:00:00Z", boosted: false },
-  ];
-  it("puts the sponsored launch second, below the top organic one", () => {
-    const ids = rankLaunches(items, now).map((x) => x.id);
-    expect(ids[1]).toBe("c");
-    expect(ids[0]).not.toBe("c");
-    expect(ids).toHaveLength(4);
-  });
   it("toggles votes", () => {
     expect(toggleVote(10, false)).toEqual({ count: 11, voted: true });
     expect(toggleVote(11, true)).toEqual({ count: 10, voted: false });

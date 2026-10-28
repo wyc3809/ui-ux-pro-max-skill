@@ -1,7 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api/mockServer";
 import { useDisconnectGithub, useGithubAccount } from "@/api/queries";
 import type { User } from "@/api/types";
@@ -36,11 +35,8 @@ export default function MeScreen() {
   const user = useSession((x) => x.user);
   const signOut = useSession((x) => x.signOut);
   const openAuth = useAuthGate((x) => x.request);
-  const qc = useQueryClient();
-  const endSession = () => {
-    signOut();
-    qc.clear(); // nothing from the previous account may linger in the cache
-  };
+  // signOut also wipes the query cache and every per-person store (store/account.ts).
+  const endSession = () => signOut();
   const { data: github } = useGithubAccount();
   const blockedCount = useBlocks((b) => b.handles.length);
   const [blockedOpen, setBlockedOpen] = useState(false);
@@ -155,7 +151,12 @@ export default function MeScreen() {
           body={t("auth.deleteBody")}
           confirmLabel={t("me.deleteAccount")}
           onConfirm={async () => {
-            if (user) await api.deleteAccount(user.id);
+            try {
+              if (user) await api.deleteAccount(user.id);
+            } catch (e) {
+              toast(t("auth.deleteFailed"), "warning");
+              throw e; // keeps the sheet open so they can retry
+            }
             endSession();
             toast(t("auth.deleted"));
           }}

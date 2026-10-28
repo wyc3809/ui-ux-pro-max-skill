@@ -28,7 +28,29 @@ const PATTERN: Record<Exclude<Social, "website">, RegExp> = {
   youtube: /^[A-Za-z0-9._-]{3,30}$/,
 };
 
-export type LinkError = "invalidHandle" | "wrongSite" | "needsHttps";
+export type LinkError = "invalidHandle" | "wrongSite" | "needsHttps" | "notProfile";
+
+/** First path segments that are site pages, not people (a pasted post or settings URL must not become a handle). */
+const RESERVED: Partial<Record<Social, string[]>> = {
+  x: ["home", "i", "intent", "share", "search", "explore", "settings", "hashtag", "messages", "notifications", "login", "tos", "privacy"],
+  instagram: ["p", "reel", "reels", "stories", "explore", "accounts", "tv", "direct", "about", "legal"],
+  github: ["orgs", "settings", "marketplace", "topics", "sponsors", "features", "login", "explore", "apps", "about", "pricing", "notifications", "pulls", "issues"],
+};
+
+/** The profile handle in a profile URL's path, or null when the URL is not a profile page. */
+function handleFromPath(kind: Exclude<Social, "website">, parts: string[]): string | null {
+  const first = parts[0] ?? "";
+  switch (kind) {
+    case "linkedin":
+      return first === "in" && parts[1] ? parts[1] : null;
+    // Threads and YouTube profiles are always /@handle; /channel/… or /t/… are not usable handles.
+    case "threads":
+    case "youtube":
+      return first.startsWith("@") ? first.slice(1) : null;
+    default:
+      return first && !RESERVED[kind]?.includes(first.toLowerCase()) ? first : null;
+  }
+}
 
 /** Turns what the creator typed (handle, @handle or profile URL) into the stored value, or an error. */
 export function normalizeSocial(kind: Social, input: string): { value: string } | { error: LinkError } | { value: "" } {
@@ -53,9 +75,9 @@ export function normalizeSocial(kind: Social, input: string): { value: string } 
     }
     const host = u.hostname.replace(/^www\./, "").toLowerCase();
     if (!HOSTS[kind].includes(host)) return { error: "wrongSite" };
-    const parts = u.pathname.split("/").filter(Boolean);
-    // LinkedIn profiles live under /in/, YouTube channels under /@.
-    handle = kind === "linkedin" ? (parts[0] === "in" ? parts[1] ?? "" : "") : parts[0] ?? "";
+    const fromPath = handleFromPath(kind, u.pathname.split("/").filter(Boolean));
+    if (fromPath == null) return { error: "notProfile" };
+    handle = fromPath;
   }
   handle = handle.replace(/^@/, "");
   return PATTERN[kind].test(handle) ? { value: handle } : { error: "invalidHandle" };

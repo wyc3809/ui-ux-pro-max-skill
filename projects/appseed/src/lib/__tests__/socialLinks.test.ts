@@ -17,6 +17,16 @@ describe("social links", () => {
     expect(normalizeSocial("x", "  ")).toEqual({ value: "" });
   });
 
+  it("rejects URLs that are not profile pages instead of storing a wrong handle", () => {
+    expect(normalizeSocial("youtube", "https://www.youtube.com/channel/UCabc123")).toEqual({ error: "notProfile" });
+    expect(normalizeSocial("youtube", "https://www.youtube.com/@appseed-demo")).toEqual({ value: "appseed-demo" });
+    expect(normalizeSocial("instagram", "https://instagram.com/p/Cxyz")).toEqual({ error: "notProfile" });
+    expect(normalizeSocial("github", "https://github.com/orgs/foo")).toEqual({ error: "notProfile" });
+    expect(normalizeSocial("x", "https://x.com/i/status/123")).toEqual({ error: "notProfile" });
+    expect(normalizeSocial("threads", "https://www.threads.net/t/abc")).toEqual({ error: "notProfile" });
+    expect(normalizeSocial("x", "https://x.com/someone/status/1")).toEqual({ value: "someone" });
+  });
+
   it("requires https for websites", () => {
     expect(normalizeSocial("website", "https://kaylee.dev/")).toEqual({ value: "https://kaylee.dev" });
     expect(normalizeSocial("website", "http://kaylee.dev")).toEqual({ error: "needsHttps" });

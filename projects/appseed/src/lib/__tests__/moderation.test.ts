@@ -6,6 +6,10 @@ describe("content screening", () => {
     expect(screenText("Scunthorpe has a great app scene")).toEqual({ ok: true });
     expect(screenText("訂閱制定價應該點樣揀？")).toEqual({ ok: true });
     expect(screenText("版本 1.4.0 已上架，修正 3 個問題")).toEqual({ ok: true });
+    expect(screenText("We just hit 1000000 downloads")).toEqual({ ok: true });
+    expect(screenText("raised 60000000 HKD from 5000 8000 users")).toEqual({ ok: true });
+    expect(screenText("Changelog\n------\nfixes")).toEqual({ ok: true });
+    expect(screenText("our software 9123 4567 build")).toEqual({ ok: true });
   });
 
   it("catches abuse in English and Cantonese, including simple disguises", () => {
@@ -19,10 +23,13 @@ describe("content screening", () => {
     expect(screenText("WhatsApp 9123 4567 傾價")).toEqual({ ok: false, reason: "contact" });
     expect(screenText("加我 telegram: @dealer")).toEqual({ ok: false, reason: "contact" });
     expect(screenText("直接 FPS 12345678 俾錢")).toEqual({ ok: false, reason: "contact" });
+    expect(screenText("電話 6123-4567")).toEqual({ ok: false, reason: "contact" });
+    expect(screenText("+852 9876 5432 搵我")).toEqual({ ok: false, reason: "contact" });
   });
 
   it("flags repeated characters and words as spam", () => {
     expect(screenText("buy buy buy buy now")).toEqual({ ok: false, reason: "spam" });
+    expect(screenText("soooooo good")).toEqual({ ok: false, reason: "spam" });
     expect(screenText("好正！！！！！！")).toEqual({ ok: false, reason: "spam" });
   });
 });

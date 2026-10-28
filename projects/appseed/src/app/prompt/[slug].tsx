@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { findCreator } from "@/api/mockServer";
-import { useLaunches, useOwnsPrompt, usePrompt, usePurchasePrompt } from "@/api/queries";
+import { ownsFresh, useLaunches, useOwnsPrompt, usePrompt, usePurchasePrompt } from "@/api/queries";
 import { CommentsSection } from "@/components/engage/CommentsSection";
 import { EngagementPanel } from "@/components/engage/EngagementPanel";
 import { useJumpTo } from "@/components/engage/useJumpTo";
@@ -97,7 +97,13 @@ export default function PromptScreen() {
       scrollRef={jumpTo.ref}
       title={p?.title}
       right={p ? <FavoriteButton slug={`prompt:${p.slug}`} onSurface /> : undefined}
-      bottom={p ? <StickyCTA phase={phase} price={p.price} onBuy={() => requireAuth("auth.reasonBuy", () => (p.price === 0 ? buy() : setCheckout(true)))} onSend={() => copy(fillPrompt(p.text, values))} owned={{ label: t("promptPage.copyFilled"), icon: "copy" }} /> : undefined}
+      bottom={p ? <StickyCTA phase={phase} price={p.price} onBuy={() =>
+                requireAuth("auth.reasonBuy", async () => {
+                  if (await ownsFresh("prompt", p.slug)) return toast(t("cta.alreadyOwned"));
+                  if (p.price === 0) buy();
+                  else setCheckout(true);
+                })
+              } onSend={() => copy(fillPrompt(p.text, values))} owned={{ label: t("promptPage.copyFilled"), icon: "copy" }} /> : undefined}
     >
       {!p ? (
         <Skeleton height={320} radius={radius.hero} />

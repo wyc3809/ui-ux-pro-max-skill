@@ -6,7 +6,7 @@ import { Platform, Share, View } from "react-native";
 import Animated, { Extrapolation, interpolate, ReduceMotion, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { findCreator } from "@/api/mockServer";
-import { useLaunches, useOwned, usePurchase, useTemplate } from "@/api/queries";
+import { ownsFresh, useLaunches, useOwned, usePurchase, useTemplate } from "@/api/queries";
 import { CommentsSection } from "@/components/engage/CommentsSection";
 import { EngagementPanel } from "@/components/engage/EngagementPanel";
 import { useJumpTo } from "@/components/engage/useJumpTo";
@@ -161,7 +161,14 @@ export default function TemplateScreen() {
         </View>
       </View>
 
-      {tpl && <StickyCTA phase={phase} price={tpl.price} onBuy={() => requireAuth("auth.reasonBuy", () => (tpl.price === 0 ? buy() : setSheet("checkout")))} onSend={() => setSheet("send")} />}
+      {tpl && <StickyCTA phase={phase} price={tpl.price} onBuy={() =>
+            requireAuth("auth.reasonBuy", async () => {
+              // Never charge twice: the account may already own it (e.g. resuming after sign-in).
+              if (await ownsFresh("template", tpl.slug)) return toast(t("cta.alreadyOwned"));
+              if (tpl.price === 0) buy();
+              else setSheet("checkout");
+            })
+          } onSend={() => setSheet("send")} />}
 
       {tpl && (
         <>

@@ -4,6 +4,7 @@ import type { Viewer } from "@/lib/feed";
 import type { PostSort } from "@/lib/posts";
 import type { Period } from "@/lib/ranking";
 import { toggleVote } from "@/lib/launch";
+import { queryClient } from "./client";
 import { api, type SearchParams } from "./mockServer";
 import type { Comment, Engagement, Launch, Post, PostAttachment } from "./types";
 
@@ -30,6 +31,7 @@ export const qk = {
   leaderboard: (period: Period) => ["leaderboard", period] as const,
   posts: (sort: PostSort, viewer: string) => ["posts", sort, viewer] as const,
   thread: (id: string) => ["thread", id] as const,
+  promoToday: (userId: string) => ["promo-today", userId] as const,
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -237,12 +239,15 @@ export function usePostToggle(kind: "like" | "repost") {
   });
 }
 
+export const usePromoToday = (userId: string | undefined) => useQuery({ queryKey: qk.promoToday(userId ?? ""), queryFn: () => api.promoToday(userId!), enabled: !!userId });
+
 export function useCreatePost() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (v: { body: string; attachment?: PostAttachment; parentId?: string; user: { id: string; name: string; handle: string } }) => api.createPost(v),
     onSuccess: (post) => {
       qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({ queryKey: ["promo-today"] });
       if (post.parentId) qc.invalidateQueries({ queryKey: qk.thread(post.parentId) });
     },
   });
@@ -258,4 +263,16 @@ export function useReport() {
       qc.invalidateQueries({ queryKey: ["comments"] });
     },
   });
+}
+
+/**
+ * Asks the server again whether this account owns an item, ignoring the cache. Buy buttons call it before
+ * charging, because the action may be resuming after sign-in with a guest's stale purchase list.
+ */
+export async function ownsFresh(kind: "template" | "prompt", slug: string): Promise<boolean> {
+  const list =
+    kind === "template"
+      ? await queryClient.fetchQuery({ queryKey: qk.purchases, queryFn: api.purchases, staleTime: 0 })
+      : await queryClient.fetchQuery({ queryKey: qk.promptPurchases, queryFn: api.promptPurchases, staleTime: 0 });
+  return list.includes(slug);
 }

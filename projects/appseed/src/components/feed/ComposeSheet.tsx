@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { findTemplate } from "@/api/mockServer";
-import { useCreatePost, useStudio } from "@/api/queries";
+import { useCreatePost, usePromoToday, useStudio } from "@/api/queries";
 import type { Post, PostAttachment } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -10,10 +10,11 @@ import { SheetTextInput } from "@/components/ui/SheetTextInput";
 import { noOutline } from "@/components/ui/SearchBar";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
-import { useT, type TKey } from "@/i18n";
+import { useT } from "@/i18n";
 import { haptic } from "@/lib/haptic";
-import { isScreenReason, screenText } from "@/lib/moderation";
-import { POST_MAX, remaining, validatePost } from "@/lib/posts";
+import { screenText } from "@/lib/moderation";
+import { POST_MAX, PROMO_PER_DAY, remaining, validatePost } from "@/lib/posts";
+import { useAuthGate } from "@/store/authGate";
 import { useSession } from "@/store/session";
 import { useTheme } from "@/theme/ThemeProvider";
 import { font, gap, space } from "@/theme/tokens";
@@ -41,7 +42,10 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
   }, [open]);
 
   const mine = (studio?.listings ?? []).filter((l) => l.status === "live");
-  const local = validatePost(text, { promo: false, promoToday: 0 });
+  const { data: promoToday = 0 } = usePromoToday(user?.id);
+  // Same rules as the server, including today's promotion count, so the limit shows before posting.
+  const local = validatePost(text, { promo: !parent && !!attachment, promoToday });
+  const promoFull = promoToday >= PROMO_PER_DAY;
   // Screened as they type, so the problem is explained before they press Post (§30).
   const screen = text.trim() ? screenText(text) : ({ ok: true } as const);
   const left = remaining(text);
@@ -56,7 +60,12 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
           toast(t("discuss.posted"));
           onClose();
         },
-        onError: (e) => toast(t((isScreenReason(e.message) ? `moderation.${e.message}` : `discuss.errors.${e.message}`) as TKey), "warning"),
+        onError: (e) => {
+          if (e.message === "termsRequired") {
+            onClose();
+            useAuthGate.getState().requestTerms();
+          } else toast(t.error(e.message, ["moderation", "discuss.errors"]), "warning");
+        },
       },
     );
   };
@@ -69,7 +78,7 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
       footer={
         <View style={{ flexDirection: "row", alignItems: "center", gap: gap.md }}>
           <Txt variant="caption" tone={!screen.ok || (left != null && left < 0) ? "danger" : "fgSubtle"} tabular style={{ flex: 1 }}>
-            {!screen.ok ? t(`moderation.${screen.reason}`) : left != null ? `${left} / ${POST_MAX}` : parent ? "" : t("discuss.promoNote")}
+            {!screen.ok ? t(`moderation.${screen.reason}`) : !parent && promoFull ? t("discuss.errors.promoLimit") : left != null ? `${left} / ${POST_MAX}` : parent ? "" : t("discuss.promoNote")}
           </Txt>
           <Button label={t("discuss.post")} onPress={submit} loading={create.isPending} disabled={!!local || !screen.ok} style={{ minWidth: 112 }} />
         </View>
@@ -106,7 +115,7 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -(space.gutter + gap.sm) }} contentContainerStyle={{ gap: gap.sm, paddingHorizontal: space.gutter + gap.sm }}>
             <Chip label={t("discuss.noAttach")} selected={!attachment} onPress={() => setAttachment(undefined)} />
             {mine.map((l) => (
-              <Chip key={l.slug} label={findTemplate(l.slug)?.name ?? l.slug} selected={attachment?.slug === l.slug} onPress={() => setAttachment({ kind: "template", slug: l.slug })} />
+              <Chip key={l.slug} label={findTemplate(l.slug)?.name ?? l.slug} selected={attachment?.slug === l.slug} onPress={() => (promoFull ? toast(t("discuss.errors.promoLimit"), "warning") : setAttachment({ kind: "template", slug: l.slug }))} />
             ))}
           </ScrollView>
         </View>

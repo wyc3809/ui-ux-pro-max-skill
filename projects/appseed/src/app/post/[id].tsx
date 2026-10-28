@@ -16,7 +16,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { requireAuth } from "@/store/authGate";
+import { requireTerms } from "@/store/authGate";
 import { useSeenPosts } from "@/store/seenPosts";
 import { useSession } from "@/store/session";
 import { rowIn } from "@/theme/animations";
@@ -34,7 +34,7 @@ export default function ThreadScreen() {
   const report = useModeration();
   const blocked = useBlocks((s) => s.handles);
   const [now] = useState(Date.now());
-  const reply = () => requireAuth("discuss.reasonPost", () => setReplying(true));
+  const reply = () => requireTerms("discuss.reasonPost", () => setReplying(true));
 
   return (
     <DetailScaffold

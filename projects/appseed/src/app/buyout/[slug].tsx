@@ -42,6 +42,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { HandoverList, VerifiedLine } from "@/components/market/Transfer";
 import { handoverItems } from "@/lib/transfer";
 import { canLinkOut, ESCROW_URL } from "@/lib/storefront";
+import { screenText } from "@/lib/moderation";
 import { useStorefront } from "@/store/storefront";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
 import { CreatorCard } from "@/components/creator/CreatorCard";
@@ -263,6 +264,13 @@ function OfferSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onC
       setError(t(`buyout.${err}`, { min: hk(min) }));
       return;
     }
+    // The message reaches the seller, so it must not carry off-platform contact or payment (escrow scams).
+    const screen = message.trim() ? screenText(message) : null;
+    if (screen && !screen.ok) {
+      haptic("warning");
+      setError(t(`moderation.${screen.reason}`));
+      return;
+    }
     make.mutate(
       { slug: b.slug, amount, message },
       {
@@ -270,6 +278,7 @@ function OfferSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onC
           onClose();
           toast(t("buyout.offerSent"));
         },
+        onError: (e) => setError(t.error(e.message, ["moderation", "buyout"])),
       },
     );
   };

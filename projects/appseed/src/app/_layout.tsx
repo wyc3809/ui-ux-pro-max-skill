@@ -1,7 +1,8 @@
 import { Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold } from "@expo-google-fonts/geist";
 import { GeistMono_400Regular, GeistMono_700Bold } from "@expo-google-fonts/geist-mono";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/api/client";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -11,6 +12,7 @@ import Animated, { ReduceMotion, useAnimatedStyle, useDerivedValue, withTiming }
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthSheet } from "@/components/auth/AuthSheet";
+import { TermsGateSheet } from "@/components/legal/TermsGateSheet";
 import { iconFonts } from "@/components/ui/Icon";
 import { LaunchMark } from "@/components/shell/LaunchMark";
 import { ToastHost } from "@/components/ui/Toast";
@@ -18,9 +20,6 @@ import { useUi } from "@/store/ui";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 import { motion, radius } from "@/theme/tokens";
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 2, staleTime: 60_000, refetchOnWindowFocus: false } },
-});
 
 function Shell() {
   const { c, isDark } = useTheme();
@@ -66,6 +65,7 @@ function Shell() {
         </Stack>
       </Animated.View>
       <AuthSheet />
+      <TermsGateSheet />
       <ToastHost />
     </View>
   );

@@ -12,8 +12,8 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
 import { haptic } from "@/lib/haptic";
-import { isScreenReason } from "@/lib/moderation";
 import { BIO_MAX, normalizeSocial, SOCIALS, socialLabel, type LinkError, type Social, type SocialLinks } from "@/lib/socialLinks";
+import { requireTerms } from "@/store/authGate";
 import { useSession } from "@/store/session";
 import { useTheme } from "@/theme/ThemeProvider";
 import { gap, space } from "@/theme/tokens";
@@ -102,6 +102,7 @@ export default function ProfileScreen() {
           disabled={invalid}
           loading={save.isPending}
           onPress={() =>
+            requireTerms("discuss.reasonPost", () =>
             save.mutate(
               { handle: user.handle, name, bio, links },
               {
@@ -110,9 +111,9 @@ export default function ProfileScreen() {
                   toast(t("creator.saved"));
                   router.back();
                 },
-                onError: (e) => toast(t((isScreenReason(e.message) ? `moderation.${e.message}` : `creator.errors.${e.message}`) as TKey, { site: "" }), "warning"),
+                onError: (e) => toast(t.error(e.message, ["moderation", "creator.errors"], { site: "" }), "warning"),
               },
-            )
+            ))
           }
         />
         <Button label={t("creator.preview")} variant="ghost" onPress={() => router.push(`/creator/${user.handle}` as never)} />

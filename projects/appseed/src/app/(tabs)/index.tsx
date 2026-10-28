@@ -2,7 +2,8 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type SharedValue } from "react-native-reanimated";
-import { useBuyouts, useLaunches, useLeaderboard, usePrompts, useTemplates, useVote } from "@/api/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { qk, useBuyouts, useLeaderboard, usePrompts, useTemplates, useVote } from "@/api/queries";
 import type { CategoryKey, Launch, Template } from "@/api/types";
 import { DiscussFeed } from "@/components/feed/DiscussFeed";
 import { BuyoutCard, LaunchRow, PromptCard } from "@/components/market/Cards";
@@ -39,15 +40,14 @@ const CATEGORIES: (CategoryKey | "all")[] = ["all", "tools", "finance", "ai", "g
 type Hub = "launches" | "discuss" | "templates" | "prompts" | "buyouts";
 /** The leaderboard opens first, then the discussion feed (§28). */
 const HUBS: Hub[] = ["launches", "discuss", "templates", "prompts", "buyouts"];
+const HUB_QUERIES: Record<Hub, readonly unknown[]> = { launches: ["leaderboard"], discuss: ["posts"], templates: qk.templates, prompts: qk.prompts, buyouts: qk.buyouts };
 
 export default function Explore() {
   const t = useT();
   const [hub, setHub] = useState<Hub>("launches");
-  const templates = useTemplates();
-  const launches = useLaunches();
-  const prompts = usePrompts();
-  const buyouts = useBuyouts();
-  const refetch = () => Promise.all([templates.refetch(), launches.refetch(), prompts.refetch(), buyouts.refetch()]);
+  const qc = useQueryClient();
+  // Pull to refresh reloads what the visible hub shows (the leaderboard and feed are keyed by period / sort).
+  const refetch = () => qc.refetchQueries({ queryKey: HUB_QUERIES[hub], type: "active" });
 
   return (
     <TabScene index={0}>

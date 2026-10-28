@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import type { PostSort } from "@/lib/posts";
-import { requireAuth } from "@/store/authGate";
+import { requireTerms } from "@/store/authGate";
 import { useSession } from "@/store/session";
 import { reorder, rowIn } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -54,7 +54,7 @@ export function DiscussFeed() {
     <View style={{ paddingTop: gap.lg, paddingHorizontal: space.gutter, gap: gap.md }}>
       <Reveal>
         <PressableScale
-          onPress={() => requireAuth("discuss.reasonPost", () => setCompose({}))}
+          onPress={() => requireTerms("discuss.reasonPost", () => setCompose({}))}
           accessibilityLabel={t("discuss.prompt")}
           scaleTo={0.99}
           style={{ flexDirection: "row", alignItems: "center", gap: gap.md, paddingVertical: gap.sm }}
@@ -83,13 +83,13 @@ export function DiscussFeed() {
           ))}
         </View>
       ) : data.length === 0 ? (
-        <EmptyState icon="chat" title={t("discuss.empty")} body={t("discuss.emptyBody")} action={{ label: t("discuss.compose"), onPress: () => requireAuth("discuss.reasonPost", () => setCompose({})) }} />
+        <EmptyState icon="chat" title={t("discuss.empty")} body={t("discuss.emptyBody")} action={{ label: t("discuss.compose"), onPress: () => requireTerms("discuss.reasonPost", () => setCompose({})) }} />
       ) : (
         <View>
           {withoutBlocked(data, blocked).map((p, i) => (
             <Animated.View key={p.id} entering={rowIn} layout={reorder}>
               {i > 0 && <PostDivider />}
-              <PostItem p={p} now={now} mine={p.userId === user?.id} onReply={() => setCompose({ parent: p })} onMore={() => report.ask({ kind: "post", id: p.id, handle: p.handle })} threadLine={p.replies > 0} />
+              <PostItem p={p} now={now} mine={p.userId === user?.id} onReply={() => requireTerms("discuss.reasonPost", () => setCompose({ parent: p }))} onMore={() => report.ask({ kind: "post", id: p.id, handle: p.handle })} threadLine={p.replies > 0} />
             </Animated.View>
           ))}
         </View>

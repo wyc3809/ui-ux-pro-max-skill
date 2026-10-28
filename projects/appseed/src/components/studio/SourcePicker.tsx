@@ -143,6 +143,12 @@ function GithubSource({ value, onChange, onStack }: { value: Extract<SourceChoic
         onChange({ kind: "github", repo: fullName, branch, report });
         if (!isBlocking(report.checks)) onStack?.(report.stack);
       },
+      // Back to the repo list with an explanation, never a spinner that never ends.
+      onError: () => {
+        haptic("warning");
+        toast(t("source.scanFailed"), "warning");
+        onChange({ kind: "github", repo: "", branch: "", report: null });
+      },
     });
   };
 
@@ -326,6 +332,13 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
         haptic(isBlocking(report.checks) ? "warning" : "success");
         onChange({ kind: "zip", fileName, report });
         if (!isBlocking(report.checks)) onStack?.(report.stack);
+      },
+      // A failed upload returns to the upload button so it can be retried; the bar never sticks at 92%.
+      onError: () => {
+        progress.value = withTiming(0, { duration: 200, reduceMotion: ReduceMotion.System });
+        haptic("warning");
+        toast(t("source.uploadFailed"), "warning");
+        onChange({ kind: "zip", fileName: null, report: null });
       },
     });
   };

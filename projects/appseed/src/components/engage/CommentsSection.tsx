@@ -12,7 +12,7 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { COMMENT_MAX, formatRelative, itemKey, validateComment, type ItemKind } from "@/lib/engagement";
 import { haptic } from "@/lib/haptic";
-import { requireAuth } from "@/store/authGate";
+import { requireAuth, requireTerms, useAuthGate } from "@/store/authGate";
 import { useSession } from "@/store/session";
 import { useBlocks } from "@/store/blocks";
 import { useModeration } from "@/components/moderation/ModerationSheet";
@@ -53,15 +53,18 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
       return;
     }
     if (!user) return;
-    post.mutate(
-      { body: text, user: { id: user.id, name: user.name, handle: user.handle } },
-      {
-        onSuccess: () => {
-          haptic("success");
-          setText("");
-          setAll(true);
+    requireTerms("engage.reasonComment", () =>
+      post.mutate(
+        { body: text, user: { id: user.id, name: user.name, handle: user.handle } },
+        {
+          onSuccess: () => {
+            haptic("success");
+            setText("");
+            setAll(true);
+          },
+          onError: (e) => (e.message === "termsRequired" ? useAuthGate.getState().requestTerms() : toast(t.error(e.message, ["moderation", "engage"]), "warning")),
         },
-      },
+      ),
     );
   };
 

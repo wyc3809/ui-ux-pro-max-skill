@@ -57,7 +57,10 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Store compliance (docs/DESIGN.md §30, docs/APP_REVIEW.md)
 - Every user-content surface (posts, replies, comments, profiles) runs lib/moderation.ts `screenText` in the
   client and on the server, offers report-with-reason and block via `useModeration`, and hides blocked people.
-- Account creation requires accepting the terms (TERMS_VERSION); contacts live in lib/contact.ts.
+- Account creation requires accepting the terms (TERMS_VERSION); publishing actions go through
+  `requireTerms` so a newer version is accepted first. Contacts live in lib/contact.ts.
+- Account changes go through store/session.ts: sign-in invalidates queries, sign-out wipes the cache and
+  per-person stores (store/account.ts). Buy actions call `ownsFresh` before charging.
 - Every listing wizard ends with `OwnershipAttest`; listing pages expose "Report this listing" for IP claims.
 - Digital goods and boosts use IAP only. Link out to pay only where lib/storefront.ts `canLinkOut` allows.
 

@@ -299,9 +299,12 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
     setCreating(true);
     try {
       onCreated(await api.completeProfile({ ticket: ticket.ticket, name, handle, termsVersion: agreed ? TERMS_VERSION : 0 }));
-    } catch {
+    } catch (e) {
       setCreating(false);
-      toast(t("auth.failed"), "warning");
+      // Handle and name problems found by the server are shown as such; anything else is a generic failure.
+      const code = e instanceof Error ? e.message : "";
+      toast(code === "termsRequired" ? t("terms.required") : t.error(code, ["auth", "moderation"]), "warning");
+      if (code === "handleTaken") setAvailability("taken");
     }
   };
 

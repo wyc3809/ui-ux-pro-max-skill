@@ -9,13 +9,13 @@ import { BIO_MAX, normalizeSocial, SOCIALS, type SocialLinks } from "@/lib/socia
 import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/posts";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
-import { rankLaunches, toggleVote } from "@/lib/launch";
-import { MOVEMENT_HOURS, rankBoard, sponsoredPick, withMovement, type Period } from "@/lib/ranking";
+import { toggleVote } from "@/lib/launch";
+import { boardScore, MOVEMENT_HOURS, rankBoard, REPORT_LIMIT, sponsoredPick, withMovement, type Period } from "@/lib/ranking";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
 import type { AuthResult, BuyoutListing, Comment, Creator, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
-import { normalizeEmail, type AuthProvider } from "@/lib/auth";
+import { normalizeEmail, validateHandle, type AuthProvider } from "@/lib/auth";
 
 /**
  * Stand-in for Supabase until the backend exists (§19). Purchase state lives
@@ -124,9 +124,19 @@ type StoredUser = User & { appleSub?: string; googleSub?: string };
 type Ticket = { provider: AuthProvider; email: string | null; name: string; appleSub?: string; googleSub?: string };
 const TAKEN_HANDLES = creators.map((c) => c.handle);
 
+/** User content needs the current terms; an older acceptance is refused so the client asks again. */
+function assertTerms(userId: string) {
+  const u = readJson<StoredUser[]>(USERS_KEY, []).find((x) => x.id === userId);
+  if (u && (u.termsVersion ?? 0) < TERMS_VERSION) throw new Error("termsRequired");
+}
+
 function findOrTicket(match: (u: StoredUser) => boolean, t: Ticket): AuthResult {
   const user = readJson<StoredUser[]>(USERS_KEY, []).find(match);
-  if (user) return { status: "signedIn", user };
+  if (user) {
+    // Provider subject ids stay on the server.
+    const { appleSub: _a, googleSub: _g, ...publicUser } = user;
+    return { status: "signedIn", user: publicUser as User };
+  }
   const ticket = `t_${Date.now().toString(36)}`;
   mmkv.set(TICKETS_KEY, JSON.stringify({ ...readJson<Record<string, Ticket>>(TICKETS_KEY, {}), [ticket]: t }));
   return { status: "needsProfile", ticket, email: t.email, name: t.name };
@@ -246,11 +256,22 @@ export const api = {
   offers: () => wait(readJson<Offer[]>(OFFERS_KEY, [])),
   makeOffer: async (o: { slug: string; amount: number; message: string }) => {
     await wait(null, 900);
+    const screen = o.message.trim() ? screenText(o.message) : null;
+    if (screen && !screen.ok) throw new Error(screen.reason);
     const offer: Offer = { ...o, createdAt: new Date().toISOString().slice(0, 10), status: "sent" };
     mmkv.set(OFFERS_KEY, JSON.stringify([offer, ...readJson<Offer[]>(OFFERS_KEY, []).filter((x) => x.slug !== o.slug)]));
     return offer;
   },
-  launches: () => wait(rankLaunches(launches.map(withVotes), new Date())),
+  /**
+   * Every launch (search, related lists), ordered with the leaderboard's own weekly score so there is only
+   * one ranking in the app; heavily reported launches are left out until reviewed.
+   */
+  launches: () => {
+    const now = Date.now();
+    return wait(launches.map(withVotes).filter((l) => l.reports < REPORT_LIMIT).sort((a, b) => boardScore(b, "week", now) - boardScore(a, "week", now)));
+  },
+  /** How many promotional posts this account made today, so the composer can say so before posting. */
+  promoToday: (userId: string) => wait(promoCountToday(readPosts(), userId), 120),
   leaderboard: (period: Period) => wait(leaderboard(period), 320),
   launch: (slug: string) => {
     const l = launches.find((x) => x.slug === slug);
@@ -293,6 +314,13 @@ export const api = {
     await wait(null, 800);
     // No account without agreeing to the terms and community rules (App Review 1.2).
     if (termsVersion < TERMS_VERSION) throw new Error("termsRequired");
+    // The client's availability check can be stale or raced; the server decides (format, reserved, unique).
+    const formatError = validateHandle(handle);
+    if (formatError) throw new Error(formatError);
+    const taken = [...TAKEN_HANDLES, ...creators.map((c) => c.handle), ...readJson<StoredUser[]>(USERS_KEY, []).map((u) => u.handle)];
+    if (taken.includes(handle)) throw new Error("handleTaken");
+    const nameScreen = screenText(name);
+    if (!nameScreen.ok) throw new Error(nameScreen.reason);
     const tickets = readJson<Record<string, Ticket>>(TICKETS_KEY, {});
     const t = tickets[ticket];
     if (!t) throw new Error("ticketExpired");
@@ -346,6 +374,7 @@ export const api = {
   },
   postComment: async ({ key, body, user }: { key: string; body: string; user: { id: string; name: string; handle: string } }) => {
     await wait(null, 500);
+    assertTerms(user.id);
     const screen = screenText(body);
     if (!screen.ok) throw new Error(screen.reason);
     const c: Comment = { id: `c_${Date.now().toString(36)}`, userId: user.id, author: user.name, handle: user.handle, body: body.trim(), createdAt: new Date().toISOString() };
@@ -382,6 +411,16 @@ export const api = {
   },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
   /** For you is ranked per viewer (§28); the real server builds the viewer profile from its own records. */
+  /** Records acceptance of the current terms and returns the updated account. */
+  acceptTerms: async (userId: string) => {
+    await wait(null, 400);
+    const users = readJson<StoredUser[]>(USERS_KEY, []).map((u) => (u.id === userId ? { ...u, termsVersion: TERMS_VERSION } : u));
+    mmkv.set(USERS_KEY, JSON.stringify(users));
+    const found = users.find((u) => u.id === userId);
+    if (!found) throw new Error("notFound");
+    const { appleSub: _a, googleSub: _g, ...publicUser } = found;
+    return publicUser as User;
+  },
   posts: (sort: PostSort, viewer: Viewer) => {
     const list = decorate(readPosts().filter((p) => !p.parentId));
     return wait(sort === "forYou" ? forYou(list, viewer) : sortPosts(list, sort), 320);
@@ -396,6 +435,7 @@ export const api = {
   createPost: async ({ body, attachment, parentId, user }: { body: string; attachment?: PostAttachment; parentId?: string; user: { id: string; name: string; handle: string } }) => {
     await wait(null, 380);
     const all = readPosts();
+    assertTerms(user.id);
     const error = validatePost(body, { promo: !!attachment && !parentId, promoToday: promoCountToday(all, user.id) });
     if (error) throw new Error(error);
     const screen = screenText(body);

@@ -22,6 +22,9 @@ const useDrafts = create<DraftsState>()(
   ),
 );
 
+/** Wipes every saved listing draft (used when the account changes). */
+export const clearAllDrafts = () => useDrafts.setState({ drafts: {} });
+
 /** A listing form's draft, auto-saved to MMKV on every change so closing the app never loses it. */
 export function useFormDraft<T extends object>(key: string, initial: T): [T, (patch: Partial<T>) => void, () => void] {
   const stored = useDrafts((s) => s.drafts[key]) as Partial<T> | undefined;

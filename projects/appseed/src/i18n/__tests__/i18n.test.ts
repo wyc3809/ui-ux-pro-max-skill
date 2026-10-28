@@ -1,5 +1,5 @@
 import { en } from "../en";
-import { translate } from "../index";
+import { hasKey, translate } from "../index";
 import { zhHant } from "../zh-Hant";
 
 const leaves = (o: object, p = ""): [string, string][] =>
@@ -24,5 +24,16 @@ describe("i18n", () => {
   it("uses no hard-sell wording", () => {
     const hype = /立即搶購|限時搶|Buy now!|Hurry/;
     expect([...leaves(zhHant), ...leaves(en)].filter(([, v]) => hype.test(v))).toEqual([]);
+  });
+});
+
+describe("missing keys", () => {
+  it("falls back to the key instead of crashing, even with variables", () => {
+    expect(translate(zhHant, "nope.missing" as never, { site: "X" })).toBe("nope.missing");
+  });
+
+  it("knows which dynamic keys exist", () => {
+    expect(hasKey(zhHant, "moderation.contact")).toBe(true);
+    expect(hasKey(zhHant, "moderation.Network request failed")).toBe(false);
   });
 });
