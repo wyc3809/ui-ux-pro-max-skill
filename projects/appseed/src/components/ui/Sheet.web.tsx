@@ -37,8 +37,9 @@ export function Sheet({ open, onClose, title, footer, children }: SheetProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // Capture phase: a focused text input inside the sheet would otherwise swallow Escape.
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [open, onClose]);
 
   const backdrop = useAnimatedStyle(() => ({ opacity: p.value }));

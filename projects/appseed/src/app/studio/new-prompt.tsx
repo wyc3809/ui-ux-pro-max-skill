@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { Field, Group, Note } from "@/components/studio/FormFields";
+import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { ListingWizard } from "@/components/studio/ListingWizard";
 import { Chip, Tag } from "@/components/ui/Chip";
 import { toast } from "@/components/ui/Toast";
@@ -15,7 +16,7 @@ import { radius, font } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 
 const TOOLS = ["Claude Code", "Claude", "Cursor", "v0", "Windsurf"];
-const EMPTY: PromptDraft = { step: 0, title: "", summary: "", tool: null, text: "", previewLines: 2, tier: null };
+const EMPTY: PromptDraft = { step: 0, title: "", summary: "", tool: null, text: "", previewLines: 2, tier: null, attest: false };
 
 export default function NewPrompt() {
   const { c } = useTheme();
@@ -85,6 +86,7 @@ export default function NewPrompt() {
             ))}
           </Group>
           <Note text={t("license.shared")} />
+          <OwnershipAttest value={d.attest} onChange={(attest) => patch({ attest })} />
         </>
       )}
     </ListingWizard>

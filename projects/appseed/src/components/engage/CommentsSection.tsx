@@ -14,6 +14,9 @@ import { COMMENT_MAX, formatRelative, itemKey, validateComment, type ItemKind } 
 import { haptic } from "@/lib/haptic";
 import { requireAuth } from "@/store/authGate";
 import { useSession } from "@/store/session";
+import { useBlocks } from "@/store/blocks";
+import { useModeration } from "@/components/moderation/ModerationSheet";
+import { screenText, withoutBlocked } from "@/lib/moderation";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { font, radius } from "@/theme/tokens";
@@ -29,6 +32,8 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
   const post = usePostComment(key);
   const remove = useDeleteComment(key);
   const user = useSession((s) => s.user);
+  const blocked = useBlocks((s) => s.handles);
+  const moderation = useModeration();
   const [text, setText] = useState("");
   const [all, setAll] = useState(false);
   const [now] = useState(Date.now());
@@ -38,6 +43,13 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
     if (err) {
       haptic("warning");
       toast(t(`engage.${err}`), "warning");
+      return;
+    }
+    // Same screening as posts, before anything leaves the device (§30); the server checks again.
+    const screen = screenText(text);
+    if (!screen.ok) {
+      haptic("warning");
+      toast(t(`moderation.${screen.reason}`), "warning");
       return;
     }
     if (!user) return;
@@ -53,7 +65,7 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
     );
   };
 
-  const list = data ?? [];
+  const list = withoutBlocked(data ?? [], blocked);
   const shown = all ? list : list.slice(0, PREVIEW);
   const ready = validateComment(text) == null;
 
@@ -120,6 +132,7 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
                 cm={cm}
                 now={now}
                 mine={cm.userId === user?.id}
+                onMore={() => moderation.ask({ kind: "comment", id: cm.id, handle: cm.handle })}
                 onDelete={() =>
                   remove.mutate(cm.id, {
                     onSuccess: () => toast(t("engage.deleted")),
@@ -138,11 +151,12 @@ export function CommentsSection({ kind, slug }: { kind: ItemKind; slug: string }
           </Txt>
         </PressableScale>
       )}
+      {moderation.sheet}
     </View>
   );
 }
 
-function CommentRow({ cm, now, mine, onDelete }: { cm: Comment; now: number; mine: boolean; onDelete: () => void }) {
+function CommentRow({ cm, now, mine, onDelete, onMore }: { cm: Comment; now: number; mine: boolean; onDelete: () => void; onMore: () => void }) {
   const { c } = useTheme();
   const t = useT();
   return (
@@ -161,9 +175,13 @@ function CommentRow({ cm, now, mine, onDelete }: { cm: Comment; now: number; min
         </View>
         <Txt>{cm.body}</Txt>
       </View>
-      {mine && (
+      {mine ? (
         <PressableScale onPress={onDelete} hitSlop={10} accessibilityLabel={t("engage.delete")} style={{ alignSelf: "flex-start", paddingTop: 2 }}>
           <Icon name="trash" size={16} color={c.fgSubtle} motion="wiggle" />
+        </PressableScale>
+      ) : (
+        <PressableScale onPress={onMore} hitSlop={10} accessibilityLabel={t("discuss.more")} style={{ alignSelf: "flex-start", paddingTop: 2 }}>
+          <Icon name="more" size={16} color={c.fgSubtle} enter={false} />
         </PressableScale>
       )}
     </View>

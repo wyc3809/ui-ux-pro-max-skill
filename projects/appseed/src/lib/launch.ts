@@ -1,5 +1,11 @@
 /** "新作推廣" launch board rules. */
 
+/**
+ * A 24 hour sponsored slot is a digital service used inside the app, so it is sold with in-app purchase
+ * (App Review 3.1.1) at a fixed tier, never through Stripe in the app.
+ */
+export const BOOST_PRODUCT = { id: "launch_boost_24h", price: 38 } as const;
+
 /** Hacker-News-style ranking: upvotes decay with age so new launches get a fair window. */
 export function hotScore(upvotes: number, ageHours: number): number {
   return (Math.max(upvotes, 0) + 1) / Math.pow(Math.max(ageHours, 0) + 2, 1.5);

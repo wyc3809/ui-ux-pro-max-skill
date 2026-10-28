@@ -10,9 +10,13 @@ import { missingLaunchFields, type LaunchDraft } from "@/lib/listing";
 import { useFormDraft } from "@/store/formDrafts";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
+import { api } from "@/api/mockServer";
+import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
+import { BOOST_PRODUCT } from "@/lib/launch";
+import { formatPrice } from "@/lib/price";
 
 const TOOLS = ["Claude Code", "Cursor", "v0", "Windsurf", "Bolt", "Lovable"];
-const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", aiTools: [], buildDays: "", link: "", boost: false };
+const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", aiTools: [], buildDays: "", link: "", boost: false, attest: false };
 
 export default function NewLaunch() {
   const { c } = useTheme();
@@ -27,8 +31,11 @@ export default function NewLaunch() {
       missing={(s) => missingLaunchFields(d, s)}
       submitLabel={t("form.publish")}
       onSubmit={() => {
+        const boost = d.boost;
         reset();
-        toast(t("form.published"));
+        if (!boost) return toast(t("form.published"));
+        // The boost is charged through in-app purchase; the listing publishes either way.
+        api.purchaseBoost(BOOST_PRODUCT.id).then(() => toast(t("form.boostPaid")));
       }}
     >
       {d.step === 0 && (
@@ -53,11 +60,12 @@ export default function NewLaunch() {
                 {d.boost && <Tag label={t("launch.sponsored")} />}
               </View>
               <Txt variant="caption" tone="fgMuted">
-                {t("form.boostBody")}
+                {t("form.boostBody", { price: formatPrice(BOOST_PRODUCT.price, "HKD", "") })}
               </Txt>
             </View>
             <Switch label={t("form.boost")} value={d.boost} onValueChange={(boost) => patch({ boost })} />
           </View>
+          <OwnershipAttest value={d.attest} onChange={(attest) => patch({ attest })} />
         </>
       )}
     </ListingWizard>

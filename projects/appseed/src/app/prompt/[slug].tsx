@@ -208,7 +208,7 @@ export default function PromptScreen() {
             </Card>
           </Section>
 
-          <CreatorCard handle={p.creator} />
+          <CreatorCard handle={p.creator} listing={`prompt:${p.slug}`} />
 
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="prompt" slug={p.slug} />

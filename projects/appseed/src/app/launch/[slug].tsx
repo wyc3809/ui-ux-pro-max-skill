@@ -159,7 +159,7 @@ export default function LaunchScreen() {
 
           {l.relatedTemplate && <RelatedTemplate slug={l.relatedTemplate} />}
           {l.relatedPrompt && <RelatedPrompt slug={l.relatedPrompt} />}
-          <CreatorCard handle={l.maker} />
+          <CreatorCard handle={l.maker} listing={`launch:${l.slug}`} />
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="launch" slug={l.slug} />
           </View>

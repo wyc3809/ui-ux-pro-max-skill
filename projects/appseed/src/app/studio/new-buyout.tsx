@@ -1,6 +1,7 @@
 import type { Platform } from "@/api/types";
 import { ReadinessList } from "@/components/market/Transfer";
 import { Field, Group, Note } from "@/components/studio/FormFields";
+import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { ListingWizard } from "@/components/studio/ListingWizard";
 import { SourcePicker } from "@/components/studio/SourcePicker";
 import { Chip } from "@/components/ui/Chip";
@@ -34,6 +35,7 @@ const EMPTY: BuyoutDraft = {
   included: [],
   reason: "",
   asking: "",
+  attest: false,
 };
 const toggle = <T,>(list: T[], x: T) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
 
@@ -121,6 +123,7 @@ export default function NewBuyout() {
             </Reveal>
           )}
           <Note text={t("buyout.escrowNote")} />
+          <OwnershipAttest value={d.attest} onChange={(attest) => patch({ attest })} />
         </>
       )}
     </ListingWizard>

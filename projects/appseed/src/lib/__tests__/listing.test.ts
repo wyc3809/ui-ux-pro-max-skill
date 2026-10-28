@@ -1,6 +1,6 @@
 import { missingBuyoutFields, missingLaunchFields, missingPromptFields, type BuyoutDraft, type LaunchDraft, type PromptDraft } from "../listing";
 
-const prompt: PromptDraft = { step: 0, title: "T", summary: "", tool: "Claude Code", text: "line 1 {{x}}\nline 2\nline 3", previewLines: 1, tier: 18 };
+const prompt: PromptDraft = { step: 0, title: "T", summary: "", tool: "Claude Code", text: "line 1 {{x}}\nline 2\nline 3", previewLines: 1, tier: 18, attest: true };
 const buyout: BuyoutDraft = {
   step: 0,
   name: "App",
@@ -14,8 +14,9 @@ const buyout: BuyoutDraft = {
   included: ["source"],
   reason: "",
   asking: "20000",
+  attest: true,
 };
-const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", boost: false };
+const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", boost: false, attest: true };
 
 describe("listing validation", () => {
   it("accepts complete drafts", () => {
@@ -41,6 +42,11 @@ describe("listing validation", () => {
     expect(missingBuyoutFields({ ...buyout, facts: { ...buyout.facts, inReview: true } }, 2)).toEqual(["transfer"]);
     // Warnings (Sign in with Apple) do not block.
     expect(missingBuyoutFields({ ...buyout, facts: { ...buyout.facts, signInWithApple: true } }, 2)).toEqual([]);
+  });
+  it("requires the ownership confirmation on the last step of every listing", () => {
+    expect(missingPromptFields({ ...prompt, attest: false }, 1)).toEqual(["attest"]);
+    expect(missingBuyoutFields({ ...buyout, attest: false }, 5)).toEqual(["attest"]);
+    expect(missingLaunchFields({ ...launch, attest: false }, 1)).toEqual(["attest"]);
   });
   it("validates launch tools, days and https link", () => {
     expect(missingLaunchFields({ ...launch, aiTools: [], buildDays: "0" }, 0)).toEqual(["aiTools", "buildDays"]);

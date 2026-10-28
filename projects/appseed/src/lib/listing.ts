@@ -3,7 +3,7 @@ import { promptVariables } from "./prompt";
 import { isTransferReady, needsVerification, type StoreFacts, type VerifySource } from "./transfer";
 import { sourceReady } from "./upload";
 
-export type PromptDraft = { step: number; title: string; summary: string; tool: string | null; text: string; previewLines: number; tier: number | null };
+export type PromptDraft = { step: number; title: string; summary: string; tool: string | null; text: string; previewLines: number; tier: number | null; attest: boolean };
 export type BuyoutDraft = {
   step: number;
   name: string;
@@ -17,11 +17,13 @@ export type BuyoutDraft = {
   included: string[];
   reason: string;
   asking: string;
+  /** Seller confirms they own the work (App Review 5.2); required on the last step. */
+  attest: boolean;
 };
 
 /** Buyout wizard steps, in order. */
 export const BUYOUT_STEPS = ["info", "metrics", "transfer", "source", "included", "asking"] as const;
-export type LaunchDraft = { step: number; name: string; tagline: string; aiTools: string[]; buildDays: string; link: string; boost: boolean };
+export type LaunchDraft = { step: number; name: string; tagline: string; aiTools: string[]; buildDays: string; link: string; boost: boolean; attest: boolean };
 
 const num = (s: string) => (/^\d+$/.test(s.trim()) ? Number(s.trim()) : NaN);
 const isUrl = (s: string) => /^https:\/\/[^\s/]+\.[^\s]+$/.test(s.trim());
@@ -37,6 +39,7 @@ export function missingPromptFields(d: PromptDraft, step: number): string[] {
   if (step === 1) {
     if (d.tier == null) miss.push("tier");
     if (d.tier !== 0 && d.previewLines >= d.text.trim().split("\n").length) miss.push("previewLines");
+    if (!d.attest) miss.push("attest");
   }
   return miss;
 }
@@ -67,6 +70,7 @@ export function missingBuyoutFields(d: BuyoutDraft, step: number): string[] {
   if (s === "asking") {
     const a = num(d.asking);
     if (Number.isNaN(a) || a < 1000) miss.push("asking");
+    if (!d.attest) miss.push("attest");
   }
   return miss;
 }
@@ -79,6 +83,9 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
     if (d.aiTools.length === 0) miss.push("aiTools");
     if (Number.isNaN(num(d.buildDays)) || num(d.buildDays) < 1) miss.push("buildDays");
   }
-  if (step === 1 && !isUrl(d.link)) miss.push("link");
+  if (step === 1) {
+    if (!isUrl(d.link)) miss.push("link");
+    if (!d.attest) miss.push("attest");
+  }
   return miss;
 }

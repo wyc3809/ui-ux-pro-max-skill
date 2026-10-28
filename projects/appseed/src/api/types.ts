@@ -163,6 +163,8 @@ export type User = {
   email: string | null;
   provider: import("@/lib/auth").AuthProvider;
   createdAt: string;
+  /** Terms version accepted at sign-up (lib/contact.ts TERMS_VERSION); required to create an account. */
+  termsVersion?: number;
 };
 
 /** Sign-in either lands a known user, or hands back a ticket to finish a new account's profile. */

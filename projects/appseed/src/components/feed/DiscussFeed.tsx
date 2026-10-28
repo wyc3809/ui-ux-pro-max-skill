@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
-import { usePosts, useReportPost } from "@/api/queries";
+import { usePosts } from "@/api/queries";
 import type { Post } from "@/api/types";
 import { Chip } from "@/components/ui/Chip";
-import { ConfirmSheet } from "@/components/ui/ConfirmSheet";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ExplainSheet } from "@/components/ui/ExplainSheet";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";
 import { Reveal } from "@/components/ui/Reveal";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import type { PostSort } from "@/lib/posts";
@@ -22,6 +20,9 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { gap, space } from "@/theme/tokens";
 import { ComposeSheet } from "./ComposeSheet";
 import { useViewer } from "./useViewer";
+import { useModeration } from "@/components/moderation/ModerationSheet";
+import { withoutBlocked } from "@/lib/moderation";
+import { useBlocks } from "@/store/blocks";
 
 const SORTS: PostSort[] = ["forYou", "top", "latest"];
 import { AVATAR, Avatar, PostItem } from "./Post";
@@ -30,27 +31,6 @@ import { AVATAR, Avatar, PostItem } from "./Post";
 export function PostDivider() {
   const { c } = useTheme();
   return <View style={{ height: 1, backgroundColor: c.border, marginLeft: AVATAR + gap.md }} />;
-}
-
-/** Hook for the report confirmation shared by the feed and the thread page. */
-export function useReportFlow() {
-  const t = useT();
-  const report = useReportPost();
-  const [target, setTarget] = useState<Post | null>(null);
-  const sheet = (
-    <ConfirmSheet
-      open={!!target}
-      title={t("discuss.report")}
-      body={t("discuss.reportBody")}
-      confirmLabel={t("discuss.report")}
-      onClose={() => setTarget(null)}
-      onConfirm={() => {
-        if (target) report.mutate(target.id, { onSuccess: () => toast(t("discuss.reported")) });
-        setTarget(null);
-      }}
-    />
-  );
-  return { ask: setTarget, sheet };
 }
 
 /**
@@ -66,7 +46,8 @@ export function DiscussFeed() {
   const { data } = usePosts(sort, viewer);
   const [how, setHow] = useState(false);
   const [compose, setCompose] = useState<{ parent?: Post } | null>(null);
-  const report = useReportFlow();
+  const report = useModeration();
+  const blocked = useBlocks((s) => s.handles);
   const [now] = useState(Date.now());
 
   return (
@@ -105,10 +86,10 @@ export function DiscussFeed() {
         <EmptyState icon="chat" title={t("discuss.empty")} body={t("discuss.emptyBody")} action={{ label: t("discuss.compose"), onPress: () => requireAuth("discuss.reasonPost", () => setCompose({})) }} />
       ) : (
         <View>
-          {data.map((p, i) => (
+          {withoutBlocked(data, blocked).map((p, i) => (
             <Animated.View key={p.id} entering={rowIn} layout={reorder}>
               {i > 0 && <PostDivider />}
-              <PostItem p={p} now={now} mine={p.userId === user?.id} onReply={() => setCompose({ parent: p })} onMore={() => report.ask(p)} threadLine={p.replies > 0} />
+              <PostItem p={p} now={now} mine={p.userId === user?.id} onReply={() => setCompose({ parent: p })} onMore={() => report.ask({ kind: "post", id: p.id, handle: p.handle })} threadLine={p.replies > 0} />
             </Animated.View>
           ))}
         </View>

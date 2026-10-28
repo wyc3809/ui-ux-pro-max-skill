@@ -59,6 +59,7 @@ function Shell() {
           <Stack.Screen name="studio/analytics" />
           <Stack.Screen name="post/[id]" />
           <Stack.Screen name="profile" options={{ presentation: "modal" }} />
+          <Stack.Screen name="terms" />
           <Stack.Screen name="prompt/[slug]" />
           <Stack.Screen name="buyout/[slug]" />
           <Stack.Screen name="launch/[slug]" />

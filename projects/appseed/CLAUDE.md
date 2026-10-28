@@ -54,6 +54,13 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Every number compares against the previous period of the same length; no baseline shows a dash.
 - Pure maths lives in src/lib/analytics.ts with tests; charts are animated Views, never SVG.
 
+## Store compliance (docs/DESIGN.md §30, docs/APP_REVIEW.md)
+- Every user-content surface (posts, replies, comments, profiles) runs lib/moderation.ts `screenText` in the
+  client and on the server, offers report-with-reason and block via `useModeration`, and hides blocked people.
+- Account creation requires accepting the terms (TERMS_VERSION); contacts live in lib/contact.ts.
+- Every listing wizard ends with `OwnershipAttest`; listing pages expose "Report this listing" for IP claims.
+- Digital goods and boosts use IAP only. Link out to pay only where lib/storefront.ts `canLinkOut` allows.
+
 ## Accounts (docs/DESIGN.md §23)
 - Guests can browse and search; wrap account-only actions in `requireAuth(reason, action)` so
   sign-in opens as a Sheet and the action resumes afterwards. Never gate browsing.

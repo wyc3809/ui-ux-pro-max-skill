@@ -19,5 +19,8 @@ appId: app.appseed.mobile
 - inputText: "Maestro Tester"
 - assertVisible: ".*可以使用"
 - tapOn: "建立帳戶"
+- assertVisible: "請先同意條款與社群守則"
+- tapOn: "我已閱讀並同意條款與社群守則.*"
+- tapOn: "建立帳戶"
 - assertVisible: "歡迎，Maestro Tester"
 - assertVisible: "取消收藏"

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 import { findCreator } from "@/api/mockServer";
 import { useBuyout, useMakeOffer, useOffers } from "@/api/queries";
@@ -41,6 +41,8 @@ import { gap, nested, radius } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { HandoverList, VerifiedLine } from "@/components/market/Transfer";
 import { handoverItems } from "@/lib/transfer";
+import { canLinkOut, ESCROW_URL } from "@/lib/storefront";
+import { useStorefront } from "@/store/storefront";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
 import { CreatorCard } from "@/components/creator/CreatorCard";
 
@@ -196,7 +198,7 @@ export default function BuyoutScreen() {
             </Card>
           </Section>
 
-          <CreatorCard handle={b.seller} />
+          <CreatorCard handle={b.seller} listing={`buyout:${b.slug}`} />
 
           <View onLayout={jumpTo.onLayout}>
             <CommentsSection kind="buyout" slug={b.slug} />
@@ -330,20 +332,34 @@ function BuyNowSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; on
   const { c } = useTheme();
   const t = useT();
   const fee = escrowFee(b.asking);
+  // Only the US storefront may link out to pay (§30); elsewhere the sheet explains where to finish.
+  const linkOut = canLinkOut(useStorefront());
   return (
     <Sheet
       open={open}
       onClose={onClose}
       title={t("buyout.buyNow")}
       footer={
-        <Button
-          label={t("buyout.continueWeb")}
-          icon={<Icon name="globe" size={18} color={c.accentFg} />}
-          onPress={() => {
-            onClose();
-            toast(t("buyout.continued"));
-          }}
-        />
+        linkOut ? (
+          <Button
+            label={t("buyout.openEscrow")}
+            icon={<Icon name="globe" size={18} color={c.accentFg} />}
+            onPress={() => {
+              onClose();
+              Linking.openURL(`${ESCROW_URL}/${b.slug}`);
+            }}
+          />
+        ) : (
+          <View style={{ flexDirection: "row", gap: gap.sm, padding: gap.md, borderRadius: radius.control, backgroundColor: c.pendingSoft }}>
+            <Icon name="laptop" size={18} color={c.pending} active />
+            <View style={{ flex: 1, gap: gap.xxs }}>
+              <Txt variant="bodyStrong">{t("buyout.webOnlyTitle")}</Txt>
+              <Txt variant="caption" tone="fgMuted">
+                {t("buyout.webOnlyBody")}
+              </Txt>
+            </View>
+          </View>
+        )
       }
     >
       <Txt variant="section">{b.name}</Txt>

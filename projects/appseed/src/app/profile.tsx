@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
 import { haptic } from "@/lib/haptic";
+import { isScreenReason } from "@/lib/moderation";
 import { BIO_MAX, normalizeSocial, SOCIALS, socialLabel, type LinkError, type Social, type SocialLinks } from "@/lib/socialLinks";
 import { useSession } from "@/store/session";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -109,7 +110,7 @@ export default function ProfileScreen() {
                   toast(t("creator.saved"));
                   router.back();
                 },
-                onError: (e) => toast(t(`creator.errors.${e.message}` as TKey, { site: "" }), "warning"),
+                onError: (e) => toast(t((isScreenReason(e.message) ? `moderation.${e.message}` : `creator.errors.${e.message}`) as TKey, { site: "" }), "warning"),
               },
             )
           }

@@ -25,6 +25,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Txt } from "@/components/ui/Txt";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space, font } from "@/theme/tokens";
+import { BlockedSheet } from "@/components/moderation/BlockedSheet";
+import { useBlocks } from "@/store/blocks";
 
 export default function MeScreen() {
   const t = useT();
@@ -40,6 +42,8 @@ export default function MeScreen() {
     qc.clear(); // nothing from the previous account may linger in the cache
   };
   const { data: github } = useGithubAccount();
+  const blockedCount = useBlocks((b) => b.handles.length);
+  const [blockedOpen, setBlockedOpen] = useState(false);
   const disconnect = useDisconnectGithub();
   return (
     <TabScene index={3}>
@@ -56,6 +60,8 @@ export default function MeScreen() {
                 <>
                   <RowDivider />
                   <ListRow icon="pen" title={t("creator.edit")} detail={t("creator.editBody")} onPress={() => router.push("/profile")} />
+                  <RowDivider />
+                  <ListRow icon="userX" title={t("moderation.blockedList")} value={blockedCount ? String(blockedCount) : undefined} onPress={() => setBlockedOpen(true)} />
                   <RowDivider />
                   <ListRow
                     icon="git"
@@ -98,9 +104,9 @@ export default function MeScreen() {
               <RowDivider />
               <ListRow icon="refresh" title={t("me.refunds")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon="shield" title={t("me.privacy")} onPress={() => {}} />
+              <ListRow icon="shield" title={t("me.privacy")} onPress={() => router.push("/terms")} />
               <RowDivider />
-              <ListRow icon="file" title={t("me.terms")} onPress={() => {}} />
+              <ListRow icon="file" title={t("me.terms")} onPress={() => router.push("/terms")} />
               <RowDivider />
               <ListRow icon="info" title={t("me.about")} detail={t("brand.tagline")} value="0.1.0" />
             </Card>
@@ -112,6 +118,7 @@ export default function MeScreen() {
           </Section>
         </View>
 
+        <BlockedSheet open={blockedOpen} onClose={() => setBlockedOpen(false)} />
         <ConfirmSheet
           open={confirm === "history"}
           title={t("me.clearHistory")}

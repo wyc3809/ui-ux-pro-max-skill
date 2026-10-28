@@ -248,13 +248,14 @@ export function useCreatePost() {
   });
 }
 
-export function useReportPost() {
+export function useReport() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.reportPost(id),
+    mutationFn: api.report,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["posts"] });
       qc.invalidateQueries({ queryKey: ["thread"] });
+      qc.invalidateQueries({ queryKey: ["comments"] });
     },
   });
 }

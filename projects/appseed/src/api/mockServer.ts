@@ -2,7 +2,9 @@ import { githubLogin, githubRepos, repoManifests, zipManifest } from "@/data/git
 import { buyouts, launches, prompts } from "@/data/marketplace";
 import { buildReport } from "@/data/analytics";
 import { SEED_POSTS, SEED_REPLIES } from "@/data/posts";
+import { TERMS_VERSION } from "@/lib/contact";
 import { forYou, type Viewer } from "@/lib/feed";
+import { screenText, type ReportReason, type ReportTarget } from "@/lib/moderation";
 import { BIO_MAX, normalizeSocial, SOCIALS, type SocialLinks } from "@/lib/socialLinks";
 import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/posts";
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
@@ -59,6 +61,7 @@ function creatorProfile(handle: string): Creator | null {
 const POST_LIKES_KEY = "mock-server:post-likes";
 const POST_REPOSTS_KEY = "mock-server:post-reposts";
 const POST_HIDDEN_KEY = "mock-server:post-hidden";
+const REPORTS_KEY = "mock-server:reports";
 
 /** All posts and replies, seeded on first read with timestamps relative to now. */
 function readPosts(): Post[] {
@@ -206,11 +209,18 @@ export const api = {
       if (r && r.value) clean[k] = r.value;
     }
     if (bio.trim().length > BIO_MAX) throw new Error("bioTooLong");
+    const screen = screenText(`${name} ${bio}`);
+    if (!screen.ok) throw new Error(screen.reason);
     mmkv.set(PROFILES_KEY, JSON.stringify({ ...readJson<Record<string, ProfileEdit>>(PROFILES_KEY, {}), [handle]: { name: name.trim(), bio: bio.trim(), links: clean } }));
     return creatorProfile(handle)!;
   },
   search: (p: SearchParams) => wait(searchTemplates([...templates], p), 180),
   purchases: () => wait(readPurchases()),
+  /** Stand-in for the StoreKit / Play Billing purchase of BOOST_PRODUCT via RevenueCat. */
+  purchaseBoost: async (productId: string) => {
+    await wait(null, 900);
+    return { ok: true as const, productId };
+  },
   purchase: async (slug: string) => {
     await wait(null, 1100);
     const next = Array.from(new Set([slug, ...readPurchases()]));
@@ -279,12 +289,14 @@ export const api = {
     const taken = [...TAKEN_HANDLES, ...readJson<StoredUser[]>(USERS_KEY, []).map((u) => u.handle)];
     return { handle, available: !taken.includes(handle) };
   },
-  completeProfile: async ({ ticket, name, handle }: { ticket: string; name: string; handle: string }) => {
+  completeProfile: async ({ ticket, name, handle, termsVersion }: { ticket: string; name: string; handle: string; termsVersion: number }) => {
     await wait(null, 800);
+    // No account without agreeing to the terms and community rules (App Review 1.2).
+    if (termsVersion < TERMS_VERSION) throw new Error("termsRequired");
     const tickets = readJson<Record<string, Ticket>>(TICKETS_KEY, {});
     const t = tickets[ticket];
     if (!t) throw new Error("ticketExpired");
-    const user: StoredUser = { id: `u_${Date.now().toString(36)}`, name: name.trim(), handle, email: t.email, provider: t.provider, createdAt: new Date().toISOString().slice(0, 10), appleSub: t.appleSub, googleSub: t.googleSub };
+    const user: StoredUser = { id: `u_${Date.now().toString(36)}`, name: name.trim(), handle, email: t.email, provider: t.provider, createdAt: new Date().toISOString().slice(0, 10), termsVersion, appleSub: t.appleSub, googleSub: t.googleSub };
     mmkv.set(USERS_KEY, JSON.stringify([...readJson<StoredUser[]>(USERS_KEY, []), user]));
     delete tickets[ticket];
     mmkv.set(TICKETS_KEY, JSON.stringify(tickets));
@@ -327,9 +339,15 @@ export const api = {
     bump(SHARES_KEY, key);
     return wait({ ok: true as const }, 100);
   },
-  comments: (key: string) => wait(readComments(key), 300),
+  /** Comments reported by this viewer are hidden for them straight away. */
+  comments: (key: string) => {
+    const hidden = readJson<string[]>(POST_HIDDEN_KEY, []);
+    return wait(readComments(key).filter((c) => !hidden.includes(c.id)), 300);
+  },
   postComment: async ({ key, body, user }: { key: string; body: string; user: { id: string; name: string; handle: string } }) => {
     await wait(null, 500);
+    const screen = screenText(body);
+    if (!screen.ok) throw new Error(screen.reason);
     const c: Comment = { id: `c_${Date.now().toString(36)}`, userId: user.id, author: user.name, handle: user.handle, body: body.trim(), createdAt: new Date().toISOString() };
     writeComments(key, [c, ...readComments(key)]);
     return c;
@@ -380,6 +398,8 @@ export const api = {
     const all = readPosts();
     const error = validatePost(body, { promo: !!attachment && !parentId, promoToday: promoCountToday(all, user.id) });
     if (error) throw new Error(error);
+    const screen = screenText(body);
+    if (!screen.ok) throw new Error(screen.reason);
     const post: Post = {
       id: `p_${Date.now().toString(36)}`,
       userId: user.id,
@@ -404,9 +424,11 @@ export const api = {
     await wait(null, 200);
     return toggleIn(POST_REPOSTS_KEY, id, "reposts");
   },
-  reportPost: async (id: string) => {
-    await wait(null, 300);
-    mmkv.set(POST_HIDDEN_KEY, JSON.stringify([...readJson<string[]>(POST_HIDDEN_KEY, []), id]));
+  /** Every report is queued for human review within 24 hours; posts and comments disappear for the reporter at once. */
+  report: async ({ target, reason, detail, contact }: { target: ReportTarget; reason: ReportReason; detail: string; contact: string }) => {
+    await wait(null, 400);
+    mmkv.set(REPORTS_KEY, JSON.stringify([...readJson<unknown[]>(REPORTS_KEY, []), { target, reason, detail: detail.trim(), contact: contact.trim(), at: new Date().toISOString() }]));
+    if (target.kind === "post" || target.kind === "comment") mmkv.set(POST_HIDDEN_KEY, JSON.stringify([...readJson<string[]>(POST_HIDDEN_KEY, []), target.id]));
   },
   /** Aggregated server side; the client never receives individual viewers or raw events (§26). */
   analytics: (range: RangeDays, slug: string | null) => wait(buildReport(range, slug), 360),

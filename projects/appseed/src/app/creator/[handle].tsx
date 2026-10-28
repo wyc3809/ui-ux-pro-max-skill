@@ -13,9 +13,15 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 
 import { useTheme } from "@/theme/ThemeProvider";
-import { space, font } from "@/theme/tokens";
+import { font, gap, radius, space } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { SocialLinksRow } from "@/components/creator/CreatorCard";
+import { useModeration } from "@/components/moderation/ModerationSheet";
+import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
+import { toast } from "@/components/ui/Toast";
+import { useBlocks } from "@/store/blocks";
+import { useSession } from "@/store/session";
 
 export default function CreatorScreen() {
   const { handle } = useLocalSearchParams<{ handle: string }>();
@@ -26,12 +32,33 @@ export default function CreatorScreen() {
   const { width } = useWindowDimensions();
   const colW = (Math.min(width, 1120) - space.gutter * 2 - 12) / 2;
   const creator = data?.creator;
+  const moderation = useModeration();
+  const isBlocked = useBlocks((s) => s.handles.includes(handle));
+  const unblock = useBlocks((s) => s.unblock);
+  const me = useSession((s) => s.user);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <View style={{ paddingTop: insets.top, paddingHorizontal: space.gutter, height: insets.top + 52, justifyContent: "center" }}>
+      <View style={{ paddingTop: insets.top, paddingHorizontal: space.gutter, height: insets.top + 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <HeaderButton icon="chevronLeft" motion="nudge" label={t("a11y.backBtn")} onPress={() => router.back()} />
+        {creator && me?.handle !== handle && <HeaderButton icon="more" label={t("moderation.reportProfile")} onPress={() => moderation.ask({ kind: "profile", id: handle, handle })} />}
       </View>
+      {isBlocked && (
+        <View style={{ marginHorizontal: space.gutter, flexDirection: "row", alignItems: "center", gap: gap.md, padding: gap.md, borderRadius: radius.control, backgroundColor: c.dangerSoft }}>
+          <Icon name="userX" size={18} color={c.danger} active />
+          <Txt tone="danger" style={{ flex: 1 }}>
+            {t("moderation.blockedProfile")}
+          </Txt>
+          <Button
+            label={t("moderation.unblock")}
+            variant="secondary"
+            onPress={() => {
+              unblock(handle);
+              toast(t("moderation.unblocked", { handle }));
+            }}
+          />
+        </View>
+      )}
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32, gap: 24 }}>
         {isLoading ? (
           <View style={{ alignItems: "center", gap: 12, paddingTop: 12 }}>
@@ -79,6 +106,7 @@ export default function CreatorScreen() {
           </>
         )}
       </ScrollView>
+      {moderation.sheet}
     </View>
   );
 }

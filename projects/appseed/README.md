@@ -15,6 +15,12 @@
 | 狀態 | TanStack Query（伺服器狀態，「已購」只由伺服器決定）、Zustand + MMKV（收藏、搜尋紀錄、設定、上載草稿） |
 | 多語言 | zh-Hant／en，key 有型別；書面語由測試檢查 |
 
+## 上架合規（§30，`docs/APP_REVIEW.md`）
+
+- 發佈前內容過濾、檢舉（須選原因）、封鎖用戶、已封鎖名單
+- 註冊須同意條款與社群守則；條款頁有知識產權投訴方法和聯絡電郵
+- 上架須確認版權；付費推廣用 App 內購買；買斷只在美國 storefront 連出網頁付款
+
 ## 排行榜與演算法（§28）
 
 - 開 App 先見排行榜（今日／本週／本月），再到討論；名次變化 ▲▼
@@ -76,7 +82,7 @@
 
 ```bash
 npm install
-npm test             # 124 個測試
+npm test             # 133 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

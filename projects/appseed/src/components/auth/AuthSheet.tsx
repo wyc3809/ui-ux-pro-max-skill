@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { TermsBody } from "@/components/legal/TermsBody";
+import { TERMS_VERSION } from "@/lib/contact";
 import { View } from "react-native";
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated";
 import { api, DEMO_OTP } from "@/api/mockServer";
@@ -284,16 +286,19 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
     };
   }, [handle, formatError]);
 
-  const ready = name.trim().length > 0 && !formatError && availability === "available";
+  const [agreed, setAgreed] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const ready = name.trim().length > 0 && !formatError && availability === "available" && agreed;
   const create = async () => {
     if (!ready) {
       haptic("warning");
       setShakeKey((k) => k + 1);
+      if (!agreed) toast(t("terms.required"), "warning");
       return;
     }
     setCreating(true);
     try {
-      onCreated(await api.completeProfile({ ticket: ticket.ticket, name, handle }));
+      onCreated(await api.completeProfile({ ticket: ticket.ticket, name, handle, termsVersion: agreed ? TERMS_VERSION : 0 }));
     } catch {
       setCreating(false);
       toast(t("auth.failed"), "warning");
@@ -335,6 +340,29 @@ function ProfileStep({ ticket, onCreated }: { ticket: Extract<AuthResult, { stat
           <Txt variant="caption" tone={status.tone}>
             @{handle} · {status.label}
           </Txt>
+        </Reveal>
+      )}
+      <PressableScale
+        onPress={() => setAgreed((a) => !a)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: agreed }}
+        accessibilityLabel={t("terms.agree")}
+        scaleTo={0.99}
+        style={{ flexDirection: "row", gap: 12, alignItems: "flex-start" }}
+      >
+        <Icon name="checkCircle" size={22} color={agreed ? c.accent : c.fgSubtle} active={agreed} motion="pop" />
+        <Txt variant="caption" tone="fgMuted" style={{ flex: 1 }}>
+          {t("terms.agree")}
+        </Txt>
+      </PressableScale>
+      <PressableScale onPress={() => setShowTerms((v) => !v)} accessibilityLabel={t("terms.read")} style={{ alignSelf: "flex-start", minHeight: 32, justifyContent: "center" }}>
+        <Txt variant="caption" tone="accent">
+          {t("terms.read")}
+        </Txt>
+      </PressableScale>
+      {showTerms && (
+        <Reveal style={{ padding: 16, borderRadius: radius.control, backgroundColor: c.bgMuted }}>
+          <TermsBody />
         </Reveal>
       )}
       <ShakeView shakeKey={shakeKey}>

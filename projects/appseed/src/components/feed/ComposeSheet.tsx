@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
 import { haptic } from "@/lib/haptic";
+import { isScreenReason, screenText } from "@/lib/moderation";
 import { POST_MAX, remaining, validatePost } from "@/lib/posts";
 import { useSession } from "@/store/session";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -41,10 +42,12 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
 
   const mine = (studio?.listings ?? []).filter((l) => l.status === "live");
   const local = validatePost(text, { promo: false, promoToday: 0 });
+  // Screened as they type, so the problem is explained before they press Post (§30).
+  const screen = text.trim() ? screenText(text) : ({ ok: true } as const);
   const left = remaining(text);
 
   const submit = () => {
-    if (!user || local) return;
+    if (!user || local || !screen.ok) return;
     create.mutate(
       { body: text, attachment: parent ? undefined : attachment, parentId: parent?.id, user: { id: user.id, name: user.name, handle: user.handle } },
       {
@@ -53,7 +56,7 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
           toast(t("discuss.posted"));
           onClose();
         },
-        onError: (e) => toast(t(`discuss.errors.${e.message}` as TKey), "warning"),
+        onError: (e) => toast(t((isScreenReason(e.message) ? `moderation.${e.message}` : `discuss.errors.${e.message}`) as TKey), "warning"),
       },
     );
   };
@@ -65,10 +68,10 @@ export function ComposeSheet({ open, onClose, parent }: { open: boolean; onClose
       title={parent ? t("discuss.replyTo", { name: parent.author }) : t("discuss.compose")}
       footer={
         <View style={{ flexDirection: "row", alignItems: "center", gap: gap.md }}>
-          <Txt variant="caption" tone={left != null && left < 0 ? "danger" : "fgSubtle"} tabular style={{ flex: 1 }}>
-            {left != null ? `${left} / ${POST_MAX}` : parent ? "" : t("discuss.promoNote")}
+          <Txt variant="caption" tone={!screen.ok || (left != null && left < 0) ? "danger" : "fgSubtle"} tabular style={{ flex: 1 }}>
+            {!screen.ok ? t(`moderation.${screen.reason}`) : left != null ? `${left} / ${POST_MAX}` : parent ? "" : t("discuss.promoNote")}
           </Txt>
-          <Button label={t("discuss.post")} onPress={submit} loading={create.isPending} disabled={!!local} style={{ minWidth: 112 }} />
+          <Button label={t("discuss.post")} onPress={submit} loading={create.isPending} disabled={!!local || !screen.ok} style={{ minWidth: 112 }} />
         </View>
       }
     >

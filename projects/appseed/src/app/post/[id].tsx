@@ -4,7 +4,10 @@ import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useThread } from "@/api/queries";
 import { ComposeSheet } from "@/components/feed/ComposeSheet";
-import { PostDivider, useReportFlow } from "@/components/feed/DiscussFeed";
+import { PostDivider } from "@/components/feed/DiscussFeed";
+import { useModeration } from "@/components/moderation/ModerationSheet";
+import { withoutBlocked } from "@/lib/moderation";
+import { useBlocks } from "@/store/blocks";
 import { Avatar, PostItem } from "@/components/feed/Post";
 import { DetailScaffold } from "@/components/shell/DetailScaffold";
 import { BottomBar } from "@/components/ui/BottomBar";
@@ -28,7 +31,8 @@ export default function ThreadScreen() {
   const markSeen = useSeenPosts((s) => s.mark);
   useEffect(() => markSeen(id), [id, markSeen]);
   const [replying, setReplying] = useState(false);
-  const report = useReportFlow();
+  const report = useModeration();
+  const blocked = useBlocks((s) => s.handles);
   const [now] = useState(Date.now());
   const reply = () => requireAuth("discuss.reasonPost", () => setReplying(true));
 
@@ -53,7 +57,7 @@ export default function ThreadScreen() {
       ) : (
         <View>
           <Reveal>
-            <PostItem p={data.post} now={now} mine={data.post.userId === user?.id} large onReply={reply} onMore={() => report.ask(data.post)} threadLine={data.replies.length > 0} />
+            <PostItem p={data.post} now={now} mine={data.post.userId === user?.id} large onReply={reply} onMore={() => report.ask({ kind: "post", id: data.post.id, handle: data.post.handle })} threadLine={data.replies.length > 0} />
           </Reveal>
           {data.replies.length > 0 && (
             <Reveal index={1}>
@@ -62,10 +66,10 @@ export default function ThreadScreen() {
               </Txt>
             </Reveal>
           )}
-          {data.replies.map((r, i) => (
+          {withoutBlocked(data.replies, blocked).map((r, i) => (
             <Animated.View key={r.id} entering={rowIn}>
               {i > 0 && <PostDivider />}
-              <PostItem p={r} now={now} mine={r.userId === user?.id} onReply={reply} onMore={() => report.ask(r)} />
+              <PostItem p={r} now={now} mine={r.userId === user?.id} onReply={reply} onMore={() => report.ask({ kind: "post", id: r.id, handle: r.handle })} />
             </Animated.View>
           ))}
         </View>

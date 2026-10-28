@@ -132,7 +132,7 @@ export default function TemplateScreen() {
               </DirectionalSwap>
             </Reveal>
             <View style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
-              <CreatorCard handle={tpl.creator} />
+              <CreatorCard handle={tpl.creator} listing={`template:${tpl.slug}`} />
             </View>
             <View onLayout={jumpTo.onLayout} style={{ paddingHorizontal: space.gutter, paddingTop: 24 }}>
               <CommentsSection kind="template" slug={tpl.slug} />

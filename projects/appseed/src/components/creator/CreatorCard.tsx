@@ -10,6 +10,7 @@ import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { haptic } from "@/lib/haptic";
+import { useModeration } from "@/components/moderation/ModerationSheet";
 import { linkList, socialLabel, socialUrl, type Social } from "@/lib/socialLinks";
 import { popIn } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -69,10 +70,12 @@ export function SocialLinksRow({ c: creator, center, compact }: { c: Creator; ce
  * "About the creator" card under every listing (§29): avatar, name, founding badge, bio, listing count and
  * their social links, so makers can send buyers to X, Instagram, GitHub and the rest.
  */
-export function CreatorCard({ handle }: { handle: string }) {
+/** `listing` ("kind:slug") adds a quiet "Report this listing" row, the takedown entry for IP claims. */
+export function CreatorCard({ handle, listing }: { handle: string; listing?: string }) {
   const { c } = useTheme();
   const t = useT();
   const { data } = useCreator(handle);
+  const moderation = useModeration();
   const creator = data?.creator ?? findCreator(handle);
   if (!creator) return null;
   return (
@@ -102,6 +105,15 @@ export function CreatorCard({ handle }: { handle: string }) {
         {creator.bio ? <Txt tone="fgMuted">{creator.bio}</Txt> : null}
         <SocialLinksRow c={creator} compact />
       </Card>
+      {listing && (
+        <PressableScale onPress={() => moderation.ask({ kind: "listing", id: listing, handle: creator.handle })} accessibilityLabel={t("moderation.reportListing")} style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: gap.xs, minHeight: 44 }}>
+          <Icon name="flag" size={14} color={c.fgSubtle} enter={false} />
+          <Txt variant="caption" tone="fgSubtle">
+            {t("moderation.reportListing")}
+          </Txt>
+        </PressableScale>
+      )}
+      {moderation.sheet}
     </View>
   );
 }
