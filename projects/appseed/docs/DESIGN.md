@@ -794,3 +794,34 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 第三方收費是約數，條款寫明以各服務當時公布的價格為準。正式推出前要向 Stripe、RevenueCat 和托管機構確認最新收費，並由律師和會計師審閱。
 
+---
+
+## 32. 付款後台：帳目與結算
+
+程式碼在 `supabase/`：`migrations/20261030000000_payments.sql`（資料庫）、`functions/payments-webhook`、`functions/settlement`，邏輯放在 `functions/_shared`（純 TypeScript，有 Jest 測試）。
+
+**原則**
+
+1. 金額一律用整數（港幣「仙」），比率用基點，不用小數運算。
+2. 帳目只可新增（`ledger_entries` 有 trigger 禁止修改和刪除）；更正就寫一筆反向記錄。
+3. 每筆記錄有唯一 `source_key`（例如 `sale:<訂單>`、`refund:<訂單>:<退款>`、`payout:<結算>`），所以 webhook 重送或結算重跑都不會重複入帳或重複付款。
+4. 用戶只可以經 RLS 讀自己的資料；寫入只在 Edge Function 用 service role 進行。不儲存銀行或身份資料，只存 Stripe Connect 帳戶 ID 和狀態。
+5. 伺服器收費表 `_shared/schedule.ts` 和條款用的 `src/lib/fees.ts` 由測試保證一致。
+
+**流程**
+
+| 事件 | 來源 | 結果 |
+|---|---|---|
+| App 內購買 | RevenueCat `NON_RENEWING_PURCHASE` | App 購買前先建立 `purchase_intents`（價格級別是共用的），webhook 配對後建立訂單；平台費用用 RevenueCat 的實際 take-home，非港幣以美元價和 `HKD_PER_USD` 換算 |
+| 網頁購買 | Stripe `checkout.session.completed` | Checkout session 的 metadata 帶 `listing_id`、`buyer_id`；賣家由 `listing_prices` 決定，不信任 metadata |
+| 退款 | RevenueCat 退款取消、Stripe `refund.created` | 按比例扣回賣家收入，多次部分退款合計不會超過原本入帳 |
+| 拒付 | Stripe `charge.dispute.*` | 開始時暫扣賣家收入；勝訴退回，敗訴維持扣除；拒付手續費由 AppSeed 承擔，不入賣家帳 |
+| 帳戶狀態 | Stripe `account.updated` | 更新 `payouts_enabled`；未可收款的賣家餘額保留到可以收款為止 |
+| 每月結算 | pg_cron 每月 9 日呼叫 `settlement` | 先完成上次未完成的轉帳，再為每位賣家結算：可提取餘額 ≥ HK$100 才轉帳，扣除轉帳費；`create_payout` 在同一個交易內重新核對餘額並寫入扣數；轉帳失敗會寫回餘額，下次再付 |
+
+銷售收入在成交 30 日後才計入可提取餘額；退款和拒付即時扣除，不足的金額成為負數，從之後的收入扣回。
+
+**部署前要設定的 secrets**：`STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET`、`REVENUECAT_WEBHOOK_SECRET`、`SETTLEMENT_CRON_SECRET`、`HKD_PER_USD`（預設 7.8）。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 由 Supabase 提供。
+
+**未做**：Stripe Connect 開戶流程（帳戶連結和 App 內狀態）、建立 Checkout session 的函數、買家「已購」存取權（退款後收回）、`listing_prices` 由上架審核寫入。
+

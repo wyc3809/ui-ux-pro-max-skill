@@ -42,6 +42,13 @@
 - 只轉讓 App（App Store／Google Play 官方轉移），不轉讓開發者帳戶
 - 上架前檢查轉移條件；收入只用唯讀權限核實；交接清單全部確認後才放款
 
+## 付款後台（§32，`supabase/`）
+
+- 資料庫：訂單、只可新增的帳目、退款、結算、Stripe Connect 帳戶狀態；全部表開 RLS，賣家只看到自己的，只有伺服器可以寫入
+- `payments-webhook`：接收 RevenueCat（App 內購買）和 Stripe（網頁付款、退款、拒付、帳戶狀態），驗證簽名，同一事件重送不會重複入帳
+- `settlement`：每月結算，30 日預留期、HK$100 最低額、轉帳費從結算扣除；轉帳失敗會退回餘額，下次再付
+- 收費數字與條款（`src/lib/fees.ts`）由測試保證一致；**尚未部署**，需要 Supabase 專案和 Stripe／RevenueCat 帳戶
+
 ## 創作者數據報告（§26）
 
 - 參考 App Store Connect：7／30／90 日、按作品篩選、8 個數據格（瀏覽、讚好、分享、收藏、留言、銷量、收入、轉換率）連升跌
@@ -82,8 +89,9 @@
 
 ```bash
 npm install
-npm test             # 146 個測試
-npm run typecheck
+npm test             # 169 個測試（App 和付款後台）
+npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
+npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）
 npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不支援 Expo Go）

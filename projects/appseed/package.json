@@ -53,9 +53,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p supabase/functions",
     "export:web": "expo export -p web",
-    "preview:pack": "expo export -p web && node scripts/pack-preview.js dist dist/appseed-preview.html"
+    "preview:pack": "expo export -p web && node scripts/pack-preview.js dist dist/appseed-preview.html",
+    "test:sql": "supabase/tests/run-sql.sh"
   },
   "private": true,
   "jest": {

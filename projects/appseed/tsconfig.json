@@ -11,10 +11,16 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "supabase/functions/*/index.ts",
+    "supabase/functions/deno.d.ts"
   ]
 }

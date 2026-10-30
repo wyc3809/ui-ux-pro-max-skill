@@ -73,9 +73,12 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Payments & access
 - Purchase state comes from the server only; never grant access on the client.
 - In-app purchases use fixed price tiers via RevenueCat; web uses Stripe Checkout.
-- Every rate shown to users comes from src/lib/fees.ts (`FEES`), disclosed in the terms (§31); change a fee
-  there and in the server settlement together. The server settlement function (supabase/functions/settlement)
-  is not built yet.
+- Every rate shown to users comes from src/lib/fees.ts (`FEES`), disclosed in the terms (§31). The server charges
+  from supabase/functions/_shared/schedule.ts (minor units, basis points); a test fails if the two disagree.
+- Payments backend (§32): money is integer HKD cents in an append-only ledger (`ledger_entries`, unique
+  `source_key`); clients only read their own rows through RLS; writes happen only in the payments-webhook and
+  settlement Edge Functions. Every write must stay idempotent (webhook replays, re-run settlement). Logic lives
+  in supabase/functions/_shared as pure TS with Jest tests; SQL rules are tested by `npm run test:sql`.
 - The mobile app never executes, unzips or loads downloaded code.
 
 ## Data & security
@@ -90,7 +93,8 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Commands
 ```bash
 npm test            # Jest (logic + components)
-npm run typecheck   # tsc --noEmit
+npm run typecheck   # tsc for the app and the Edge Functions
+npm run test:sql    # migrations + RLS + SQL functions on a local Postgres
 npm run web         # dev server in the browser
 npx expo run:ios    # development build (IAP and MMKV need native modules, not Expo Go)
 ```
