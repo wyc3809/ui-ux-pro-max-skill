@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { Card } from "@/components/ui/Card";
@@ -28,6 +29,12 @@ export function PayoutCard({ amount, next }: { amount: number; next: string }) {
           {t("studio.payoutHistory")}
         </Txt>
         <Icon name="chevronRight" size={18} color={c.accent} motion="nudge" trigger={taps} />
+      </PressableScale>
+      <PressableScale onPress={() => router.push("/terms?section=fees" as never)} accessibilityRole="link" scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", minHeight: 36 }}>
+        <Txt variant="caption" tone="fgSubtle" style={{ flex: 1 }}>
+          {t("studio.feeDetails")}
+        </Txt>
+        <Icon name="info" size={16} color={c.fgSubtle} enter={false} />
       </PressableScale>
     </Card>
   );

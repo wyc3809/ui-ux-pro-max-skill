@@ -82,7 +82,7 @@
 
 ```bash
 npm install
-npm test             # 141 個測試
+npm test             # 146 個測試
 npm run typecheck
 npm run web          # 瀏覽器預覽
 npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）

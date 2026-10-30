@@ -29,11 +29,6 @@ export function offerStep(asking: number): number {
   return 500;
 }
 
-/** Escrow fee preview (server decides the real fee): 5%, minimum HK$500. */
-export function escrowFee(amount: number): number {
-  return Math.max(500, Math.round(amount * 0.05));
-}
-
 export const ESCROW_STEPS = ["agree", "deposit", "transfer", "verify", "release"] as const;
 
 /** Listing status → semantic tone (never the brand colour). */

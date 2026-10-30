@@ -3,6 +3,7 @@ import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
 import { IP_EMAIL, SUPPORT_EMAIL } from "@/lib/contact";
 import { gap } from "@/theme/tokens";
+import { FeesSection } from "./FeesSection";
 
 const SECTIONS: { title: TKey; body: TKey[] }[] = [
   { title: "terms.communityTitle", body: ["terms.community1", "terms.community2", "terms.community3"] },
@@ -13,7 +14,7 @@ const SECTIONS: { title: TKey; body: TKey[] }[] = [
 ];
 
 /** The terms in plain language; shared by the terms screen and the sign-up sheet. */
-export function TermsBody() {
+export function TermsBody({ feesOpen }: { feesOpen?: boolean } = {}) {
   const t = useT();
   return (
     <View style={{ gap: gap.xl }}>
@@ -27,6 +28,7 @@ export function TermsBody() {
           ))}
         </View>
       ))}
+      <FeesSection open={feesOpen} />
     </View>
   );
 }

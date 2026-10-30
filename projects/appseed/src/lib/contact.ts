@@ -5,4 +5,4 @@
 export const SUPPORT_EMAIL = "support@appseed.app";
 export const IP_EMAIL = "ip@appseed.app";
 /** Bump when the terms change; users who accepted an older version are asked again before posting. */
-export const TERMS_VERSION = 1;
+export const TERMS_VERSION = 2;

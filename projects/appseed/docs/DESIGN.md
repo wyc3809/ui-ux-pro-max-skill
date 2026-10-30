@@ -563,7 +563,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 收入核實 | 只接受唯讀權限：App Store Connect（銷售報告）、Play Console（財務檢視）、RevenueCat、Stripe，**不接受截圖**。有收入的上架最少要連接一個來源（`needsVerification`）；詳情頁寫明「已透過 … 唯讀權限核實」 |
 | 報價 | 最少為叫價一半（`validateOffer`）；步進按叫價大小調整（`offerStep`）；錯誤時數字搖動並提示 |
 | 狀態 | 出售中＝`live`、洽談中＝`pending`、已售出＝`ended`；已售出列表沉到底部並蓋上「已售出」印章動畫 |
-| 托管費 | 顯示為「預計」（5%，最低 HK$500），實際由伺服器決定 |
+| 托管費 | 分兩行顯示（§31）：托管機構的托管費（預計，預設買家付）和 AppSeed 佣金（賣家付）；實際由伺服器和托管機構決定 |
 
 ### 22.3 Prompt 市集
 
@@ -771,4 +771,26 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 付費推廣 | 屬 App 內使用的數碼服務，用 IAP（`BOOST_PRODUCT`，HK$38，24 小時） |
 | 買斷付款 | 只有美國 storefront 顯示「前往網頁版付款」連結（`canLinkOut`）；其他地區只說明到 appseed.app 完成托管付款，不放連結、不寄連結。正式版從 StoreKit／Play Billing 讀 storefront |
 | 帳戶切換 | 登入後所有查詢重新載入，購買前再向伺服器確認是否已擁有（`ownsFresh`），避免恢復動作時重複收費；登出或刪除帳戶會清除查詢快取和裝置上的個人資料（封鎖、收藏、搜尋紀錄、已看帖子、草稿）（`store/account.ts`） |
+
+---
+
+## 31. 收費與結算的披露
+
+所有收費集中在 `src/lib/fees.ts`（`FEES`），條款頁、創作頁和買斷畫面都從這裡讀數字，所以披露不會和實際收費不一致。條款頁「收費與結算」一節預設收起在清楚的標題下，按「查看收費詳情」展開；`/terms?section=fees` 直接展開（創作頁「收費與結算說明」和買斷 Sheet「收費詳情」都連到這裡）。
+
+| 項目 | 現行設定 | 誰付 |
+|---|---|---|
+| AppSeed 分成 | 扣除平台或刷卡手續費後 20%（待確認） | 賣家 |
+| Apple／Google | 15%（年收入超過 100 萬美元為 30%） | 在分成前扣除 |
+| Stripe 刷卡（網頁） | 約 3.4% + HK$2.35；海外卡另加約 0.5%，另有匯率費 | 在分成前扣除 |
+| RevenueCat | 約 1%（每月收入 2,500 美元以上） | AppSeed |
+| 結算 | 每月一次；成交 30 日後才可提取；未滿 HK$100 滾存 | — |
+| Stripe Connect 轉帳 | 約 0.25% + HK$0.25，從該次結算扣除；其他帳戶月費由 AppSeed 付 | 賣家 |
+| 退款 | 已結算訂單退款在下次結算扣回，不足時結轉 | 賣家 |
+| 拒付 | Stripe 約 HK$85 由 AppSeed 付；拒付成立則扣回該筆收入 | AppSeed／賣家 |
+| 買斷托管費 | 托管機構收取，約 3.25% 起，金額越大比例越低 | 預設買家 |
+| 買斷佣金 | 5%，最低 HK$500（待確認），由托管機構在放款時扣除 | 賣家 |
+| 改動通知 | AppSeed 調整自己的分成或規則前 30 日通知 | — |
+
+第三方收費是約數，條款寫明以各服務當時公布的價格為準。正式推出前要向 Stripe、RevenueCat 和托管機構確認最新收費，並由律師和會計師審閱。
 

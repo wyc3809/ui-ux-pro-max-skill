@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from "expo-router";
 import { DetailScaffold } from "@/components/shell/DetailScaffold";
 import { TermsBody } from "@/components/legal/TermsBody";
 import { Reveal } from "@/components/ui/Reveal";
@@ -7,6 +8,8 @@ import { useT } from "@/i18n";
 /** Terms, community rules, IP takedown and contact (§30). Linked from Me and from sign-up. */
 export default function TermsScreen() {
   const t = useT();
+  // /terms?section=fees opens with the fee details expanded (linked from the studio and buyouts).
+  const { section } = useLocalSearchParams<{ section?: string }>();
   return (
     <DetailScaffold title={t("terms.title")}>
       <Reveal>
@@ -18,7 +21,7 @@ export default function TermsScreen() {
         </Txt>
       </Reveal>
       <Reveal index={1}>
-        <TermsBody />
+        <TermsBody feesOpen={section === "fees"} />
       </Reveal>
     </DetailScaffold>
   );

@@ -73,7 +73,9 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Payments & access
 - Purchase state comes from the server only; never grant access on the client.
 - In-app purchases use fixed price tiers via RevenueCat; web uses Stripe Checkout.
-- Revenue split and settlement live in supabase/functions/settlement with tests.
+- Every rate shown to users comes from src/lib/fees.ts (`FEES`), disclosed in the terms (§31); change a fee
+  there and in the server settlement together. The server settlement function (supabase/functions/settlement)
+  is not built yet.
 - The mobile app never executes, unzips or loads downloaded code.
 
 ## Data & security

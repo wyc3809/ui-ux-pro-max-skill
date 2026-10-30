@@ -1,4 +1,4 @@
-import { buyoutTone, escrowFee, offerStep, revenueMultiple, validateOffer } from "../buyout";
+import { buyoutTone, offerStep, revenueMultiple, validateOffer } from "../buyout";
 import { toggleVote } from "../launch";
 import { fillPrompt, PROMPT_TIERS, promptVariables, splitPreview } from "../prompt";
 
@@ -35,10 +35,8 @@ describe("buyout", () => {
   it("maps listing status to semantic tones", () => {
     expect([buyoutTone("open"), buyoutTone("negotiating"), buyoutTone("sold")]).toEqual(["live", "pending", "ended"]);
   });
-  it("scales the offer step and escrow fee", () => {
+  it("scales the offer step", () => {
     expect([offerStep(8000), offerStep(50000), offerStep(300000)]).toEqual([500, 1000, 5000]);
-    expect(escrowFee(4000)).toBe(500);
-    expect(escrowFee(120000)).toBe(6000);
   });
 });
 

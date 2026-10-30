@@ -12,7 +12,8 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { View } from "react-native";
 import { useT } from "@/i18n";
-import { escrowFee, revenueMultiple } from "@/lib/buyout";
+import { revenueMultiple } from "@/lib/buyout";
+import { buyoutCosts } from "@/lib/fees";
 import { missingBuyoutFields, type BuyoutDraft } from "@/lib/listing";
 import { transferReadiness, verifyOptions } from "@/lib/transfer";
 import { formatPrice } from "@/lib/price";
@@ -117,8 +118,12 @@ export default function NewBuyout() {
           {asking > 0 && (
             <Reveal style={{ gap: 4 }}>
               <Txt tone="fgMuted">{multiple == null ? t("buyout.preRevenue") : t("buyout.multiple", { x: multiple })}</Txt>
+              {/* What the seller actually receives: asking price less AppSeed's commission (§31). */}
               <Txt variant="caption" tone="fgSubtle">
-                {t("buyout.escrowFee")} {formatPrice(escrowFee(asking), "HKD", "")}
+                {t("buyout.commission")} {formatPrice(buyoutCosts(asking).commission, "HKD", "")}
+              </Txt>
+              <Txt variant="bodyStrong">
+                {t("buyout.sellerReceives")} {formatPrice(buyoutCosts(asking).sellerReceives, "HKD", "")}
               </Txt>
             </Reveal>
           )}

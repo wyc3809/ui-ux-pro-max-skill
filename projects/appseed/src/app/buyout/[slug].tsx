@@ -32,7 +32,8 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { requireAuth } from "@/store/authGate";
-import { buyoutTone, ESCROW_STEPS, escrowFee, MIN_OFFER_RATIO, offerStep, revenueMultiple, validateOffer } from "@/lib/buyout";
+import { buyoutTone, ESCROW_STEPS, MIN_OFFER_RATIO, offerStep, revenueMultiple, validateOffer } from "@/lib/buyout";
+import { buyoutCosts } from "@/lib/fees";
 import { haptic } from "@/lib/haptic";
 import { formatPrice } from "@/lib/price";
 import { slideInAt } from "@/theme/animations";
@@ -340,7 +341,8 @@ function Stepper({ icon, label, onPress }: { icon: "plus" | "minus"; label: stri
 function BuyNowSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onClose: () => void }) {
   const { c } = useTheme();
   const t = useT();
-  const fee = escrowFee(b.asking);
+  // The escrow provider's fee is the buyer's; AppSeed's commission comes out of the seller's side (§31).
+  const { escrowFee: fee } = buyoutCosts(b.asking);
   // Only the US storefront may link out to pay (§30); elsewhere the sheet explains where to finish.
   const linkOut = canLinkOut(useStorefront());
   return (
@@ -382,6 +384,18 @@ function BuyNowSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; on
       <Txt variant="caption" tone="fgSubtle">
         {t("buyout.escrowNote")}
       </Txt>
+      <PressableScale
+        onPress={() => {
+          onClose();
+          router.push("/terms?section=fees" as never);
+        }}
+        accessibilityRole="link"
+        style={{ minHeight: 44, justifyContent: "center" }}
+      >
+        <Txt variant="caption" tone="accent">
+          {t("buyout.feeDetails")}
+        </Txt>
+      </PressableScale>
     </Sheet>
   );
 }
