@@ -49,4 +49,14 @@ describe("server rules the client cannot bypass", () => {
     const list = await api.launches();
     expect(list.some((l) => l.slug === "quiz-rush")).toBe(false);
   });
+
+  it("restores exactly what the account owns and grants nothing new", async () => {
+    const before = await api.purchases();
+    await expect(api.restorePurchases()).resolves.toEqual({ templates: before.length, prompts: 0 });
+    const slug = ["pocket-ledger", "hk-company-lookup"].find((s) => !before.includes(s))!;
+    await api.purchase(slug);
+    await api.purchasePrompt("expo-supabase-starter-prompt");
+    await expect(api.restorePurchases()).resolves.toEqual({ templates: before.length + 1, prompts: 1 });
+    expect((await api.purchases()).sort()).toEqual([...before, slug].sort());
+  });
 });

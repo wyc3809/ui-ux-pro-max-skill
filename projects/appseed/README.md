@@ -20,6 +20,7 @@
 - 發佈前內容過濾、檢舉（須選原因）、封鎖用戶、已封鎖名單
 - 註冊須同意條款與社群守則；條款頁有知識產權投訴方法和聯絡電郵
 - 上架須確認版權；付費推廣用 App 內購買；買斷只在美國 storefront 連出網頁付款
+- 「我的」和「已購」都有「恢復購買」；送審說明預先解釋 IAP 類型、新作推廣和買斷（`docs/APP_REVIEW.md`）
 
 ## 排行榜與演算法（§28）
 
@@ -89,7 +90,7 @@
 
 ```bash
 npm install
-npm test             # 169 個測試（App 和付款後台）
+npm test             # 170 個測試（App 和付款後台）
 npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
 npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽

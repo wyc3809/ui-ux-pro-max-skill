@@ -15,6 +15,7 @@ import { PressableScale } from "@/components/ui/PressableScale";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
+import { useRestore } from "@/components/account/useRestore";
 import { useT } from "@/i18n";
 import { shouldAnimateItems } from "@/lib/motion";
 import { formatPrice } from "@/lib/price";
@@ -37,6 +38,7 @@ export default function LibraryScreen() {
   const t = useT();
   const { c } = useTheme();
   const [seg, setSeg] = useState<Seg>("owned");
+  const restore = useRestore();
   const templates = useTemplates().data;
   const prompts = usePrompts().data;
   const buyouts = useBuyouts().data;
@@ -108,7 +110,13 @@ export default function LibraryScreen() {
               ))}
             </View>
           ) : items.length === 0 ? (
-            <EmptyState icon={empty[seg].icon} title={empty[seg].title} body={empty[seg].body} action={{ label: t("library.browse"), onPress: () => router.navigate("/") }} />
+            <EmptyState
+              icon={empty[seg].icon}
+              title={empty[seg].title}
+              body={empty[seg].body}
+              action={{ label: t("library.browse"), onPress: () => router.navigate("/") }}
+              secondaryAction={seg === "owned" || seg === "prompts" ? { label: t("me.restore"), onPress: restore.run, loading: restore.pending } : undefined}
+            />
           ) : (
             <View style={{ gap: 12 }}>
               {items.map((x) => (

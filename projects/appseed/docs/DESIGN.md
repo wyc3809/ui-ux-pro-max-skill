@@ -769,6 +769,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 條款 | 註冊最後一步必須勾選「我已閱讀並同意條款與社群守則，包括不容忍不當內容和濫用行為」，可即場展開閱讀；伺服器拒絕沒有同意的註冊。「我的 › 條款／私隱政策」打開 `/terms`：社群守則、知識產權、付款、私隱、聯絡（`src/lib/contact.ts`） |
 | 知識產權 | 模板、Prompt、買斷、新作四個上架流程最後一步都要確認擁有權利（`OwnershipAttest`）；作品頁底部「檢舉此作品」是侵權投訴入口 |
 | 付費推廣 | 屬 App 內使用的數碼服務，用 IAP（`BOOST_PRODUCT`，HK$38，24 小時） |
+| 恢復購買 | 「我的 › 恢復購買」和「已購」空白頁的按鈕：未登入先登入，再同步商店收據並重新讀取伺服器上這個帳戶擁有的項目（`useRestore`）。價格級別是消耗型商品，擁有權記錄在帳戶，所以換裝置和重裝都靠帳戶恢復 |
 | 買斷付款 | 只有美國 storefront 顯示「前往網頁版付款」連結（`canLinkOut`）；其他地區只說明到 appseed.app 完成托管付款，不放連結、不寄連結。正式版從 StoreKit／Play Billing 讀 storefront |
 | 帳戶切換 | 登入後所有查詢重新載入，購買前再向伺服器確認是否已擁有（`ownsFresh`），避免恢復動作時重複收費；登出或刪除帳戶會清除查詢快取和裝置上的個人資料（封鎖、收藏、搜尋紀錄、已看帖子、草稿）（`store/account.ts`） |
 

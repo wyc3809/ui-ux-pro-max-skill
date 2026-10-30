@@ -6,10 +6,11 @@ import { Icon, type IconName } from "./Icon";
 import { Txt } from "./Txt";
 import { Reveal } from "./Reveal";
 
-type Props = { icon: IconName; title: string; body: string; action?: { label: string; onPress: () => void } };
+type Action = { label: string; onPress: () => void; loading?: boolean };
+type Props = { icon: IconName; title: string; body: string; action?: Action; secondaryAction?: Action };
 
 /** Never a dead end: every empty / error state offers the next step (§1). */
-export function EmptyState({ icon, title, body, action }: Props) {
+export function EmptyState({ icon, title, body, action, secondaryAction }: Props) {
   const { c } = useTheme();
   return (
     <Reveal style={{ alignItems: "center", paddingVertical: 48, paddingHorizontal: 32, gap: 12 }}>
@@ -22,7 +23,8 @@ export function EmptyState({ icon, title, body, action }: Props) {
       <Txt tone="fgMuted" style={{ textAlign: "center" }}>
         {body}
       </Txt>
-      {action ? <Button label={action.label} onPress={action.onPress} variant="secondary" style={{ marginTop: 8 }} /> : null}
+      {action ? <Button label={action.label} onPress={action.onPress} loading={action.loading} variant="secondary" style={{ marginTop: 8 }} /> : null}
+      {secondaryAction ? <Button label={secondaryAction.label} onPress={secondaryAction.onPress} loading={secondaryAction.loading} variant="ghost" /> : null}
     </Reveal>
   );
 }

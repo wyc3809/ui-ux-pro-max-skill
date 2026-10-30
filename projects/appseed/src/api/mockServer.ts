@@ -226,6 +226,15 @@ export const api = {
   },
   search: (p: SearchParams) => wait(searchTemplates([...templates], p), 180),
   purchases: () => wait(readPurchases()),
+  /**
+   * Stand-in for RevenueCat `syncPurchases()` followed by re-reading the account's purchases from the server.
+   * Price tiers are consumables, which StoreKit cannot restore, so ownership is kept per account and this is
+   * how a new device or a reinstall gets it back.
+   */
+  restorePurchases: async () => {
+    await wait(null, 900);
+    return { templates: readPurchases().length, prompts: readJson<string[]>(PROMPTS_KEY, []).length };
+  },
   /** Stand-in for the StoreKit / Play Billing purchase of BOOST_PRODUCT via RevenueCat. */
   purchaseBoost: async (productId: string) => {
     await wait(null, 900);

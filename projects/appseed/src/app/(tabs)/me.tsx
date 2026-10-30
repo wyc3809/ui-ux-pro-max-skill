@@ -26,6 +26,8 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space, font } from "@/theme/tokens";
 import { BlockedSheet } from "@/components/moderation/BlockedSheet";
 import { useBlocks } from "@/store/blocks";
+import { useRestore } from "@/components/account/useRestore";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function MeScreen() {
   const t = useT();
@@ -41,6 +43,8 @@ export default function MeScreen() {
   const blockedCount = useBlocks((b) => b.handles.length);
   const [blockedOpen, setBlockedOpen] = useState(false);
   const disconnect = useDisconnectGithub();
+  const restore = useRestore();
+  const { c } = useTheme();
   return (
     <TabScene index={3}>
       <LargeTitleScreen title={t("me.title")}>
@@ -98,7 +102,9 @@ export default function MeScreen() {
             <Card padded={false}>
               <ListRow icon="scale" title={t("me.licenses")} onPress={() => {}} />
               <RowDivider />
-              <ListRow icon="refresh" title={t("me.refunds")} onPress={() => {}} />
+              <ListRow icon="refresh" title={t("me.restore")} detail={t("me.restoreDetail")} trailing={restore.pending ? <Spinner color={c.fgMuted} /> : undefined} onPress={restore.pending ? undefined : restore.run} />
+              <RowDivider />
+              <ListRow icon="receipt" title={t("me.refunds")} onPress={() => {}} />
               <RowDivider />
               <ListRow icon="shield" title={t("me.privacy")} onPress={() => router.push("/terms")} />
               <RowDivider />

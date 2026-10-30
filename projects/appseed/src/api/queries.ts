@@ -69,6 +69,18 @@ export function usePurchase() {
   });
 }
 
+export function useRestorePurchases() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.restorePurchases,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.purchases });
+      qc.invalidateQueries({ queryKey: qk.promptPurchases });
+      qc.invalidateQueries({ queryKey: qk.prompts });
+    },
+  });
+}
+
 export const usePrompts = () => useQuery({ queryKey: qk.prompts, queryFn: api.prompts, staleTime: 10 * 60 * 1000 });
 export const usePrompt = (slug: string) => useQuery({ queryKey: qk.prompt(slug), queryFn: () => api.prompt(slug), staleTime: HOUR });
 export const usePromptPurchases = () => useQuery({ queryKey: qk.promptPurchases, queryFn: api.promptPurchases });
