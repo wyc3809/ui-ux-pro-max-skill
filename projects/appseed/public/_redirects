@@ -1,0 +1,3 @@
+# Netlify / Cloudflare Pages: static files (site pages, .well-known, _expo) are served as they are; every other
+# path is a route of the web app (single-page output), so deep links like /template/slug load the app.
+/*    /index.html   200

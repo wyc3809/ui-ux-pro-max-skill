@@ -1,0 +1,5 @@
+# The Apple association file has no extension; iOS needs it served as JSON.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+/.well-known/assetlinks.json
+  Content-Type: application/json

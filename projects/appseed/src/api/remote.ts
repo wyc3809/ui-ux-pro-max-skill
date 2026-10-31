@@ -123,6 +123,20 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
   const catalogue = catalogueApi(sb);
   const { templatesBy: _templatesBy, ...catalogueReads } = catalogue;
 
+  /** Native OAuth: the provider's page in an auth session, back to appseed://auth-callback with a PKCE code. */
+  const nativeOAuth = async (provider: "apple" | "google"): Promise<AuthResult> => {
+    const callback = "appseed://auth-callback";
+    const r = await sb.auth.signInWithOAuth({ provider, options: { redirectTo: callback, skipBrowserRedirect: true } });
+    if (r.error || !r.data.url) throw new Error(provider === "apple" ? "appleUnavailable" : "googleUnavailable");
+    const result = await WebBrowser.openAuthSessionAsync(r.data.url, callback);
+    if (result.type !== "success") throw new Error("cancelled");
+    const code = new URL(result.url).searchParams.get("code");
+    if (!code) throw new Error("authFailed");
+    const x = await sb.auth.exchangeCodeForSession(code);
+    if (x.error) throw new Error(x.error.message);
+    return land(null);
+  };
+
   const feedRows = async (filter: (q: ReturnType<ReturnType<SupabaseClient["from"]>["select"]>) => unknown) => {
     const q = sb.from("post_feed").select("*");
     filter(q);
@@ -171,29 +185,13 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
 
   return {
     signInWithApple: async (c: { sub: string; email: string | null; name: string | null; identityToken?: string | null }) => {
-      // Native iOS hands over an identity token; the web uses Apple's redirect flow instead.
-      if (!c.identityToken) {
-        if (Platform.OS === "web") return redirectTo("apple");
-        throw new Error("appleUnavailable");
-      }
+      // iOS hands over an identity token; the web redirects; Android uses Apple's page in an auth session.
+      if (!c.identityToken) return Platform.OS === "web" ? redirectTo("apple") : nativeOAuth("apple");
       const r = await sb.auth.signInWithIdToken({ provider: "apple", token: c.identityToken });
       if (r.error) throw new Error(r.error.message);
       return land(c.name);
     },
-    signInWithGoogle: async () => {
-      if (Platform.OS === "web") return redirectTo("google");
-      // Native: Google's page in an auth session, back to appseed://auth-callback with a PKCE code.
-      const callback = "appseed://auth-callback";
-      const r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback, skipBrowserRedirect: true } });
-      if (r.error || !r.data.url) throw new Error("googleUnavailable");
-      const result = await WebBrowser.openAuthSessionAsync(r.data.url, callback);
-      if (result.type !== "success") throw new Error("cancelled");
-      const code = new URL(result.url).searchParams.get("code");
-      if (!code) throw new Error("authFailed");
-      const x = await sb.auth.exchangeCodeForSession(code);
-      if (x.error) throw new Error(x.error.message);
-      return land(null);
-    },
+    signInWithGoogle: async () => (Platform.OS === "web" ? redirectTo("google") : nativeOAuth("google")),
     /** Finishes a web redirect sign-in after the page reloads, or returns null when there is no session. */
     resumeSession: async (): Promise<AuthResult | null> => ((await me()) ? land(null) : null),
     sendEmailCode: async (email: string) => {
@@ -243,6 +241,16 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     adminResolve: (reportId: string, decision: "dismiss" | "hide" | "restore") => invoke<{ ok: true }>("admin", { action: "resolve", reportId, decision }),
     adminReview: (slug: string, approve: boolean) => invoke<{ ok: true }>("admin", { action: "review", slug, approve }),
     adminSuspend: (handle: string) => invoke<{ ok: true }>("admin", { action: "suspend", handle }),
+    setFavorite: async (key: string, on: boolean) => {
+      const u = await me();
+      if (!u) return;
+      if (on) await sb.from("favorites").upsert({ user_id: u.id, item_key: key }, { onConflict: "user_id,item_key", ignoreDuplicates: true });
+      else await sb.from("favorites").delete().match({ user_id: u.id, item_key: key });
+    },
+    myFavorites: async () => {
+      if (!(await me())) return null;
+      return (must(await sb.from("favorites").select("item_key").order("created_at", { ascending: false })) as { item_key: string }[]).map((r) => r.item_key);
+    },
     blockHandle: async (handle: string) => {
       if (await me()) await sb.rpc("block_handle", { p_handle: handle });
     },
@@ -303,9 +311,8 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     toggleRepost: (id: string) => toggle("reposts", { post_id: id }),
 
     engagement: async (key: string): Promise<Engagement> => {
-      const [r] = must(await sb.rpc("engagement", { p_key: key })) as { likes: number; views: number; shares: number; comments: number; liked: boolean }[];
-      // Bookmarks are favourites kept on the device; there is no server count yet.
-      return { likes: Number(r?.likes ?? 0), views: Number(r?.views ?? 0), shares: Number(r?.shares ?? 0), comments: Number(r?.comments ?? 0), bookmarks: 0, liked: !!r?.liked };
+      const [r] = must(await sb.rpc("engagement", { p_key: key })) as { likes: number; views: number; shares: number; comments: number; liked: boolean; bookmarks: number }[];
+      return { likes: Number(r?.likes ?? 0), views: Number(r?.views ?? 0), shares: Number(r?.shares ?? 0), comments: Number(r?.comments ?? 0), bookmarks: Number(r?.bookmarks ?? 0), liked: !!r?.liked };
     },
     toggleLike: async (key: string) => ({ liked: await toggle("item_likes", { item_key: key }) }),
     recordView: async (key: string) => {

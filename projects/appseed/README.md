@@ -52,7 +52,7 @@
 - 作品目錄、排行榜、付費購買（RevenueCat、Stripe Checkout）、賣家收款設定（Stripe Connect）已接 Supabase
 - 創作中心：送審、zip 上載和 GitHub App、原始碼掃描、簽名下載和電郵連結、每日數據
 - 管理後台（只限職員）、Claude 內容審查、匿名錯誤報告、封鎖同步、原生 Google 登入、撤銷 Apple token
-- `site/`：官網、支援和私隱政策頁
+- `public/`：官網頁面（about、支援、私隱政策、條款）跟網頁版一齊發佈
 
 ## 真後端（§33）
 

@@ -25,7 +25,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { itemKey } from "@/lib/engagement";
+import { itemKey, shareLink } from "@/lib/engagement";
 import { formatDate } from "@/lib/format";
 import { requireAuth } from "@/store/authGate";
 
@@ -68,7 +68,7 @@ export default function LaunchScreen() {
     <DetailScaffold
       scrollRef={jumpTo.ref}
       title={l?.name}
-      right={l ? <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => Share.share({ message: `${l.name} https://appseed.app/l/${l.slug}` })} /> : undefined}
+      right={l ? <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => Share.share({ message: `${l.name} ${shareLink("launch", l.slug)}` })} /> : undefined}
       bottom={
         l ? (
           <BottomBar>

@@ -459,6 +459,9 @@ export const api = {
   adminReview: async (_slug: string, _approve: boolean) => wait({ ok: true as const }, 200),
   adminSuspend: async (_handle: string) => wait({ ok: true as const }, 200),
   /** Blocks live on the device in the demo; Supabase keeps them per account (store/blocks.ts syncs). */
+  /** Favourites live on the device in the demo (store/favorites.ts); Supabase keeps them per account. */
+  setFavorite: async (_key: string, _on: boolean) => undefined,
+  myFavorites: async () => null as string[] | null,
   blockHandle: async (_handle: string) => undefined,
   unblockHandle: async (_handle: string) => undefined,
   myBlocks: async () => null as string[] | null,

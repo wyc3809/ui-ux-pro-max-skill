@@ -46,7 +46,7 @@
 
 ## 送審前要做
 
-- [ ] 部署 `site/`，App Store Connect 的支援網址填 `/support.html`、私隱政策網址填 `/privacy.html`
+- [ ] 部署網頁版（`npx expo export --platform web` 的 `dist/`），App Store Connect 的支援網址填 `https://appseed.app/support.html`、私隱政策網址填 `https://appseed.app/privacy.html`
 
 - [ ] `src/lib/contact.ts` 換成真實的支援和知識產權電郵，並確保有人處理
 - [x] 審核後台可以在 24 小時內處理檢舉、移除內容和停用帳戶（`/admin`，§36）；仍要安排有人每日處理

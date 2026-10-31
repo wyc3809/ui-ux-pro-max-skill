@@ -18,7 +18,7 @@ import { LaunchMark } from "@/components/shell/LaunchMark";
 import { ToastHost } from "@/components/ui/Toast";
 import { useUi } from "@/store/ui";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
-import { motion, radius } from "@/theme/tokens";
+import { layout, motion, radius } from "@/theme/tokens";
 import { installGlobalErrorHandlers, reportError } from "@/lib/errorReport";
 import { Button } from "@/components/ui/Button";
 import { Txt } from "@/components/ui/Txt";
@@ -62,7 +62,10 @@ function Shell() {
     transform: [{ scale: 1 - p.value * (1 - motion.sheetRecede) }],
   }));
   return (
-    <View style={{ flex: 1, backgroundColor: "#000000" }}>
+    // One column on every screen size: phones fill it, iPad and desktop browsers centre it, so the same layout
+    // (and the same tap targets) works on iOS, Android and the web.
+    <View style={{ flex: 1, backgroundColor: c.bg, alignItems: "center" }}>
+    <View style={{ flex: 1, width: "100%", maxWidth: layout.maxWidth, backgroundColor: "#000000" }}>
       <StatusBar style={isDark || sheetOpen ? "light" : "dark"} />
       <Animated.View style={[{ flex: 1, overflow: receded ? "hidden" : "visible", backgroundColor: c.bg }, page]}>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg } }}>
@@ -89,6 +92,7 @@ function Shell() {
       <AuthSheet />
       <TermsGateSheet />
       <ToastHost />
+    </View>
     </View>
   );
 }

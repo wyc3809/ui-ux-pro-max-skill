@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "APPLE_TEAM_ID.app.appseed.mobile",
+        "paths": ["/t/*", "/p/*", "/l/*", "/b/*", "/template/*", "/prompt/*", "/launch/*", "/post/*", "/creator/*"]
+      }
+    ]
+  }
+}

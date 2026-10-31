@@ -137,7 +137,12 @@ do $$ begin
   insert into public.blocks (blocker_id, blocked_id) values (auth.uid(), '00000000-0000-0000-0000-0000000000d3');
   perform public.record_share('launch:demo-launch');
   assert (select upvotes = 1 and shares = 1 from public.launch_stats where slug = 'demo-launch'), 'launch stats';
-  assert (select liked = false and comments = 1 from public.engagement('demo-tpl')), 'engagement';
+  insert into public.favorites (user_id, item_key) values (auth.uid(), 'demo-tpl');
+  begin
+    insert into public.favorites (user_id, item_key) values ('00000000-0000-0000-0000-0000000000d3', 'demo-tpl');
+    raise exception 'saved for someone else';
+  exception when insufficient_privilege then null; end;
+  assert (select liked = false and comments = 1 and bookmarks = 1 from public.engagement('demo-tpl')), 'engagement';
 
   -- Reports: as yourself, IP claims need detail and contact, nobody reads them back.
   insert into public.reports (reporter_id, target_kind, target_id, reason) values (auth.uid(), 'post', 'x', 'spam');
@@ -175,6 +180,7 @@ do $$ begin
   assert (select count(*) from public.offers) = 0, 'sees others'' offers';
   assert (select count(*) from public.my_purchases()) = 0, 'owns nothing';
   assert (select count(*) from public.blocks) = 0, 'sees others'' blocks';
+  assert (select count(*) from public.favorites) = 0, 'sees others'' favourites';
 end $$;
 
 -- Guests: browse live listings, view counts, report; nothing else.

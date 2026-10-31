@@ -100,6 +100,14 @@ create table public.comments (
 );
 create index comments_item on public.comments (item_key, created_at desc);
 
+-- Saved items follow the account across iOS, Android and the web (same keys as item_key).
+create table public.favorites (
+  user_id uuid not null references auth.users on delete cascade,
+  item_key text not null check (item_key ~ '^((prompt|buyout|launch):)?[a-z0-9][a-z0-9-]{2,59}$'),
+  created_at timestamptz not null default now(),
+  primary key (user_id, item_key)
+);
+
 create table public.item_likes (
   item_key text not null,
   user_id uuid not null references auth.users on delete cascade,
@@ -169,6 +177,7 @@ alter table public.post_likes enable row level security;
 alter table public.reposts enable row level security;
 alter table public.comments enable row level security;
 alter table public.item_likes enable row level security;
+alter table public.favorites enable row level security;
 alter table public.item_counters enable row level security;
 alter table public.launch_votes enable row level security;
 alter table public.blocks enable row level security;
@@ -221,6 +230,11 @@ create policy "unlike your own" on public.post_likes for delete to authenticated
 create policy "reposts are public" on public.reposts for select to anon, authenticated using (true);
 create policy "repost as yourself" on public.reposts for insert to authenticated with check (user_id = auth.uid());
 create policy "undo your own repost" on public.reposts for delete to authenticated using (user_id = auth.uid());
+create policy "own favorites" on public.favorites for select to authenticated using (user_id = auth.uid());
+create policy "save as yourself" on public.favorites for insert to authenticated with check (user_id = auth.uid());
+create policy "unsave your own" on public.favorites for delete to authenticated using (user_id = auth.uid());
+revoke update, truncate on public.favorites from anon, authenticated;
+revoke select on public.favorites from anon;
 create policy "item likes are public" on public.item_likes for select to anon, authenticated using (true);
 create policy "like items as yourself" on public.item_likes for insert to authenticated with check (user_id = auth.uid());
 create policy "unlike items" on public.item_likes for delete to authenticated using (user_id = auth.uid());
@@ -266,13 +280,14 @@ create view public.comment_feed with (security_invoker = true) as
   from public.comments c join public.profiles pr on pr.id = c.author_id;
 
 create function public.engagement(p_key text)
-returns table (likes bigint, views bigint, shares bigint, comments bigint, liked boolean)
+returns table (likes bigint, views bigint, shares bigint, comments bigint, liked boolean, bookmarks bigint)
 language sql stable security definer set search_path = '' as $$
   select (select count(*) from public.item_likes where item_key = p_key),
          coalesce((select c.views from public.item_counters c where c.item_key = p_key), 0),
          coalesce((select c.shares from public.item_counters c where c.item_key = p_key), 0),
          (select count(*) from public.comments where item_key = p_key and hidden_at is null),
-         exists (select 1 from public.item_likes where item_key = p_key and user_id = auth.uid());
+         exists (select 1 from public.item_likes where item_key = p_key and user_id = auth.uid()),
+         (select count(*) from public.favorites where item_key = p_key);
 $$;
 
 create function public.record_view(p_key text) returns void
@@ -443,6 +458,7 @@ begin
   delete from public.post_likes where user_id = p_user;
   delete from public.reposts where user_id = p_user;
   delete from public.item_likes where user_id = p_user;
+  delete from public.favorites where user_id = p_user;
   delete from public.launch_votes where user_id = p_user;
   delete from public.blocks where blocker_id = p_user or blocked_id = p_user;
   delete from public.offers where buyer_id = p_user;

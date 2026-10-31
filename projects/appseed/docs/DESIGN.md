@@ -895,5 +895,32 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 ## 37. 官網
 
-`site/` 是靜態網頁（首頁、支援、私隱政策、條款摘要、404），App Store 的支援網址和私隱政策網址指向這裡。依 landing-page-design：Geist、Tailwind 字級、純色背景、深淺色、捲動逐字顯示的標語段、無障礙跳到內容連結。上架前要換成真實聯絡電郵，並由律師審閱私隱政策。
+`public/` 內的靜態網頁（about、支援、私隱政策、條款摘要）跟網頁版一齊發佈在 appseed.app，App Store 的支援網址和私隱政策網址指向這裡（見 §38）。依 landing-page-design：Geist、Tailwind 字級、純色背景、深淺色、捲動逐字顯示的標語段、無障礙跳到內容連結。上架前要換成真實聯絡電郵，並由律師審閱私隱政策。
+
+## 38. 三個平台、同一份資料
+
+**同一套程式碼、同一個後端**：iOS、Android 和網頁版都是這個 Expo 專案，都連同一個 Supabase。同一個帳戶在任何平台都看到相同的已購、收藏、封鎖、帖子、留言、創作中心和收款狀態。只有裝置偏好（主題、語言、震動、上架草稿）留在裝置。
+
+| 資料 | 儲存 | 同步 |
+|---|---|---|
+| 已購 | `orders`、`free_claims`（`my_purchases()`） | App 內購買和網頁付款互通；在網頁買的可以在 App 使用，反之亦然 |
+| 收藏 | `favorites` | 本機即時更新並寫入帳戶，登入時合併 |
+| 封鎖 | `blocks` | 同上 |
+| 帖子、留言、讚好、投票 | 各自的表 | 全部在伺服器 |
+| 創作和收款 | `listings`、`connect_accounts` | 全部在伺服器 |
+
+**付款按平台**：iOS／Android 用 App 內購買（RevenueCat），網頁用 Stripe Checkout，入帳都經 `payments-webhook` 寫入同一個帳目。
+
+**登入按平台**：
+- Apple：iOS 用系統登入；Android 和網頁經 Apple 網頁登入（Android 用 auth session，網頁重新導向）。
+- Google：網頁重新導向；iOS／Android 用 auth session（PKCE）。
+- 電郵驗證碼：所有平台相同。
+
+**連結**：`appseed.app` 同時是網頁版和連結網域。分享用短連結（`/t/`、`/p/`、`/l/`、`/b/`），會轉到完整頁面。已安裝 App 時，同一條連結經 universal links（iOS，`ios.associatedDomains`）和 App Links（Android，`android.intentFilters`）直接打開 App；`public/.well-known` 的兩個驗證檔案要填入 Apple Team ID 和簽署憑證的 SHA256（`eas credentials -p android`）。
+
+**網頁託管**：`npx expo export --platform web` 輸出 `dist/`，`public/_redirects` 令所有路徑回到網頁版（單頁輸出），`public/_headers` 令 Apple 驗證檔以 JSON 送出（Netlify／Cloudflare Pages 格式）。
+
+**版面**：單一欄，手機填滿，iPad 和桌面瀏覽器置中於 `layout.maxWidth`（640）。
+
+**建置**：`eas.json` 有 development（開發版，內部發佈）、preview（內部測試）、production（自動遞增版本）三個設定，各自使用 EAS 環境變數。`npx expo-doctor` 20 項全部通過；iOS 和 Android 的 JS bundle 已用 `npx expo export --platform ios --platform android` 編譯成功。仍需在真機或模擬器測試原生功能（App 內購買、Sign in with Apple、universal links）。
 

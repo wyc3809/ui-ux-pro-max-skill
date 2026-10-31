@@ -98,8 +98,16 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   (ANTHROPIC_API_KEY) and must never block posting when unavailable.
 - Error reports are first-party (lib/errorReport.ts): scrubbed, no account or device id. Never add a crash or
   analytics SDK.
-- site/ is the public website (support and privacy URLs for the stores); keep the privacy policy in step with what
-  the backend actually collects.
+- public/ ships with the web app: site pages (about, support, privacy, terms), .well-known link files and hosting
+  rules. Keep the privacy policy in step with what the backend actually collects.
+
+## Platforms & data (docs/DESIGN.md §38)
+- One codebase and one Supabase project for iOS, Android and the web; the same account sees the same purchases,
+  favourites, blocks, posts and studio everywhere. Only device preferences (theme, language, haptics, drafts) stay local.
+- Links: build them with src/lib/links.ts (`ORIGIN`, short /t /p /l /b paths). Any new shareable route must be added to
+  app.json (android.intentFilters) and public/.well-known/apple-app-site-association; a test checks they match.
+- Layout is one column, centred at `layout.maxWidth` on iPad and desktop browsers.
+- Builds: `npx eas-cli@latest build --profile development|preview|production` (eas.json); keep `npx expo-doctor` at 20/20.
 
 ## Data & security
 - Source code lives in a private bucket; downloads only via short-lived signed URLs.

@@ -6,6 +6,7 @@ import { Platform, Share, View } from "react-native";
 import Animated, { Extrapolation, interpolate, ReduceMotion, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { api } from "@/api/backend";
+import { shareLink } from "@/lib/engagement";
 import { findCreator } from "@/api/mockServer";
 import { ownsFresh, useLaunches, useOwned, usePurchase, useTemplate } from "@/api/queries";
 import { CommentsSection } from "@/components/engage/CommentsSection";
@@ -159,7 +160,7 @@ export default function TemplateScreen() {
               {tpl?.name}
             </Txt>
           </Animated.View>
-          <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => tpl && Share.share({ message: `${tpl.name} https://appseed.app/t/${tpl.slug}` })} />
+          <HeaderButton icon="share" motion="bounce" label={t("engage.shareTo")} onPress={() => tpl && Share.share({ message: `${tpl.name} ${shareLink("template", tpl.slug)}` })} />
           {tpl && <FavoriteButton slug={tpl.slug} onSurface />}
         </View>
       </View>
@@ -459,7 +460,7 @@ function SendSheet({ t: tpl, open, onClose }: { t: Template; open: boolean; onCl
           title={t("send.link")}
           detail={t("send.linkHint")}
           onPress={async () => {
-            await Clipboard.setStringAsync(`https://appseed.app/t/${tpl.slug}/download`).catch(() => {});
+            await Clipboard.setStringAsync(shareLink("template", tpl.slug)).catch(() => {});
             done(t("common.copied"));
           }}
         />

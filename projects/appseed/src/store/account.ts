@@ -15,6 +15,16 @@ import { useUploadDraft } from "./uploadDraft";
 export function onSignedIn() {
   queryClient.invalidateQueries();
   // The account's blocks follow it across devices (null = the demo server, where the device list is the truth).
+  // Saved items too: the account's list, plus anything saved on this device before the server knew it.
+  api
+    .myFavorites()
+    .then((server) => {
+      if (!server) return;
+      const local = useFavorites.getState().slugs;
+      for (const k of local.filter((k) => !server.includes(k))) api.setFavorite(k, true).catch(() => {});
+      useFavorites.setState({ slugs: [...new Set([...local, ...server])] });
+    })
+    .catch(() => {});
   api
     .myBlocks()
     .then((handles) => handles && useBlocks.setState({ handles }))

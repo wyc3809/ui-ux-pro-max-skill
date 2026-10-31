@@ -11,6 +11,7 @@ import { PressableScale } from "@/components/ui/PressableScale";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { formatCompact, formatRelative } from "@/lib/engagement";
+import { postLink } from "@/lib/links";
 import { haptic } from "@/lib/haptic";
 import { segments } from "@/lib/posts";
 import { formatPrice } from "@/lib/price";
@@ -167,7 +168,7 @@ export function PostItem({ p, now, mine, large, onReply, onMore, threadLine }: {
               })
             }
           />
-          <Action icon="send" label={t("discuss.share")} motion="bounce" onPress={() => Share.share({ message: `${p.body.slice(0, 80)} https://appseed.app/post/${p.id}` })} />
+          <Action icon="send" label={t("discuss.share")} motion="bounce" onPress={() => Share.share({ message: `${p.body.slice(0, 80)} ${postLink(p.id)}` })} />
         </View>
       </View>
     </View>

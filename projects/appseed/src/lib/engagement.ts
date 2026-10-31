@@ -1,5 +1,6 @@
 import type { Locale } from "@/i18n";
 import { formatDate } from "./format";
+import { ORIGIN, shortPath } from "./links";
 
 /** Every engageable thing, addressed the same way (and matching favourites' namespacing). */
 export type ItemKind = "template" | "prompt" | "buyout" | "launch";
@@ -10,8 +11,7 @@ export function itemKey(kind: ItemKind, slug: string): string {
 
 /** Public web link for an item (§11.9): works without the app installed. */
 export function shareLink(kind: ItemKind, slug: string): string {
-  const path = { template: "t", prompt: "p", buyout: "b", launch: "l" }[kind];
-  return `https://appseed.app/${path}/${slug}`;
+  return `${ORIGIN}${shortPath(kind, slug)}`;
 }
 
 export type ShareTarget = "x" | "linkedin" | "threads" | "whatsapp";
