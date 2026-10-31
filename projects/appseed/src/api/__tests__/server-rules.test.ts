@@ -59,4 +59,21 @@ describe("server rules the client cannot bypass", () => {
     await expect(api.restorePurchases()).resolves.toEqual({ templates: before.length + 1, prompts: 1 });
     expect((await api.purchases()).sort()).toEqual([...before, slug].sort());
   });
+
+  it("keeps purchases and studio numbers per account, so a new sign-up starts empty", async () => {
+    const as = (id: string, handle: string) => mmkv.set("session", JSON.stringify({ state: { user: { id, handle } }, version: 0 }));
+    as("u-a", "demo-a");
+    await api.purchase("pocket-ledger");
+    expect(await api.purchases()).toEqual(["pocket-ledger"]);
+    as("u-b", "demo-b");
+    expect(await api.purchases()).toEqual([]);
+    const studio = await api.studio();
+    expect(studio.listings).toEqual([]);
+    expect(studio.revenue).toBe(0);
+    expect((await api.analytics(7, null)).current.every((d) => d.views === 0)).toBe(true);
+    // The fictional demo creator keeps the demo studio.
+    as("u-k", "kaylee-builds");
+    expect((await api.studio()).listings.length).toBeGreaterThan(0);
+  });
 });
+

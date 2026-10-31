@@ -26,7 +26,23 @@ const LATENCY = 420;
 const wait = <T,>(v: T, ms = LATENCY) => new Promise<T>((r) => setTimeout(() => r(v), ms));
 
 const PURCHASES_KEY = "mock-server:purchases";
-const readPurchases = (): string[] => JSON.parse(mmkv.getString(PURCHASES_KEY) ?? '["tile-tap-2048"]') as string[];
+/** The signed-in demo account (store/session.ts persists it in MMKV), or null for a guest. */
+function sessionUser(): { id: string; handle: string } | null {
+  try {
+    return (JSON.parse(mmkv.getString("session") ?? "null") as { state?: { user?: { id: string; handle: string } | null } } | null)?.state?.user ?? null;
+  } catch {
+    return null;
+  }
+}
+/** Guests and the fictional demo creators see the demo studio; any new account starts with nothing. */
+const isDemoCreator = () => {
+  const u = sessionUser();
+  return !u || creators.some((c) => c.handle === u.handle);
+};
+// Purchases belong to an account, like on the real server: a new sign-up owns nothing.
+const purchasesKey = () => `${PURCHASES_KEY}:${sessionUser()?.id ?? "guest"}`;
+const promptsKey = () => `${PROMPTS_KEY}:${sessionUser()?.id ?? "guest"}`;
+const readPurchases = (): string[] => JSON.parse(mmkv.getString(purchasesKey()) ?? "[]") as string[];
 const readJson = <T,>(key: string, fallback: T): T => JSON.parse(mmkv.getString(key) ?? JSON.stringify(fallback)) as T;
 const PROMPTS_KEY = "mock-server:prompt-purchases";
 const VOTES_KEY = "mock-server:votes";
@@ -220,7 +236,7 @@ export const api = {
    */
   restorePurchases: async () => {
     await wait(null, 900);
-    return { templates: readPurchases().length, prompts: readJson<string[]>(PROMPTS_KEY, []).length };
+    return { templates: readPurchases().length, prompts: readJson<string[]>(promptsKey(), []).length };
   },
   /** Payout setup (Stripe Connect Express in production). The demo connects at once and opens no page. */
   connectStatus: async () => {
@@ -242,21 +258,21 @@ export const api = {
   purchase: async (slug: string) => {
     await wait(null, 1100);
     const next = Array.from(new Set([slug, ...readPurchases()]));
-    mmkv.set(PURCHASES_KEY, JSON.stringify(next));
+    mmkv.set(purchasesKey(), JSON.stringify(next));
     return { ok: true as const };
   },
   prompts: () => {
-    const owned = readJson<string[]>(PROMPTS_KEY, []);
+    const owned = readJson<string[]>(promptsKey(), []);
     return wait(prompts.map((p) => redactPrompt(p, owned.includes(p.slug))));
   },
   prompt: (slug: string) => {
     const p = prompts.find((x) => x.slug === slug);
-    return wait(p ? redactPrompt(p, readJson<string[]>(PROMPTS_KEY, []).includes(slug)) : null);
+    return wait(p ? redactPrompt(p, readJson<string[]>(promptsKey(), []).includes(slug)) : null);
   },
-  promptPurchases: () => wait(readJson<string[]>(PROMPTS_KEY, [])),
+  promptPurchases: () => wait(readJson<string[]>(promptsKey(), [])),
   purchasePrompt: async (slug: string) => {
     await wait(null, 1000);
-    mmkv.set(PROMPTS_KEY, JSON.stringify(Array.from(new Set([slug, ...readJson<string[]>(PROMPTS_KEY, [])]))));
+    mmkv.set(promptsKey(), JSON.stringify(Array.from(new Set([slug, ...readJson<string[]>(promptsKey(), [])]))));
     return { ok: true as const };
   },
   buyouts: () => wait<BuyoutListing[]>(buyouts),
@@ -443,7 +459,12 @@ export const api = {
   blockHandle: async (_handle: string) => undefined,
   unblockHandle: async (_handle: string) => undefined,
   myBlocks: async () => null as string[] | null,
-  studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
+  studio: () =>
+    wait(
+      isDemoCreator()
+        ? { listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }
+        : { listings: [] as typeof myListings, sales: salesSeries.map(() => 0), revenue: 0, payout: 0, nextPayout: "2026-11-09" },
+    ),
   /** For you is ranked per viewer (§28); the real server builds the viewer profile from its own records. */
   /** Records acceptance of the current terms and returns the updated account. */
   acceptTerms: async (userId: string) => {
@@ -505,7 +526,13 @@ export const api = {
     if (target.kind === "post" || target.kind === "comment") mmkv.set(POST_HIDDEN_KEY, JSON.stringify([...readJson<string[]>(POST_HIDDEN_KEY, []), target.id]));
   },
   /** Aggregated server side; the client never receives individual viewers or raw events (§26). */
-  analytics: (range: RangeDays, slug: string | null) => wait(buildReport(range, slug), 360),
+  analytics: (range: RangeDays, slug: string | null) => {
+    const r = buildReport(range, slug);
+    if (isDemoCreator()) return wait(r, 360);
+    // A new creator has no numbers yet: same shape, all zero.
+    const zero = <T extends Record<string, unknown>>(o: T) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === "number" ? 0 : v])) as T;
+    return wait({ ...r, current: r.current.map(zero), previous: r.previous.map(zero), sources: zero(r.sources), shareTargets: zero(r.shareTargets), listings: [] }, 360);
+  },
 };
 
 /** Synchronous lookup for cards; includes profile edits. */

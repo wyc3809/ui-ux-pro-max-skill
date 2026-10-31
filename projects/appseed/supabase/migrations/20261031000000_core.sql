@@ -295,7 +295,12 @@ end $$;
 create view public.launch_stats with (security_invoker = false) as
   select l.slug,
          count(v.user_id) as upvotes,
-         coalesce(avg(case when pr.created_at < v.created_at - interval '30 days' then 1.0 else 0.0 end), 0) as trusted_share,
+         -- Trusted, as the ⓘ sheet says: an account older than 30 days that has bought or listed something.
+         coalesce(avg(case when pr.created_at < v.created_at - interval '30 days'
+                            and (exists (select 1 from public.orders o where o.buyer_id = v.user_id)
+                                 or exists (select 1 from public.free_claims f where f.user_id = v.user_id)
+                                 or exists (select 1 from public.listings ol where ol.owner_id = v.user_id and ol.status = 'live'))
+                       then 1.0 else 0.0 end), 0) as trusted_share,
          coalesce(avg(case when pr.created_at > v.created_at - interval '7 days' then 1.0 else 0.0 end), 0) as new_account_share,
          (select count(distinct r.reporter_id) from public.reports r where r.target_kind = 'listing' and r.target_id = l.slug and r.status <> 'dismissed') as reports,
          coalesce((select c.shares from public.item_counters c where c.item_key = 'launch:' || l.slug), 0) as shares,
