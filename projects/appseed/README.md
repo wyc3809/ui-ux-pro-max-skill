@@ -43,6 +43,12 @@
 - 只轉讓 App（App Store／Google Play 官方轉移），不轉讓開發者帳戶
 - 上架前檢查轉移條件；收入只用唯讀權限核實；交接清單全部確認後才放款
 
+## 真後端（§33）
+
+- 預設用內建示範伺服器；在 `.env` 設定 Supabase 網址和 anon key（見 `.env.example`）後，登入、創作者資料、已購、討論區、留言、讚好、檢舉、買斷報價、刪除帳戶改用 Supabase
+- 伺服器用同 App 一模一樣的規則（內容過濾、帖子限制、用戶名），由 `scripts/sync-shared.mjs` 同步，測試保證一致
+- 作品目錄、創作中心、上載和付費購買仍是示範資料
+
 ## 付款後台（§32，`supabase/`）
 
 - 資料庫：訂單、只可新增的帳目、退款、結算、Stripe Connect 帳戶狀態；全部表開 RLS，賣家只看到自己的，只有伺服器可以寫入
@@ -90,7 +96,7 @@
 
 ```bash
 npm install
-npm test             # 170 個測試（App 和付款後台）
+npm test             # 189 個測試（App 和後台）
 npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
 npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽

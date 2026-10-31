@@ -10,7 +10,7 @@ import { missingLaunchFields, type LaunchDraft } from "@/lib/listing";
 import { useFormDraft } from "@/store/formDrafts";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
-import { api } from "@/api/mockServer";
+import { api } from "@/api/backend";
 import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { BOOST_PRODUCT } from "@/lib/launch";
 import { formatPrice } from "@/lib/price";

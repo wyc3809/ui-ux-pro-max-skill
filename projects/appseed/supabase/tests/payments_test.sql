@@ -8,12 +8,13 @@ insert into auth.users values
   ('00000000-0000-0000-0000-00000000000c'); -- another seller
 
 set role service_role;
-insert into public.listing_prices values ('l1', '00000000-0000-0000-0000-00000000000a', 'tier_158', 15800, true);
+insert into public.listings (slug, kind, owner_id, status, price) values ('demo-listing', 'template', '00000000-0000-0000-0000-00000000000a', 'live', 15800);
+insert into public.listing_prices values ('demo-listing', '00000000-0000-0000-0000-00000000000a', 'tier_158', 15800, true);
 insert into public.connect_accounts (seller_id, stripe_account_id, payouts_enabled) values ('00000000-0000-0000-0000-00000000000a', 'acct_demo', true);
 insert into public.orders (provider, external_id, buyer_id, seller_id, listing_id, gross, channel_fee, platform_fee, seller_amount, purchased_at)
-  values ('stripe', 'pi_1', '00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000a', 'l1', 50000, 1935, 9613, 38452, '2026-09-01');
+  values ('stripe', 'pi_1', '00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000a', 'demo-listing', 50000, 1935, 9613, 38452, '2026-09-01');
 insert into public.ledger_entries (seller_id, kind, amount, available_at, source_key, order_id)
-  select seller_id, 'sale', seller_amount, purchased_at + interval '30 days', 'sale:' || id, id from public.orders;
+  select seller_id, 'sale', seller_amount, purchased_at + interval '30 days', 'sale:' || id, id from public.orders where external_id = 'pi_1';
 
 do $$
 declare v record; v_id uuid; v_again uuid;
@@ -21,7 +22,7 @@ begin
   -- Split must add up; a buyer cannot buy their own listing.
   begin
     insert into public.orders (provider, external_id, buyer_id, seller_id, listing_id, gross, channel_fee, platform_fee, seller_amount, purchased_at)
-      values ('stripe', 'pi_bad', '00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000a', 'l1', 100, 10, 10, 10, now());
+      values ('stripe', 'pi_bad', '00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000a', 'demo-listing', 100, 10, 10, 10, now());
     raise exception 'split check missing';
   exception when check_violation then null; end;
 
@@ -76,7 +77,7 @@ begin
   assert v.amount = 20000 and v.refunded_before = 0, 'replayed refund';
   select * into v from public.record_refund((select id from public.orders where external_id = 'pi_1'), 're_3', 5, now());
   assert v.amount = 0, 'nothing left to refund';
-  assert (select count(*) from public.order_refunds) = 2, 'two refund rows';
+  assert (select count(*) from public.order_refunds where order_id = (select id from public.orders where external_id = 'pi_1')) = 2, 'two refund rows';
   assert (select array_agg(s) from public.ledger_sellers() s) = array['00000000-0000-0000-0000-00000000000a'::uuid], 'ledger sellers';
 end $$;
 
@@ -84,10 +85,10 @@ end $$;
 reset role;
 set role authenticated;
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
-select public.create_purchase_intent('l1');
+select public.create_purchase_intent('demo-listing');
 set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
 do $$ begin
-  perform public.create_purchase_intent('l1');
+  perform public.create_purchase_intent('demo-listing');
   raise exception 'self purchase allowed';
 exception when raise_exception then
   if sqlerrm <> 'selfPurchase' then raise; end if;
@@ -99,9 +100,9 @@ do $$
 declare v record;
 begin
   select * into v from public.match_purchase_intent('00000000-0000-0000-0000-00000000000b', 'tier_158', 'tx_1');
-  assert v.listing_id = 'l1' and v.seller_id = '00000000-0000-0000-0000-00000000000a', 'intent matched';
+  assert v.listing_id = 'demo-listing' and v.seller_id = '00000000-0000-0000-0000-00000000000a', 'intent matched';
   select * into v from public.match_purchase_intent('00000000-0000-0000-0000-00000000000b', 'tier_158', 'tx_1');
-  assert v.listing_id = 'l1', 'same transaction, same intent';
+  assert v.listing_id = 'demo-listing', 'same transaction, same intent';
   select * into v from public.match_purchase_intent('00000000-0000-0000-0000-00000000000b', 'tier_158', 'tx_2');
   assert v is null or v.listing_id is null, 'intent used only once';
 end $$;
@@ -114,7 +115,7 @@ do $$ begin
   assert (select count(*) from public.ledger_entries) = 0, 'other seller sees ledger';
   assert (select count(*) from public.payouts) = 0, 'other seller sees payouts';
   assert (select count(*) from public.orders) = 0, 'other seller sees orders';
-  assert (select count(*) from public.listing_prices) = 1, 'live listings are public';
+  assert (select count(*) from public.listing_prices) >= 1, 'live listing prices are public';
   begin
     perform count(*) from public.webhook_events;
     raise exception 'webhook events readable';
@@ -149,7 +150,7 @@ set role anon;
 do $$ begin
   assert (select count(*) from public.payouts) = 0, 'anon sees payouts';
   begin
-    perform public.create_purchase_intent('l1');
+    perform public.create_purchase_intent('demo-listing');
     raise exception 'anon created intent';
   exception when insufficient_privilege then null; end;
 end $$;

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { signOutBackend } from "@/api/backend";
 import type { User } from "@/api/types";
 import { onSignedIn, resetAccountData } from "./account";
 import { mmkvStorage } from "./storage";
@@ -18,6 +19,7 @@ export const useSession = create<SessionState>()(
       signOut: () => {
         set({ user: null });
         resetAccountData();
+        void signOutBackend();
       },
     }),
     { name: "session", storage: createJSONStorage(() => mmkvStorage) },

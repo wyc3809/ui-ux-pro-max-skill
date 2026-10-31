@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { api } from "@/api/mockServer";
+import { api } from "@/api/backend";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { PressableScale } from "@/components/ui/PressableScale";

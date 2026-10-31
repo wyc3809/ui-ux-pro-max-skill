@@ -5,7 +5,8 @@ import type { PostSort } from "@/lib/posts";
 import type { Period } from "@/lib/ranking";
 import { toggleVote } from "@/lib/launch";
 import { queryClient } from "./client";
-import { api, type SearchParams } from "./mockServer";
+import { api } from "./backend";
+import type { SearchParams } from "./mockServer";
 import type { Comment, Engagement, Launch, Post, PostAttachment } from "./types";
 
 export const qk = {

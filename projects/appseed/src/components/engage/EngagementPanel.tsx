@@ -15,7 +15,7 @@ import { haptic } from "@/lib/haptic";
 import { requireAuth } from "@/store/authGate";
 import { useFavorites } from "@/store/favorites";
 import { mmkv } from "@/store/storage";
-import { api } from "@/api/mockServer";
+import { api } from "@/api/backend";
 import { popIn, slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";

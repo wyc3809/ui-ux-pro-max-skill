@@ -3,7 +3,8 @@ import { TermsBody } from "@/components/legal/TermsBody";
 import { TERMS_VERSION } from "@/lib/contact";
 import { View } from "react-native";
 import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated";
-import { api, DEMO_OTP } from "@/api/mockServer";
+import { api } from "@/api/backend";
+import { DEMO_OTP } from "@/api/mockServer";
 import type { AuthResult, User } from "@/api/types";
 import { Field } from "@/components/studio/FormFields";
 import { Button } from "@/components/ui/Button";
@@ -46,11 +47,32 @@ export function AuthSheet() {
   const [ticket, setTicket] = useState<Extract<AuthResult, { status: "needsProfile" }> | null>(null);
   const [welcome, setWelcome] = useState<{ user: User; returning: boolean } | null>(null);
 
+  // Back from a web redirect sign-in (Apple / Google): a known account signs in quietly, a new one opens
+  // this sheet at the profile step.
+  const [resumed, setResumed] = useState<AuthResult | null>(null);
+  useEffect(() => {
+    api
+      .resumeSession()
+      .then((r) => {
+        if (!r || useSession.getState().user) return;
+        if (r.status === "signedIn") signIn(r.user);
+        else {
+          setResumed(r);
+          useAuthGate.getState().request(null);
+        }
+      })
+      .catch(() => {});
+  }, [signIn]);
+
   useEffect(() => {
     if (open) {
       setStep("choose");
       setBusy(null);
       setEmailError(false);
+      if (resumed) {
+        land(resumed);
+        setResumed(null);
+      }
     }
   }, [open]);
 
@@ -64,9 +86,11 @@ export function AuthSheet() {
       setStep("profile");
     }
   };
-  const fail = () => {
+  // A known reason (e.g. Google sign-in not available on this device) is named; anything else is a retry.
+  const fail = (e?: unknown) => {
     setBusy(null);
-    toast(t("auth.failed"), "warning");
+    const code = e instanceof Error ? e.message : "";
+    toast(code === "appleUnavailable" || code === "googleUnavailable" ? t(`auth.${code}`) : t("auth.failed"), "warning");
   };
 
   const apple = async () => {
@@ -75,16 +99,16 @@ export function AuthSheet() {
       const cred = await signInWithApple();
       if (!cred) return setBusy(null); // cancelled: stay quiet
       land(await api.signInWithApple(cred));
-    } catch {
-      fail();
+    } catch (e) {
+      fail(e);
     }
   };
   const google = async () => {
     setBusy("google");
     try {
       land(await api.signInWithGoogle());
-    } catch {
-      fail();
+    } catch (e) {
+      fail(e);
     }
   };
   const sendCode = async () => {

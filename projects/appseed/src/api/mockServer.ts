@@ -314,6 +314,8 @@ export const api = {
     const e = normalizeEmail(email);
     return findOrTicket((u) => u.provider === "email" && u.email === e, { provider: "email", email: e, name: "" });
   },
+  /** Web redirect sign-in (Supabase only); the demo server never leaves the page. */
+  resumeSession: async (): Promise<AuthResult | null> => null,
   checkHandle: async (handle: string) => {
     await wait(null, 350);
     const taken = [...TAKEN_HANDLES, ...readJson<StoredUser[]>(USERS_KEY, []).map((u) => u.handle)];

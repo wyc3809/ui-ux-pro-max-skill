@@ -81,6 +81,14 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   in supabase/functions/_shared as pure TS with Jest tests; SQL rules are tested by `npm run test:sql`.
 - The mobile app never executes, unzips or loads downloaded code.
 
+## Backend (docs/DESIGN.md §33)
+- Import `api` from `@/api/backend`, never from mockServer: it is the demo server, or Supabase (src/api/remote.ts)
+  merged over it when EXPO_PUBLIC_SUPABASE_URL / _ANON_KEY are set.
+- Content others read (profiles, posts, replies, comments, offers) is written only by the `content` Edge Function;
+  reactions, votes, blocks and reports go straight in under RLS. Purchases come from `my_purchases()`.
+- The server enforces src/lib rules through copies in supabase/functions/_shared/rules: after editing moderation,
+  posts, auth, socialLinks or contact, run `node scripts/sync-shared.mjs` (a test fails otherwise).
+
 ## Data & security
 - Source code lives in a private bucket; downloads only via short-lived signed URLs.
 - All tables use Row Level Security. Never store creators' ID or bank details (Stripe only).

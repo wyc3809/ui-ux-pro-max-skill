@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { api } from "@/api/mockServer";
+import { api } from "@/api/backend";
 import { useDisconnectGithub, useGithubAccount } from "@/api/queries";
 import type { User } from "@/api/types";
 import { TonePill } from "@/components/market/Cards";

@@ -826,3 +826,28 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 **未做**：Stripe Connect 開戶流程（帳戶連結和 App 內狀態）、建立 Checkout session 的函數、買家「已購」存取權（退款後收回）、`listing_prices` 由上架審核寫入。
 
+---
+
+## 33. 真後端：帳戶、內容、已購
+
+程式碼：`supabase/migrations/20261031000000_core.sql`、`supabase/functions/content`、`src/api/remote.ts`。
+
+**切換**：設定 `EXPO_PUBLIC_SUPABASE_URL` 和 `EXPO_PUBLIC_SUPABASE_ANON_KEY`（見 `.env.example`）後，`src/api/backend.ts` 用 Supabase 版本取代示範伺服器中已有真後端的部分；沒有設定時全部照舊用示範伺服器。App 一律從 `@/api/backend` 取得 `api`。
+
+**已接上 Supabase**
+
+| 範圍 | 做法 |
+|---|---|
+| 登入 | Apple（iOS 用 identity token；網頁用重新導向）、電郵驗證碼、網頁 Google 重新導向；新帳戶經 `content` 建立資料（用戶名規則、內容過濾、條款版本） |
+| 創作者資料 | `content` 的 saveProfile：社交連結只存用戶名，網站必須 https |
+| 已購 | `my_purchases()`：有效訂單（未全數退款、沒有未解決或敗訴的拒付）加免費領取；恢復購買讀這裡；Prompt 全文只有擁有者和賣家可讀（`prompt_texts` RLS） |
+| 討論區 | `post_feed` view；發帖、回覆經 `content`，資料庫原子地檢查條款、每日 3 則宣傳（香港時間午夜重設）、只可附上自己已上架的作品 |
+| 留言、讚好、瀏覽、分享 | 留言經 `content`；讚好直接寫入（RLS 只容許自己）；分享只計已登入的人 |
+| 檢舉 | 訪客和用戶都可以檢舉；用戶只能以自己名義；IP 投訴必須有描述和電郵；用戶讀不到檢舉 |
+| 買斷報價 | 經 `content`：過濾訊息、只可對別人已上架的買斷出價；金額以仙儲存 |
+| 刪除帳戶 | 刪除帖子、留言、讚好、封鎖、報價，清空資料，下架作品，停用登入；訂單和帳目保留作會計紀錄 |
+
+**規則只有一份**：伺服器用的 `moderation`、`posts`、`auth`、`socialLinks`、`contact` 由 `node scripts/sync-shared.mjs` 從 `src/lib` 複製到 `supabase/functions/_shared/rules`，測試在兩者不同時失敗。
+
+**仍用示範伺服器**：作品目錄（模板、Prompt、買斷、新作的內容和排行榜計算）、創作中心、GitHub／zip 上載、數據報告、付費購買（免費項目已可領取；付費要接 RevenueCat 和 Stripe Checkout）、封鎖名單同步、Android／iOS 原生 Google 登入、刪除帳戶時撤銷 Apple token。
+
