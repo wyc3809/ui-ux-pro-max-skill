@@ -51,6 +51,8 @@ export function useSaveProfile() {
 export const useSearch = (p: SearchParams) =>
   useQuery({ queryKey: qk.search(p), queryFn: () => api.search(p), placeholderData: (prev) => prev });
 export const usePurchases = () => useQuery({ queryKey: qk.purchases, queryFn: api.purchases });
+/** Under the purchases key, so anything that refreshes purchases refreshes these too. */
+export const usePurchaseDates = () => useQuery({ queryKey: [...qk.purchases, "dates"], queryFn: api.purchaseDates });
 export const useStudio = () => useQuery({ queryKey: qk.studio, queryFn: api.studio });
 /** Keeps the previous report on screen while a new range or listing loads, so numbers roll instead of blanking. */
 export const useAnalytics = (range: RangeDays, slug: string | null) =>

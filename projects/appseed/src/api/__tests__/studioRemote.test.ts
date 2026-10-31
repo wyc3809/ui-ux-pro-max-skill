@@ -1,5 +1,5 @@
 import { templateSubmission } from "@/lib/upload";
-import { launchSubmission, promptSubmission } from "@/lib/listing";
+import { hasUpdate, launchSubmission, promptSubmission } from "@/lib/listing";
 import { nextPayoutDate, reportFrom, STATUS } from "../studioRemote";
 
 const row = (slug: string, day: string, views: number, units = 0, proceeds = 0) => ({ slug, day, views, likes: 1, shares: 0, comments: 0, units, proceeds });
@@ -28,5 +28,11 @@ describe("studio on Supabase", () => {
     expect(t).toMatchObject({ kind: "template", tier: 158, source: { kind: "zip", path: "uploads/u/a.zip" }, attest: true });
     expect(promptSubmission({ step: 1, title: "P", summary: "S", tool: "Claude", text: "x", previewLines: 1, tier: 8, attest: true })).toMatchObject({ kind: "prompt", tier: 8 });
     expect(launchSubmission({ step: 1, name: "L", tagline: "T", aiTools: [], buildDays: "4", link: "https://a.example", boost: false, attest: true })).toMatchObject({ kind: "launch", buildDays: 4 });
+  });
+
+  it("flags an update only when a version came out after the purchase", () => {
+    expect(hasUpdate("2026-10-18", "2026-10-31T09:00:00Z")).toBe(false);
+    expect(hasUpdate("2026-11-02", "2026-10-31T09:00:00Z")).toBe(true);
+    expect(hasUpdate("2026-11-02", undefined)).toBe(false);
   });
 });

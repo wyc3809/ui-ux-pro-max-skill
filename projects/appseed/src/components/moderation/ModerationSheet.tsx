@@ -118,7 +118,7 @@ function ModerationSheet({ target, onClose }: { target: ReportTarget | null; onC
       <View style={{ flexDirection: "row", gap: gap.sm, alignItems: "center" }}>
         <Icon name="shield" size={14} color={c.fgSubtle} enter={false} />
         <Txt variant="caption" tone="fgSubtle" style={{ flex: 1 }}>
-          {t("moderation.sent")}
+          {t("moderation.reviewNote")}
         </Txt>
       </View>
     </Sheet>

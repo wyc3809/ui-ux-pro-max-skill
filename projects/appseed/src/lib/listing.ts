@@ -93,3 +93,6 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
 /** What the studio function receives for a prompt or a launch (the server re-checks all of it). */
 export const promptSubmission = (d: PromptDraft) => ({ kind: "prompt", title: d.title, summary: d.summary, tool: d.tool, text: d.text, previewLines: d.previewLines, tier: d.tier, attest: d.attest });
 export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, attest: d.attest });
+
+/** A newer version came out after this account bought it (unknown purchase date: no badge). */
+export const hasUpdate = (latest: string | undefined, boughtAt: string | undefined) => !!latest && !!boughtAt && latest > boughtAt.slice(0, 10);

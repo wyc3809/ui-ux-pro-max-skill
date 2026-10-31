@@ -54,6 +54,11 @@ export default function StudioScreen() {
               </Reveal>
               <Section title={t("studio.myTemplates")} index={1} inset={false}>
                 <Card padded={false}>
+                  {data.listings.length === 0 && (
+                    <Txt tone="fgMuted" style={{ padding: space.cardPad }}>
+                      {t("studio.noListings")}
+                    </Txt>
+                  )}
                   {data.listings.map((l, i) => (
                     <View key={l.slug}>
                       {i > 0 && <RowDivider />}

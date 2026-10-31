@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
-import { useBuyouts, useOffers, usePromptPurchases, usePrompts, usePurchases, useTemplates } from "@/api/queries";
+import { usePurchaseDates, useBuyouts, useOffers, usePromptPurchases, usePrompts, usePurchases, useTemplates } from "@/api/queries";
 import type { BuyoutListing, Offer, PromptListing, Template } from "@/api/types";
 import { BuyoutCard, PromptRow, TonePill } from "@/components/market/Cards";
 import { LargeTitleScreen } from "@/components/shell/LargeTitleScreen";
@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Txt } from "@/components/ui/Txt";
 import { useRestore } from "@/components/account/useRestore";
 import { useT } from "@/i18n";
+import { hasUpdate } from "@/lib/listing";
 import { shouldAnimateItems } from "@/lib/motion";
 import { formatPrice } from "@/lib/price";
 import { useAuthGate } from "@/store/authGate";
@@ -44,6 +45,7 @@ export default function LibraryScreen() {
   const prompts = usePrompts().data;
   const buyouts = useBuyouts().data;
   const purchases = usePurchases();
+  const { data: purchaseDates } = usePurchaseDates();
   const promptPurchases = usePromptPurchases().data;
   const offers = useOffers().data;
   const saved = useFavorites((s) => s.slugs);
@@ -126,7 +128,7 @@ export default function LibraryScreen() {
                 <Animated.View key={x.key} entering={animateRows ? rowIn : undefined} exiting={rowOut} layout={reorder} style={{ gap: 8 }}>
                   {x.kind === "template" && (
                     <>
-                      <TemplateRow t={x.t} trailing={seg === "owned" && x.t.versions.length > 1 ? <UpdateBadge /> : undefined} />
+                      <TemplateRow t={x.t} trailing={seg === "owned" && hasUpdate(x.t.versions[0]?.date, purchaseDates?.[x.t.slug]) ? <UpdateBadge /> : undefined} />
                       {seg === "owned" && (
                         <View style={{ flexDirection: "row", gap: 8, paddingHorizontal: space.gutter }}>
                           <MiniAction icon="laptop" label={t("cta.send")} onPress={() => router.push(`/template/${x.t.slug}`)} />

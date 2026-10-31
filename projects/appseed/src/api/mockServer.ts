@@ -229,6 +229,8 @@ export const api = {
   },
   search: (p: SearchParams) => wait(searchTemplates([...templates], p), 180),
   purchases: () => wait(readPurchases()),
+  /** When each template was bought, so the library only flags versions released after the purchase. */
+  purchaseDates: () => wait(readJson<Record<string, string>>(`${purchasesKey()}:at`, {})),
   /**
    * Stand-in for RevenueCat `syncPurchases()` followed by re-reading the account's purchases from the server.
    * Price tiers are consumables, which StoreKit cannot restore, so ownership is kept per account and this is
@@ -259,6 +261,7 @@ export const api = {
     await wait(null, 1100);
     const next = Array.from(new Set([slug, ...readPurchases()]));
     mmkv.set(purchasesKey(), JSON.stringify(next));
+    mmkv.set(`${purchasesKey()}:at`, JSON.stringify({ ...readJson<Record<string, string>>(`${purchasesKey()}:at`, {}), [slug]: new Date().toISOString() }));
     return { ok: true as const };
   },
   prompts: () => {

@@ -266,6 +266,11 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     purchase: (slug: string) => buy(slug, "template"),
     purchasePrompt: (slug: string) => buy(slug, "prompt"),
     purchases: () => ownedSlugs("template"),
+    purchaseDates: async () => {
+      if (!(await me())) return {};
+      const rows = must(await sb.rpc("my_purchases")) as { slug: string; acquired_at: string }[];
+      return Object.fromEntries(rows.map((r) => [r.slug, r.acquired_at]));
+    },
     promptPurchases: () => ownedSlugs("prompt"),
     // RevenueCat's syncPurchases() runs here once the SDK is in; ownership itself is read from the server.
     restorePurchases: async () => {
