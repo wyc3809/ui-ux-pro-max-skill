@@ -16,6 +16,8 @@ export const supabase: SupabaseClient | null =
         auth: {
           storage: mmkvStorage as never,
           persistSession: true,
+          // PKCE: OAuth returns a one-time code (native deep link or web redirect) instead of tokens in the URL.
+          flowType: "pkce",
           autoRefreshToken: true,
           // Web finishes OAuth from the redirect URL; native gets sessions from id tokens and OTP codes.
           detectSessionInUrl: Platform.OS === "web",

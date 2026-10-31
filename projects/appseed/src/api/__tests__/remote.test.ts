@@ -7,7 +7,10 @@ function fakeSupabase(opts: { userId?: string; rpc?: Record<string, { data?: unk
   const tables: Record<string, Record<string, unknown>[]> = { post_likes: [], listing_prices: [{ listing_id: "demo-tpl", live: true, product_id: "tier_158" }] };
   const matches = (row: Record<string, unknown>, m: Record<string, unknown>) => Object.entries(m).every(([k, v]) => row[k] === v);
   const sb = {
-    auth: { getUser: async () => ({ data: { user: opts.userId ? { id: opts.userId, email: null, app_metadata: {}, user_metadata: {} } : null } }) },
+    auth: {
+      getUser: async () => ({ data: { user: opts.userId ? { id: opts.userId, email: null, app_metadata: {}, user_metadata: {} } : null } }),
+      signInWithOAuth: async () => ({ data: { url: null }, error: null }),
+    },
     rpc: async (fn: string) => opts.rpc?.[fn] ?? { data: null, error: null },
     from: (table: string) => ({
       select: () => {

@@ -14,7 +14,7 @@ import { boardScore, buildLeaderboard, REPORT_LIMIT, type Period } from "@/lib/r
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
-import type { AuthResult, BuyoutListing, Comment, Creator, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
+import type { AdminListing, AdminReport, AuthResult, BuyoutListing, Comment, Creator, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
 import { normalizeEmail, validateHandle, type AuthProvider } from "@/lib/auth";
 import { withEnabledAttachments } from "@/lib/features";
 
@@ -432,6 +432,17 @@ export const api = {
     mmkv.set(GITHUB_KEY, githubLogin);
     return wait({ login: githubLogin }, 300);
   },
+  /** Staff tools exist only on the real backend; the demo account is never staff. */
+  staffRole: async () => wait(null as "admin" | "moderator" | null, 100),
+  adminReports: async () => wait([] as AdminReport[], 200),
+  adminListings: async () => wait([] as AdminListing[], 200),
+  adminResolve: async (_reportId: string, _decision: "dismiss" | "hide" | "restore") => wait({ ok: true as const }, 200),
+  adminReview: async (_slug: string, _approve: boolean) => wait({ ok: true as const }, 200),
+  adminSuspend: async (_handle: string) => wait({ ok: true as const }, 200),
+  /** Blocks live on the device in the demo; Supabase keeps them per account (store/blocks.ts syncs). */
+  blockHandle: async (_handle: string) => undefined,
+  unblockHandle: async (_handle: string) => undefined,
+  myBlocks: async () => null as string[] | null,
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
   /** For you is ranked per viewer (§28); the real server builds the viewer profile from its own records. */
   /** Records acceptance of the current terms and returns the updated account. */

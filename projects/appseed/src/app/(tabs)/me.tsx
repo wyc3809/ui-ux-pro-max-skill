@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -44,6 +45,7 @@ export default function MeScreen() {
   const [blockedOpen, setBlockedOpen] = useState(false);
   const disconnect = useDisconnectGithub();
   const restore = useRestore();
+  const { data: staff } = useQuery({ queryKey: ["staff"], queryFn: api.staffRole, enabled: !!user });
   const { c } = useTheme();
   return (
     <TabScene index={3}>
@@ -71,6 +73,12 @@ export default function MeScreen() {
                     onPress={github ? () => setConfirm("github") : undefined}
                   />
                   <RowDivider />
+                  {staff && (
+                    <>
+                      <ListRow icon="shield" title={t("admin.open")} detail={t("admin.openBody")} onPress={() => router.push("/admin")} />
+                      <RowDivider />
+                    </>
+                  )}
                   <ListRow icon="logout" title={t("auth.signOut")} onPress={() => setConfirm("signOut")} />
                 </>
               )}

@@ -2,7 +2,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "@/*": [
+        "../../src/*"
+      ],
+      "npm:@anthropic-ai/sdk@1.3.0": [
+        "../../node_modules/@anthropic-ai/sdk"
+      ]
+    }
   },
-  "include": ["./**/*.ts"]
+  "include": [
+    "./**/*.ts"
+  ]
 }

@@ -193,4 +193,8 @@ export type Post = {
   reposted?: boolean;
 };
 
+/** Staff queues (§36). `reports` counts open reports on the same target; `preview` is the reported text. */
+export type AdminReport = { id: string; target_kind: "post" | "comment" | "listing" | "profile"; target_id: string; target_handle: string; reason: string; detail: string; reports: number; preview: string; created_at: string };
+export type AdminListing = { slug: string; kind: string; owner_handle: string; price: number; data: { name?: string; title?: string; tagline?: string; summary?: string }; report: { checks?: { id: string; status: string }[] } | null; created_at: string };
+
 export type Comment = { id: string; userId: string; author: string; handle: string; body: string; createdAt: string };

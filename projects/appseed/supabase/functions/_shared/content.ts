@@ -1,4 +1,5 @@
 import { validateHandle } from "./rules/auth.ts";
+import { blockCode, type Verdict } from "./classifier.ts";
 import { TERMS_VERSION } from "./rules/contact.ts";
 import { FEATURES, kindEnabled } from "./rules/features.ts";
 import { screenText } from "./rules/moderation.ts";
@@ -17,12 +18,16 @@ export type ContentInput =
   | { action: "createPost"; body: string; parentId?: string; attachment?: { kind: "template" | "prompt" | "buyout" | "launch"; slug: string } }
   | { action: "postComment"; key: string; body: string }
   | { action: "makeOffer"; slug: string; amount: number; message: string }
-  | { action: "deleteAccount" };
+  | { action: "deleteAccount"; appleAuthorizationCode?: string };
 
 export interface ContentDb {
   rpc<T>(fn: string, args: Record<string, unknown>): Promise<T>;
   /** Soft-deletes the auth user so they cannot sign in again; sales records keep their foreign keys. */
   deleteAuthUser(userId: string): Promise<void>;
+  /** Claude's second look after the rules pass (classifier.ts); absent or null = the rules' verdict stands. */
+  classify?(text: string): Promise<Verdict | null>;
+  /** Revokes Sign in with Apple tokens from a fresh authorization code (configured projects only). */
+  revokeApple?(code: string): Promise<void>;
 }
 
 export class ContentError extends Error {}
@@ -51,6 +56,19 @@ function cleanLinks(input: unknown): SocialLinks {
   return out;
 }
 
+/** Runs the classifier: a block becomes the matching moderation error; "review" is returned so the caller holds it. */
+async function secondLook(db: ContentDb, text: string): Promise<"allow" | "review"> {
+  const v = db.classify ? await db.classify(text) : null;
+  if (v?.verdict === "block") throw new ContentError(blockCode(v.reason));
+  return v?.verdict === "review" ? "review" : "allow";
+}
+
+/** Publishes, then hides it for a person to check when the classifier was unsure. */
+async function maybeHold(db: ContentDb, verdict: "allow" | "review", kind: "post" | "comment", id: string) {
+  if (verdict === "review") await db.rpc("moderation_hold", { p_kind: kind, p_id: id, p_reason: "classifier" });
+  return { id, held: verdict === "review" };
+}
+
 export async function handleContent(db: ContentDb, userId: string, input: ContentInput, features: { buyouts: boolean } = FEATURES): Promise<unknown> {
   switch (input.action) {
     case "completeProfile": {
@@ -60,6 +78,7 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
       if (handleError) fail(handleError);
       if (!name || name.length > 50) fail("nameRequired");
       screen(name);
+      await secondLook(db, name);
       return db.rpc("content_complete_profile", { p_user: userId, p_handle: handle, p_name: name, p_terms: Number(input.termsVersion) || 0, p_min_terms: TERMS_VERSION });
     }
     case "saveProfile": {
@@ -68,6 +87,7 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
       if (!name || name.length > 50) fail("nameRequired");
       if (bio.length > BIO_MAX) fail("bioTooLong");
       screen(`${name} ${bio}`);
+      await secondLook(db, `${name}\n${bio}`);
       return db.rpc("content_save_profile", { p_user: userId, p_name: name, p_bio: bio, p_links: cleanLinks(input.links) });
     }
     case "createPost": {
@@ -78,24 +98,26 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
       screen(body);
       const a = input.parentId ? undefined : input.attachment;
       if (a && !kindEnabled(a.kind, features)) fail("featureOff");
-      return {
-        id: await db.rpc<string>("content_create_post", {
-          p_user: userId,
-          p_body: body,
-          p_parent: input.parentId ?? null,
-          p_kind: a?.kind ?? null,
-          p_slug: a?.slug ?? null,
-          p_min_terms: TERMS_VERSION,
-          p_promo_limit: PROMO_PER_DAY,
-        }),
-      };
+      const verdict = await secondLook(db, body);
+      const id = await db.rpc<string>("content_create_post", {
+        p_user: userId,
+        p_body: body,
+        p_parent: input.parentId ?? null,
+        p_kind: a?.kind ?? null,
+        p_slug: a?.slug ?? null,
+        p_min_terms: TERMS_VERSION,
+        p_promo_limit: PROMO_PER_DAY,
+      });
+      return maybeHold(db, verdict, "post", id);
     }
     case "postComment": {
       const body = str(input.body).trim();
       if (!body) fail("empty");
       if (body.length > POST_MAX) fail("tooLong");
       screen(body);
-      return { id: await db.rpc<string>("content_post_comment", { p_user: userId, p_key: str(input.key), p_body: body, p_min_terms: TERMS_VERSION }) };
+      const verdict = await secondLook(db, body);
+      const id = await db.rpc<string>("content_post_comment", { p_user: userId, p_key: str(input.key), p_body: body, p_min_terms: TERMS_VERSION });
+      return maybeHold(db, verdict, "comment", id);
     }
     case "makeOffer": {
       if (!features.buyouts) fail("featureOff");
@@ -108,6 +130,8 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
     }
     case "deleteAccount": {
       await db.rpc("content_delete_account", { p_user: userId });
+      // Apple requires revoking its tokens too. A failure is logged, never a reason to keep the account.
+      if (input.appleAuthorizationCode && db.revokeApple) await db.revokeApple(input.appleAuthorizationCode).catch((e) => console.error("apple revoke", e instanceof Error ? e.message : e));
       await db.deleteAuthUser(userId);
       return { ok: true };
     }

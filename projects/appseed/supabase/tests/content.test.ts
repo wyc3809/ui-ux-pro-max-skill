@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { TERMS_VERSION } from "../../src/lib/contact";
 import { ContentError, type ContentDb, handleContent } from "../functions/_shared/content.ts";
 import { verifyUser } from "../functions/_shared/session.ts";
+import { classify } from "../functions/_shared/classifier.ts";
 
 const fakeDb = () => {
   const calls: { fn: string; args: Record<string, unknown> }[] = [];
@@ -52,7 +53,7 @@ describe("content function", () => {
 
   it("checks posts like the composer and leaves the daily limit to the database", async () => {
     const ok = run({ action: "createPost", body: "Shipped v2 today #expo", attachment: { kind: "template", slug: "demo-tpl" } });
-    await expect(ok.result).resolves.toEqual({ id: "new-id" });
+    await expect(ok.result).resolves.toEqual({ id: "new-id", held: false });
     expect(ok.calls[0]).toEqual({
       fn: "content_create_post",
       args: { p_user: "user-1", p_body: "Shipped v2 today #expo", p_parent: null, p_kind: "template", p_slug: "demo-tpl", p_min_terms: TERMS_VERSION, p_promo_limit: 3 },
@@ -100,5 +101,33 @@ describe("session check", () => {
     await expect(verifyUser("https://demo.supabase.co", "anon", "Bearer good", fetcher)).resolves.toBe("user-1");
     await expect(verifyUser("https://demo.supabase.co", "anon", "Bearer forged", fetcher)).resolves.toBeNull();
     await expect(verifyUser("https://demo.supabase.co", "anon", null, fetcher)).resolves.toBeNull();
+  });
+});
+
+describe("Claude second look", () => {
+  const withVerdict = (v: Awaited<ReturnType<NonNullable<ContentDb["classify"]>>>) => {
+    const f = fakeDb();
+    f.db.classify = async () => v;
+    return f;
+  };
+
+  it("blocks with the matching moderation code, holds unsure posts, allows the rest", async () => {
+    await expect(handleContent(withVerdict({ verdict: "block", reason: "harassment" }).db, "u", { action: "createPost", body: "hello" })).rejects.toThrow("abuse");
+    await expect(handleContent(withVerdict({ verdict: "block", reason: "personal_data" }).db, "u", { action: "postComment", key: "demo-tpl", body: "hello" })).rejects.toThrow("contact");
+    const held = withVerdict({ verdict: "review", reason: "spam" });
+    await expect(handleContent(held.db, "u", { action: "createPost", body: "hello" })).resolves.toEqual({ id: "new-id", held: true });
+    expect(held.calls.map((c) => c.fn)).toEqual(["content_create_post", "moderation_hold"]);
+    // An outage (null) never blocks posting; the rules already ran.
+    await expect(handleContent(withVerdict(null).db, "u", { action: "createPost", body: "hello" })).resolves.toEqual({ id: "new-id", held: false });
+  });
+
+  it("asks Claude for a structured verdict with fallbacks on, and treats refusals and errors safely", async () => {
+    const requests: Record<string, unknown>[] = [];
+    const client = (reply: () => unknown) => ({ beta: { messages: { create: async (req: Record<string, unknown>) => (requests.push(req), reply()) } } }) as never;
+    await expect(classify(client(() => ({ stop_reason: "end_turn", content: [{ type: "text", text: '{"verdict":"block","reason":"scam"}' }] })), "free money")).resolves.toEqual({ verdict: "block", reason: "scam" });
+    expect(requests[0]).toMatchObject({ model: "claude-opus-5-5", betas: ["server-side-fallback-2026-07-01"], fallbacks: "default", output_config: { effort: "low", format: { type: "json_schema" } } });
+    expect(JSON.stringify(requests[0]!.messages)).toContain("<post>\\nfree money\\n</post>");
+    await expect(classify(client(() => ({ stop_reason: "refusal", content: [] })), "x")).resolves.toEqual({ verdict: "review", reason: "other" });
+    await expect(classify(client(() => Promise.reject(new Error("overloaded"))), "x")).resolves.toBeNull();
   });
 });

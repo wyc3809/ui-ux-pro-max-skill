@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { createVerify, generateKeyPairSync } from "node:crypto";
+import { appleClientSecret, revokeAppleTokens } from "../functions/_shared/apple.ts";
 import { appJwt } from "../functions/_shared/github.ts";
 import { manifestFromEntries, scanReport } from "../functions/_shared/source.ts";
 import { handleStudio, slugFor, type StudioDeps } from "../functions/_shared/studio.ts";
@@ -167,5 +168,25 @@ describe("studio function", () => {
   it("makes readable slugs", () => {
     expect(slugFor("Pocket Ledger 2!", "ab12")).toBe("pocket-ledger-2-ab12");
     expect(slugFor("記帳", "ab12")).toBe("app-ab12");
+  });
+});
+
+describe("Sign in with Apple revocation", () => {
+  it("signs the client secret with the team's ES256 key and revokes the refresh token", async () => {
+    const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+    const cfg = { teamId: "TEAM", keyId: "KEY", clientId: "app.appseed", privateKey: privateKey.export({ type: "pkcs8", format: "pem" }).toString() };
+    const jwt = await appleClientSecret(cfg, 1_000);
+    const [h, b, s] = jwt.split(".");
+    expect(JSON.parse(Buffer.from(h!, "base64url").toString())).toEqual({ alg: "ES256", kid: "KEY" });
+    expect(JSON.parse(Buffer.from(b!, "base64url").toString())).toMatchObject({ iss: "TEAM", sub: "app.appseed", aud: "https://appleid.apple.com", exp: 1_300 });
+    expect(createVerify("SHA256").update(`${h}.${b}`).verify({ key: publicKey, dsaEncoding: "ieee-p1363" }, Buffer.from(s!, "base64url"))).toBe(true);
+
+    const calls: string[] = [];
+    const fetcher = (async (url: string, init: RequestInit) => {
+      calls.push(`${url} ${new URLSearchParams(String(init.body)).get(url.endsWith("token") ? "code" : "token")}`);
+      return new Response(JSON.stringify(url.endsWith("token") ? { refresh_token: "r1" } : {}));
+    }) as unknown as typeof fetch;
+    await revokeAppleTokens("code-1", cfg, fetcher);
+    expect(calls).toEqual(["https://appleid.apple.com/auth/token code-1", "https://appleid.apple.com/auth/revoke r1"]);
   });
 });

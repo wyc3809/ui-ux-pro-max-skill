@@ -1,7 +1,7 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import { Platform } from "react-native";
 
-export type AppleCredential = { sub: string; email: string | null; name: string | null; identityToken: string | null; demo: boolean };
+export type AppleCredential = { sub: string; email: string | null; name: string | null; identityToken: string | null; authorizationCode?: string | null; demo: boolean };
 
 /**
  * iOS uses the system Sign in with Apple sheet. Elsewhere (Android, web, simulators without it)
@@ -15,7 +15,7 @@ export async function signInWithApple(): Promise<AppleCredential | null> {
         requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
       });
       const name = c.fullName ? AppleAuthentication.formatFullName(c.fullName).trim() || null : null;
-      return { sub: c.user, email: c.email, name, identityToken: c.identityToken, demo: false };
+      return { sub: c.user, email: c.email, name, identityToken: c.identityToken, authorizationCode: c.authorizationCode, demo: false };
     } catch (e) {
       if ((e as { code?: string }).code === "ERR_REQUEST_CANCELED") return null;
       throw e;

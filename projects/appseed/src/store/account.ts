@@ -1,3 +1,4 @@
+import { api } from "@/api/backend";
 import { queryClient } from "@/api/client";
 import { useBlocks } from "./blocks";
 import { useFavorites } from "./favorites";
@@ -13,6 +14,11 @@ import { useUploadDraft } from "./uploadDraft";
  */
 export function onSignedIn() {
   queryClient.invalidateQueries();
+  // The account's blocks follow it across devices (null = the demo server, where the device list is the truth).
+  api
+    .myBlocks()
+    .then((handles) => handles && useBlocks.setState({ handles }))
+    .catch(() => {});
 }
 
 export function resetAccountData() {

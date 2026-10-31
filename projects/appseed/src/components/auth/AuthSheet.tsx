@@ -90,6 +90,7 @@ export function AuthSheet() {
   const fail = (e?: unknown) => {
     setBusy(null);
     const code = e instanceof Error ? e.message : "";
+    if (code === "cancelled") return;
     toast(code === "appleUnavailable" || code === "googleUnavailable" ? t(`auth.${code}`) : t("auth.failed"), "warning");
   };
 

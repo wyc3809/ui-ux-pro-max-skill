@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import * as WebBrowser from "expo-web-browser";
 import { Platform } from "react-native";
+import { signInWithApple } from "@/lib/appleSignIn";
 import type { AuthProvider } from "@/lib/auth";
 import { normalizeEmail } from "@/lib/auth";
 import { TERMS_VERSION } from "@/lib/contact";
@@ -12,7 +14,7 @@ import { catalogueApi } from "./catalogue";
 import { studioApi } from "./studioRemote";
 import { buyTier, iapLogIn, syncStore, waitForOwnership } from "@/lib/iap";
 import { invoke } from "./supabase";
-import type { AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
+import type { AdminListing, AdminReport, AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
 import { withEnabledAttachments } from "@/lib/features";
 
 /**
@@ -180,8 +182,17 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     },
     signInWithGoogle: async () => {
       if (Platform.OS === "web") return redirectTo("google");
-      // Native Google sign-in needs the OAuth client set up in the Supabase project (DESIGN §33, still to do).
-      throw new Error("googleUnavailable");
+      // Native: Google's page in an auth session, back to appseed://auth-callback with a PKCE code.
+      const callback = "appseed://auth-callback";
+      const r = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback, skipBrowserRedirect: true } });
+      if (r.error || !r.data.url) throw new Error("googleUnavailable");
+      const result = await WebBrowser.openAuthSessionAsync(r.data.url, callback);
+      if (result.type !== "success") throw new Error("cancelled");
+      const code = new URL(result.url).searchParams.get("code");
+      if (!code) throw new Error("authFailed");
+      const x = await sb.auth.exchangeCodeForSession(code);
+      if (x.error) throw new Error(x.error.message);
+      return land(null);
     },
     /** Finishes a web redirect sign-in after the page reloads, or returns null when there is no session. */
     resumeSession: async (): Promise<AuthResult | null> => ((await me()) ? land(null) : null),
@@ -212,13 +223,33 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
       return toUser(p, { email: u?.email, provider: u?.app_metadata.provider });
     },
     deleteAccount: async (_id: string) => {
-      await invoke("content", { action: "deleteAccount" });
+      // Apple accounts re-confirm with Apple once, so the server can revoke Apple's tokens (App Review 5.1.1(v)).
+      const u = await me();
+      const apple = u?.app_metadata.provider === "apple" ? await signInWithApple().catch(() => null) : null;
+      await invoke("content", { action: "deleteAccount", appleAuthorizationCode: apple?.authorizationCode ?? undefined });
       await sb.auth.signOut();
       return { ok: true as const };
     },
 
     ...catalogueReads,
     ...studioApi(sb),
+    staffRole: async () => {
+      if (!(await me())) return null;
+      const { data } = await sb.from("staff").select("role").maybeSingle<{ role: "admin" | "moderator" }>();
+      return data?.role ?? null;
+    },
+    adminReports: () => invoke<AdminReport[]>("admin", { action: "reports" }),
+    adminListings: () => invoke<AdminListing[]>("admin", { action: "listings" }),
+    adminResolve: (reportId: string, decision: "dismiss" | "hide" | "restore") => invoke<{ ok: true }>("admin", { action: "resolve", reportId, decision }),
+    adminReview: (slug: string, approve: boolean) => invoke<{ ok: true }>("admin", { action: "review", slug, approve }),
+    adminSuspend: (handle: string) => invoke<{ ok: true }>("admin", { action: "suspend", handle }),
+    blockHandle: async (handle: string) => {
+      if (await me()) await sb.rpc("block_handle", { p_handle: handle });
+    },
+    unblockHandle: async (handle: string) => {
+      if (await me()) await sb.rpc("unblock_handle", { p_handle: handle });
+    },
+    myBlocks: async () => ((await me()) ? (must(await sb.rpc("my_blocks")) as string[]) : null),
     creator: async (handle: string) => {
       // Sales and rating badges still come from the demo creator when there is one; the profile is the server's.
       const seed = (await demo.creator(handle)).creator;

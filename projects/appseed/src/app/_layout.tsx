@@ -4,7 +4,7 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/api/client";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { type ErrorBoundaryProps, Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -19,10 +19,30 @@ import { ToastHost } from "@/components/ui/Toast";
 import { useUi } from "@/store/ui";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 import { motion, radius } from "@/theme/tokens";
+import { installGlobalErrorHandlers, reportError } from "@/lib/errorReport";
+import { Button } from "@/components/ui/Button";
+import { Txt } from "@/components/ui/Txt";
+import { useT } from "@/i18n";
+
+let route = "/";
+installGlobalErrorHandlers(() => route);
+
+/** A screen that crashed: report it (no personal data) and offer a retry instead of a blank app. */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const t = useT();
+  useEffect(() => reportError(error, route), [error]);
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 16, padding: 32, backgroundColor: "#000000" }}>
+      <Txt variant="section" style={{ color: "#ffffff", textAlign: "center" }}>{t("common.crashed")}</Txt>
+      <Button label={t("common.retry")} onPress={retry} />
+    </View>
+  );
+}
 
 
 function Shell() {
   const { c, isDark } = useTheme();
+  route = usePathname();
   const sheetOpen = useUi((s) => s.sheets > 0);
   // iOS card stack: while a sheet is up the page shrinks, rounds its corners and dims, so the sheet reads as
   // a layer of the same surface rather than a separate window.
@@ -59,6 +79,8 @@ function Shell() {
           <Stack.Screen name="post/[id]" />
           <Stack.Screen name="profile" options={{ presentation: "modal" }} />
           <Stack.Screen name="terms" />
+          <Stack.Screen name="admin" />
+          <Stack.Screen name="github-callback" />
           <Stack.Screen name="prompt/[slug]" />
           <Stack.Screen name="buyout/[slug]" />
           <Stack.Screen name="launch/[slug]" />
