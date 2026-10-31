@@ -1,0 +1,12 @@
+# A creator sets up payouts from the studio; the demo connects at once (Stripe hosts the real pages, §32)
+appId: app.appseed.mobile
+---
+- launchApp
+- tapOn: "創作"
+- scrollUntilVisible:
+    element: "設定收款帳戶"
+- tapOn: "設定收款帳戶"
+- assertVisible: "示範模式：收款帳戶已連接"
+- assertVisible: "收款帳戶已連接"
+- tapOn: "收費與結算說明"
+- assertVisible: "收費與結算"

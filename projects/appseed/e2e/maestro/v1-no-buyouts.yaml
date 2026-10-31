@@ -1,0 +1,13 @@
+# Version 1 ships without whole-app buyouts: no hub, no studio entry, no offers tab (lib/features.ts)
+appId: app.appseed.mobile
+---
+- launchApp
+- assertVisible: "排行榜"
+- assertNotVisible: "買斷 App"
+- tapOn: "創作"
+- tapOn: "你想上架甚麼？"
+- assertVisible: "模板"
+- assertNotVisible: "出售整個 App"
+- back
+- tapOn: "已購"
+- assertNotVisible: "報價"

@@ -1,0 +1,9 @@
+# An owner sends a template's source to their computer; the phone never downloads or opens code (§22.6)
+appId: app.appseed.mobile
+---
+- launchApp
+- tapOn: "已購"
+- tapOn: "傳送到電腦"
+- assertVisible: "手機不會解壓或執行原始碼.*"
+- tapOn: "寄到我的電郵"
+- assertVisible: "已寄出，請查看電郵"

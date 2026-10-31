@@ -1,0 +1,17 @@
+# A buyer on a new device restores purchases from Me and finds them in Library (App Review 3.1.1)
+appId: app.appseed.mobile
+---
+- launchApp:
+    clearState: true
+- tapOn: "我的"
+- scrollUntilVisible:
+    element: "恢復購買"
+- tapOn: "恢復購買"
+- assertVisible: "登入購買時使用的帳戶即可恢復購買"
+- tapOn: "以電郵繼續"
+- inputText: "buyer@example.com"
+- tapOn: "寄出驗證碼"
+- inputText: "123456"
+- assertVisible: "已恢復.*|這個帳戶沒有可以恢復的購買"
+- tapOn: "已購"
+- assertVisible: "已購"

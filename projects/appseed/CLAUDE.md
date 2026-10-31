@@ -89,7 +89,17 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Content others read (profiles, posts, replies, comments, offers) is written only by the `content` Edge Function;
   reactions, votes, blocks and reports go straight in under RLS. Purchases come from `my_purchases()`.
 - The server enforces src/lib rules through copies in supabase/functions/_shared/rules: after editing moderation,
-  posts, auth, socialLinks or contact, run `node scripts/sync-shared.mjs` (a test fails otherwise).
+  posts, auth, socialLinks, contact, features, price, prompt, license or sourceScan, run `node scripts/sync-shared.mjs`
+  (a test fails otherwise). Those files must stay import-free.
+- supabase/seed.sql is generated from src/data: after changing demo data run `WRITE_SEED=1 npx jest supabase/tests/seed`.
+- Edge Functions: logic in supabase/functions/_shared (pure, Jest-tested, dependencies injected); `index.ts` files only
+  wire env, REST and `Deno.serve`. Signed-in endpoints use `_shared/http.ts` `signedInEndpoint`.
+- Staff tools (§36) go through the `admin` function and are logged in `admin_actions`. Claude moderation is optional
+  (ANTHROPIC_API_KEY) and must never block posting when unavailable.
+- Error reports are first-party (lib/errorReport.ts): scrubbed, no account or device id. Never add a crash or
+  analytics SDK.
+- site/ is the public website (support and privacy URLs for the stores); keep the privacy policy in step with what
+  the backend actually collects.
 
 ## Data & security
 - Source code lives in a private bucket; downloads only via short-lived signed URLs.

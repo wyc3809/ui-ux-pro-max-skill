@@ -824,7 +824,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 **部署前要設定的 secrets**：`STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET`、`REVENUECAT_WEBHOOK_SECRET`、`SETTLEMENT_CRON_SECRET`、`HKD_PER_USD`（預設 7.8）。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 由 Supabase 提供。
 
-**未做**：Stripe Connect 開戶流程（帳戶連結和 App 內狀態）、建立 Checkout session 的函數、買家「已購」存取權（退款後收回）、`listing_prices` 由上架審核寫入。
+**之後已完成**（§33–§36）：Stripe Connect 開戶流程（`connect`）、網頁 Checkout（`checkout`）、買家已購和退款後收回（`my_purchases()`）、審核批准時寫入 `listing_prices`。
 
 ---
 
@@ -849,7 +849,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 **規則只有一份**：伺服器用的 `moderation`、`posts`、`auth`、`socialLinks`、`contact` 由 `node scripts/sync-shared.mjs` 從 `src/lib` 複製到 `supabase/functions/_shared/rules`，測試在兩者不同時失敗。
 
-**仍用示範伺服器**：作品目錄（模板、Prompt、買斷、新作的內容和排行榜計算）、創作中心、GitHub／zip 上載、數據報告、付費購買（免費項目已可領取；付費要接 RevenueCat 和 Stripe Checkout）、封鎖名單同步、Android／iOS 原生 Google 登入、刪除帳戶時撤銷 Apple token。
+**之後已完成**：作品目錄、排行榜、付費購買（RevenueCat／Stripe Checkout）、創作中心、上載、數據報告、封鎖同步、原生 Google 登入、撤銷 Apple token，見 §35、§36。示範伺服器只在沒有設定 Supabase 時使用。
 
 ---
 
@@ -864,4 +864,36 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - 條款「收費與結算」不顯示買斷規則和例子
 
 買斷的程式碼、資料表和測試全部保留；有公司帳戶和托管合約後，把旗標改為 `true` 即可重新開放，並恢復 `docs/APP_REVIEW.md` 中買斷的送審說明。
+
+---
+
+## 35. 作品目錄、購買、創作中心（Supabase）
+
+**作品目錄**：`listings` 一張表放四個市集，`data` 是 `src/api/types.ts` 的公開欄位，價錢以仙儲存。示範作品由 `supabase/tests/seed.test.ts` 從 `src/data` 產生 `supabase/seed.sql`（資料過時測試會失敗，`WRITE_SEED=1` 重新產生）。付費 Prompt 的全文只在 `prompt_texts`，RLS 只開放給擁有者和賣家。排行榜由 `lib/ranking.ts` 的 `buildLeaderboard` 計算，兩個後端共用。
+
+**購買**：
+- App：先寫 `purchase_intents`，再用 RevenueCat 買該作品的價格級別，等 webhook 入帳後由伺服器確認擁有（`lib/iap.ts`）。取消不顯示錯誤；webhook 慢時顯示「正在確認」。
+- 網頁：`checkout` 函數按 `listing_prices` 的價錢開 Stripe Checkout，拒絕自己的作品和已擁有的作品，只會返回自己的網站。
+- 免費：`claim_free`。
+- 收款：`connect` 函數建立 Stripe Connect Express 帳戶並回傳 Stripe 的設定頁；創作頁顯示「設定收款帳戶」→「完成收款設定」→「收款帳戶已連接」。
+
+**創作中心**（`studio` 函數）：
+- 上架送審：內容過濾、固定價格級別、授權、確認版權（資料庫亦強制 `attested_at`），原始碼掃描任何一項失敗都不能提交。
+- 原始碼：網頁上載 zip 到私有 bucket（每人自己的路徑），或 GitHub App（RS256 JWT；只有 GitHub 用戶 OAuth 確認屬於本人的安裝才可連結），提交時把分支快照存入 storage，買家拿到的就是審核過的版本。
+- 取得原始碼：網頁 10 分鐘簽名連結，或電郵 24 小時連結（Resend）；手機版不提供下載。
+- 數據：`item_daily` 每日彙總（瀏覽、讚好、分享、留言），加上訂單的銷量和收入，`creator_daily()` 只回傳自己作品的數字；來源和分享去向暫未追蹤，顯示 0。
+
+## 36. 營運：管理後台、AI 審查、錯誤報告
+
+- **管理後台**（`/admin`，只限 `staff` 表的人，「我的」才會出現入口）：待處理檢舉（移除、不處理、恢復被系統收起的內容、停用帳戶）、待審核作品（批准時自動按級別定價）。伺服器 `admin` 函數再檢查職員身份，每個動作寫入只可新增的 `admin_actions`。
+- **AI 審查**：規則通過後，`content` 函數請 Claude（預設 `claude-opus-5-5`，`MODERATION_MODEL` 可改；結構化輸出；拒絕時伺服器自動改用後備模型）判斷：block 用現有的錯誤訊息拒絕；review 先發佈但隱藏，排入檢舉隊列；Claude 不可用時以規則為準，不阻止發佈。沒有設定 `ANTHROPIC_API_KEY` 就只用規則。
+- **錯誤報告**：`lib/errorReport.ts` 收集未處理錯誤和根層 ErrorBoundary，去除電郵、號碼和 token，不含帳戶或裝置識別碼，每次使用最多 20 個，寫入 `client_errors`，保留 90 日（`purge_client_errors()`）。
+- **封鎖**：本機即時隱藏；有 Supabase 時按用戶名存到帳戶，登入時取回。
+- **帳戶**：原生 Google 登入用 PKCE；Apple 帳戶刪除時再向 Apple 確認一次，伺服器用 ES256 client secret 撤銷 Apple token。
+
+**部署需要的 secrets**（在 §32 之外）：`ANTHROPIC_API_KEY`、`MODERATION_MODEL`（可選）、`SITE_URL`、`GITHUB_APP_ID`、`GITHUB_APP_PRIVATE_KEY`、`GITHUB_CLIENT_ID`、`GITHUB_CLIENT_SECRET`、`RESEND_API_KEY`、`MAIL_FROM`、`APPLE_TEAM_ID`、`APPLE_KEY_ID`、`APPLE_CLIENT_ID`、`APPLE_PRIVATE_KEY`。App 端：`EXPO_PUBLIC_REVENUECAT_IOS_KEY`、`EXPO_PUBLIC_REVENUECAT_ANDROID_KEY`、`EXPO_PUBLIC_GITHUB_APP_SLUG`（見 `.env.example`）。
+
+## 37. 官網
+
+`site/` 是靜態網頁（首頁、支援、私隱政策、條款摘要、404），App Store 的支援網址和私隱政策網址指向這裡。依 landing-page-design：Geist、Tailwind 字級、純色背景、深淺色、捲動逐字顯示的標語段、無障礙跳到內容連結。上架前要換成真實聯絡電郵，並由律師審閱私隱政策。
 

@@ -168,3 +168,10 @@ grant execute on function public.moderation_hold, public.admin_report_queue, pub
   public.admin_review_listing, public.admin_suspend, public.is_staff to service_role;
 revoke execute on function public.block_handle, public.unblock_handle, public.my_blocks from public, anon;
 grant execute on function public.block_handle, public.unblock_handle, public.my_blocks to authenticated;
+
+-- Error reports are kept 90 days (privacy policy). Schedule daily with pg_cron:
+--   select cron.schedule('purge-client-errors', '17 3 * * *', $$ select public.purge_client_errors() $$);
+create function public.purge_client_errors() returns void language sql security definer set search_path = '' as $$
+  delete from public.client_errors where created_at < now() - interval '90 days';
+$$;
+revoke execute on function public.purge_client_errors from public, anon, authenticated;
