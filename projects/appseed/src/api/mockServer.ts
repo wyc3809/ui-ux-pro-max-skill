@@ -40,6 +40,7 @@ function redactPrompt(p: PromptListing, owned: boolean): PromptListing {
 }
 
 const GITHUB_KEY = "mock-server:github";
+const CONNECT_KEY = "mock-server:connect";
 const USERS_KEY = "mock-server:users";
 const TICKETS_KEY = "mock-server:signup-tickets";
 
@@ -221,6 +222,18 @@ export const api = {
     await wait(null, 900);
     return { templates: readPurchases().length, prompts: readJson<string[]>(PROMPTS_KEY, []).length };
   },
+  /** Payout setup (Stripe Connect Express in production). The demo connects at once and opens no page. */
+  connectStatus: async () => {
+    await wait(null, 200);
+    const ready = mmkv.getString(CONNECT_KEY) === "ready";
+    return { state: (ready ? "ready" : "none") as "none" | "pending" | "ready", payoutsEnabled: ready };
+  },
+  startPayoutSetup: async () => {
+    await wait(null, 700);
+    mmkv.set(CONNECT_KEY, "ready");
+    return { url: null as string | null };
+  },
+  payoutDashboard: async () => wait({ url: null as string | null }, 200),
   /** Stand-in for the StoreKit / Play Billing purchase of BOOST_PRODUCT via RevenueCat. */
   purchaseBoost: async (productId: string) => {
     await wait(null, 900);

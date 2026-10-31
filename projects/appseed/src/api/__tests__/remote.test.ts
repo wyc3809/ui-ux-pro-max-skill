@@ -4,13 +4,21 @@ import { remoteApi, toCreator, toOffer, toPost, toUser } from "../remote";
 
 /** Just enough of supabase-js for the calls under test; rows live in `tables`. */
 function fakeSupabase(opts: { userId?: string; rpc?: Record<string, { data?: unknown; error?: { message: string } }> } = {}) {
-  const tables: Record<string, Record<string, unknown>[]> = { post_likes: [] };
+  const tables: Record<string, Record<string, unknown>[]> = { post_likes: [], listing_prices: [{ listing_id: "demo-tpl", live: true, product_id: "tier_158" }] };
   const matches = (row: Record<string, unknown>, m: Record<string, unknown>) => Object.entries(m).every(([k, v]) => row[k] === v);
   const sb = {
     auth: { getUser: async () => ({ data: { user: opts.userId ? { id: opts.userId, email: null, app_metadata: {}, user_metadata: {} } : null } }) },
     rpc: async (fn: string) => opts.rpc?.[fn] ?? { data: null, error: null },
     from: (table: string) => ({
-      select: () => ({ match: (m: Record<string, unknown>) => ({ maybeSingle: async () => ({ data: (tables[table] ?? []).find((r) => matches(r, m)) ?? null, error: null }) }) }),
+      select: () => {
+        const filter: Record<string, unknown> = {};
+        const chain = {
+          eq: (k: string, v: unknown) => ((filter[k] = v), chain),
+          match: (m: Record<string, unknown>) => (Object.assign(filter, m), chain),
+          maybeSingle: async () => ({ data: (tables[table] ?? []).find((r) => matches(r, filter)) ?? null, error: null }),
+        };
+        return chain;
+      },
       insert: async (row: Record<string, unknown>) => (tables[table]!.push(row), { data: null, error: null }),
       delete: () => ({ match: async (m: Record<string, unknown>) => ((tables[table] = tables[table]!.filter((r) => !matches(r, m))), { data: null, error: null }) }),
     }),
@@ -60,11 +68,14 @@ describe("remote API", () => {
       { slug: "demo-tpl", kind: "template" },
       { slug: "demo-prompt", kind: "prompt" },
     ];
-    const api = remoteApi(fakeSupabase({ userId: "u1", rpc: { my_purchases: { data: rows }, claim_free: { error: { message: "notFree" } } } }).sb, demoApi);
+    const api = remoteApi(fakeSupabase({ userId: "u1", rpc: { my_purchases: { data: rows } } }).sb, demoApi);
     await expect(api.purchases()).resolves.toEqual(["demo-tpl"]);
     await expect(api.promptPurchases()).resolves.toEqual(["demo-prompt"]);
     await expect(api.restorePurchases()).resolves.toEqual({ templates: 1, prompts: 1 });
+    // A paid listing goes to the store; without RevenueCat keys (tests, Expo Go) it says so instead of granting.
     await expect(api.purchase("demo-tpl")).rejects.toThrow("paymentsNotConfigured");
+    // A listing with no price tier is free and claimed on the server.
+    await expect(api.purchase("demo-free")).resolves.toEqual({ ok: true });
     await expect(remoteApi(fakeSupabase().sb, demoApi).purchases()).resolves.toEqual([]);
   });
 
@@ -83,5 +94,15 @@ describe("backend selection", () => {
       const { api: demo } = require("../mockServer") as typeof import("../mockServer");
       expect(api).toBe(demo);
     });
+  });
+});
+
+describe("waiting for the store webhook", () => {
+  it("stops as soon as the server lists the purchase, or gives up", async () => {
+    const { waitForOwnership } = require("@/lib/iap") as typeof import("@/lib/iap");
+    let n = 0;
+    await expect(waitForOwnership(async () => ++n >= 3, 10, 0, async () => {})).resolves.toBe(true);
+    expect(n).toBe(3);
+    await expect(waitForOwnership(async () => false, 2, 0, async () => {})).resolves.toBe(false);
   });
 });

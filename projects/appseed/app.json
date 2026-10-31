@@ -36,7 +36,8 @@
       "expo-localization",
       "expo-system-ui",
       "expo-asset",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": false

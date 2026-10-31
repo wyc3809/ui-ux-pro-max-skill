@@ -9,6 +9,7 @@ import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { formatDate } from "@/lib/format";
 import { useTheme } from "@/theme/ThemeProvider";
+import { PayoutSetupRow } from "./PayoutSetupRow";
 
 export function PayoutCard({ amount, next }: { amount: number; next: string }) {
   const { c } = useTheme();
@@ -24,6 +25,7 @@ export function PayoutCard({ amount, next }: { amount: number; next: string }) {
         {t("studio.payoutNext", { date: formatDate(next, t.locale) })}
       </Txt>
       <View style={{ height: 1, backgroundColor: c.border, marginVertical: 8 }} />
+      <PayoutSetupRow />
       <PressableScale onPress={() => setTaps((n) => n + 1)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", minHeight: 36 }}>
         <Txt variant="bodyStrong" tone="accent" style={{ flex: 1 }}>
           {t("studio.payoutHistory")}

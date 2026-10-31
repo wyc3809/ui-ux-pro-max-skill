@@ -83,9 +83,11 @@ export default function TemplateScreen() {
         // Hold the green "purchased" moment, then settle into "send to computer".
         setTimeout(() => setTransient(null), 1500);
       },
-      onError: () => {
+      onError: (e) => {
         setTransient(null);
-        toast(t("checkout.failedNoCharge"), "warning");
+        // Backing out of the store sheet is not an error; a paid purchase still being confirmed is not a failure.
+        if (e.message === "cancelled") return;
+        toast(e.message === "purchasePending" ? t("checkout.pending") : t("checkout.failedNoCharge"), e.message === "purchasePending" ? "success" : "warning");
       },
     });
   };

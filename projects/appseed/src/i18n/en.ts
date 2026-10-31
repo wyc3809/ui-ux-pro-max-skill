@@ -110,6 +110,7 @@ export const en: Dict = {
     success: "Purchased",
     successBody: "Added to your library. Next: send the code to your computer.",
     failedNoCharge: "Payment failed and you were not charged. Try again or use another method.",
+    pending: "Payment done. We're confirming it; it will appear in Library shortly.",
   },
   send: {
     title: "Send to computer",
@@ -145,6 +146,13 @@ export const en: Dict = {
     payoutNext: "Next payout: {date}",
     payoutHistory: "Payout history",
     feeDetails: "Fees and payouts explained",
+    payoutSetup: "Set up payouts",
+    payoutSetupBody: "Paid through Stripe. All you need is a bank account",
+    payoutContinue: "Finish payout setup",
+    payoutContinueBody: "Stripe needs a few more details before it can pay you",
+    payoutReady: "Payout account connected",
+    payoutManage: "View payouts and bank details on Stripe",
+    payoutDemo: "Demo: payout account connected",
     monthSales: "{n} this month",
   },
   analytics: {

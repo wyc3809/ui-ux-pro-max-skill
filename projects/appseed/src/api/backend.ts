@@ -1,3 +1,4 @@
+import { iapLogOut } from "@/lib/iap";
 import { api as demoApi } from "./mockServer";
 import { remoteApi } from "./remote";
 import { supabase } from "./supabase";
@@ -12,4 +13,5 @@ export const api: typeof demoApi = supabase ? { ...demoApi, ...remoteApi(supabas
 /** Ends the Supabase session too, so a signed-out device holds no token. */
 export async function signOutBackend() {
   await supabase?.auth.signOut().catch(() => {});
+  await iapLogOut();
 }

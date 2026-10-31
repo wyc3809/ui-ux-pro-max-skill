@@ -108,6 +108,7 @@ export const zhHant = {
     success: "購買成功",
     successBody: "原始碼已加入「已購」。下一步：傳送到電腦。",
     failedNoCharge: "付款失敗，未有扣款。請重試或改用其他付款方式。",
+    pending: "付款已完成，正在確認，稍後會出現在「已購」。",
   },
   send: {
     title: "傳送到電腦",
@@ -143,6 +144,13 @@ export const zhHant = {
     payoutNext: "下次結算：{date}",
     payoutHistory: "查看收款紀錄",
     feeDetails: "收費與結算說明",
+    payoutSetup: "設定收款帳戶",
+    payoutSetupBody: "經 Stripe 收款，只需要銀行戶口",
+    payoutContinue: "完成收款設定",
+    payoutContinueBody: "Stripe 仍需要一些資料才可以轉帳",
+    payoutReady: "收款帳戶已連接",
+    payoutManage: "在 Stripe 查看收款和銀行資料",
+    payoutDemo: "示範模式：收款帳戶已連接",
     monthSales: "本月 {n} 份",
   },
   analytics: {

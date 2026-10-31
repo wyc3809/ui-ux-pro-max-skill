@@ -9,6 +9,7 @@ import { sortPosts, type PostSort } from "@/lib/posts";
 import type { SocialLinks } from "@/lib/socialLinks";
 import type { api as demoApi } from "./mockServer";
 import { catalogueApi } from "./catalogue";
+import { buyTier, iapLogIn, syncStore, waitForOwnership } from "@/lib/iap";
 import { invoke } from "./supabase";
 import type { AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
 import { withEnabledAttachments } from "@/lib/features";
@@ -84,6 +85,11 @@ const must = <T>(r: { data: T | null; error: { message: string } | null }): T =>
   return r.data as T;
 };
 
+/** Where Stripe should send the person back to: this page on the web, the site root otherwise. */
+const returnHere = () => (Platform.OS === "web" && typeof window !== "undefined" ? window.location.href : undefined);
+
+export type ConnectState = { state: "none" | "pending" | "ready"; payoutsEnabled: boolean };
+
 export function remoteApi(sb: SupabaseClient, demo: Api) {
   const me = async () => {
     const { data } = await sb.auth.getUser();
@@ -124,6 +130,31 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     if (!(await me())) return [];
     const rows = must(await sb.rpc("my_purchases")) as { slug: string; kind: string }[];
     return rows.filter((r) => r.kind === kind).map((r) => r.slug);
+  };
+
+  /**
+   * Buys a listing. Free: claimed on the server. Web: Stripe Checkout (the page leaves and comes back).
+   * App: records the purchase intent, buys the listing's price tier from the store, then waits for the
+   * webhook to grant access. Access is always the server's decision.
+   */
+  const buy = async (slug: string, kind: "template" | "prompt") => {
+    const userId = await myId();
+    const tier = (await sb.from("listing_prices").select("product_id").eq("listing_id", slug).eq("live", true).maybeSingle<{ product_id: string }>()).data;
+    if (!tier) {
+      const r = await sb.rpc("claim_free", { p_slug: slug });
+      if (r.error) throw new Error(r.error.message);
+      return { ok: true as const };
+    }
+    if (Platform.OS === "web") {
+      const { url } = await invoke<{ url: string }>("checkout", { slug, returnUrl: returnHere() });
+      window.location.assign(url);
+      return new Promise<never>(() => {});
+    }
+    await iapLogIn(userId);
+    must(await sb.rpc("create_purchase_intent", { p_listing: slug }));
+    if ((await buyTier(tier.product_id)) === "cancelled") throw new Error("cancelled");
+    if (!(await waitForOwnership(async () => (await ownedSlugs(kind)).includes(slug)))) throw new Error("purchasePending");
+    return { ok: true as const };
   };
 
   const toggle = async (table: "post_likes" | "reposts" | "item_likes", match: Record<string, string>) => {
@@ -199,21 +230,20 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
       const p = await invoke<ProfileRow & { avatar_hue: number }>("content", { action: "saveProfile", name, bio, links });
       return toCreator(p, (await demo.creator(handle)).creator);
     },
-    // Free items are claimed on the server. Paid ones need RevenueCat (app) or Stripe Checkout (web), not wired yet.
-    purchase: async (slug: string) => {
-      const r = await sb.rpc("claim_free", { p_slug: slug });
-      if (r.error) throw new Error(r.error.message === "notFree" ? "paymentsNotConfigured" : r.error.message);
-      return { ok: true as const };
-    },
-    purchasePrompt: async (slug: string) => {
-      const r = await sb.rpc("claim_free", { p_slug: slug });
-      if (r.error) throw new Error(r.error.message === "notFree" ? "paymentsNotConfigured" : r.error.message);
-      return { ok: true as const };
-    },
+    purchase: (slug: string) => buy(slug, "template"),
+    purchasePrompt: (slug: string) => buy(slug, "prompt"),
     purchases: () => ownedSlugs("template"),
     promptPurchases: () => ownedSlugs("prompt"),
     // RevenueCat's syncPurchases() runs here once the SDK is in; ownership itself is read from the server.
-    restorePurchases: async () => ({ templates: (await ownedSlugs("template")).length, prompts: (await ownedSlugs("prompt")).length }),
+    restorePurchases: async () => {
+      const u = await me();
+      if (u) await iapLogIn(u.id);
+      await syncStore();
+      return { templates: (await ownedSlugs("template")).length, prompts: (await ownedSlugs("prompt")).length };
+    },
+    connectStatus: async () => ((await me()) ? invoke<ConnectState>("connect", { action: "status" }) : { state: "none" as const, payoutsEnabled: false }),
+    startPayoutSetup: async () => invoke<{ url: string | null }>("connect", { action: "onboard", returnUrl: returnHere() }),
+    payoutDashboard: async () => invoke<{ url: string | null }>("connect", { action: "dashboard" }),
 
     promoToday: async (_userId: string) => (must(await sb.rpc("promo_today")) as number) ?? 0,
     posts: async (sort: PostSort, viewer: Viewer) => {
