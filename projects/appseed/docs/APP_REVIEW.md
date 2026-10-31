@@ -2,6 +2,10 @@
 
 送審前逐項核對。指引會變，送審前請再讀一次 Apple 的 [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) 和 Google Play 的開發者政策。
 
+## 第一版範圍
+
+第一版**不提供買斷 App**（`src/lib/features.ts` 的 `FEATURES.buyouts = false`）：探索、搜尋、創作、已購、討論區附件、收費條款和舊連結都不會出現買斷，伺服器亦拒絕買斷報價和買斷宣傳帖。下表中外部付款一行是日後開放買斷時的做法。
+
 ## 指引對照
 
 | 指引 | 要求 | AppSeed 的做法 | 位置 |
@@ -27,7 +31,6 @@
 >
 > - Templates, prompts and launch boosts are digital content and use In-App Purchase only.
 > - Source code is delivered to the buyer's computer. The app never downloads, unzips, loads or executes code on device (Guideline 2.5.2).
-> - "Buy the whole app" is a sale of a business (the app's store listing is moved with App Store Connect's official app transfer, plus domain and backend). Payment goes through a licensed third party escrow on our website; the app only shows listings and takes offers. Outside the US storefront the app does not link to external payment.
 > - In-App Purchase types: templates and prompts are sold with a small set of fixed price tiers configured as consumable products, because the catalogue has thousands of creator listings and one product per listing is not workable. Buying requires an account; ownership is stored on our server per account, never on the device. "Restore Purchases" (Me › Restore Purchases, and on the empty Library screen) signs in, syncs store receipts and reloads everything the account owns, so purchases survive new devices and reinstalls.
 > - Launches are a community showcase and discussion of apps people built (similar to Product Hunt). AppSeed does not distribute, download or install apps; links go to the official App Store or Google Play page, or the maker's website.
 > - User generated content: posts, replies, comments and profiles are screened before publishing, every item can be reported with a reason, users can be blocked, and reports are reviewed within 24 hours. Users must accept the terms (zero tolerance for objectionable content) to create an account.
@@ -39,7 +42,7 @@
 |---|---|
 | 永久內容不應該用消耗型 IAP | 先回覆說明（數以千計的作品、帳戶恢復）；仍不接受就把最常用的價格級別改為每件作品一個非消耗型商品，`purchase_intents` 和結算不用改 |
 | 新作推廣像 App 目錄 | 說明不提供下載；需要時把「前往 App Store」按鈕改為只在詳情頁底部的文字連結 |
-| 買斷應該用 IAP | 說明這是業務轉讓（App Store Connect 官方轉移、域名、後端），由持牌托管處理；仍不接受就從 `src/lib/storefront.ts` 的 `LINK_OUT` 移除 `US`，iOS 全部地區只保留出價，付款只在網頁 |
+| 買斷應該用 IAP（第一版不適用：買斷已關閉） | 說明這是業務轉讓（App Store Connect 官方轉移、域名、後端），由持牌托管處理；仍不接受就從 `src/lib/storefront.ts` 的 `LINK_OUT` 移除 `US`，iOS 全部地區只保留出價，付款只在網頁 |
 
 ## 送審前要做
 

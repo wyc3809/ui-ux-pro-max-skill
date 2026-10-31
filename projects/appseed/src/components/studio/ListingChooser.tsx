@@ -9,6 +9,7 @@ import { useT, type TKey } from "@/i18n";
 import { slideInAt } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
+import { FEATURES } from "@/lib/features";
 
 const OPTIONS: { icon: IconName; title: TKey; body: TKey; route: string }[] = [
   { icon: "layers", title: "listing.template", body: "listing.templateBody", route: "/studio/new" },
@@ -23,7 +24,7 @@ export function ListingChooser({ open, onClose }: { open: boolean; onClose: () =
   const t = useT();
   return (
     <Sheet open={open} onClose={onClose} title={t("listing.choose")}>
-      {OPTIONS.map((o, i) => (
+      {OPTIONS.filter((o) => o.route !== "/studio/new-buyout" || FEATURES.buyouts).map((o, i) => (
         <Animated.View key={o.route} entering={slideInAt(i, 70)}>
           <PressableScale
             onPress={() => {

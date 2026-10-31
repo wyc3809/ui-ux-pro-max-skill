@@ -16,6 +16,7 @@ import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
 import type { AuthResult, BuyoutListing, Comment, Creator, Engagement, Post, PostAttachment, CategoryKey, FileNode, Launch, Offer, Platform, PromptListing, ScanReport, Template, User } from "./types";
 import { normalizeEmail, validateHandle, type AuthProvider } from "@/lib/auth";
+import { withEnabledAttachments } from "@/lib/features";
 
 /**
  * Stand-in for Supabase until the backend exists (§19). Purchase state lives
@@ -433,7 +434,7 @@ export const api = {
     return publicUser as User;
   },
   posts: (sort: PostSort, viewer: Viewer) => {
-    const list = decorate(readPosts().filter((p) => !p.parentId));
+    const list = withEnabledAttachments(decorate(readPosts().filter((p) => !p.parentId)));
     return wait(sort === "forYou" ? forYou(list, viewer) : sortPosts(list, sort), 320);
   },
   thread: (id: string) => {

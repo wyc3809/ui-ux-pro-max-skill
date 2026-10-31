@@ -24,7 +24,9 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - UI copy: all strings in i18n; Chinese UI is written Chinese (書面語). Creator content is exempt.
 
 ## Markets (docs/DESIGN.md §22)
-- Four markets share one design system: templates, prompts, whole-app buyouts, launches.
+- Four markets share one design system: templates, prompts, whole-app buyouts, launches. Version 1 ships with
+  buyouts off (`FEATURES.buyouts` in src/lib/features.ts, synced to the server): every buyout entry point must
+  check it, so turning the flag on restores the market in one place.
 - Buyouts are business transfers paid via a licensed escrow partner on the web, never IAP; the app only
   takes offers. Sell the app (official App Store / Play transfer), never the developer account. Listings
   must pass lib/transfer.ts readiness checks, revenue is verified only from read access (never screenshots),

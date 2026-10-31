@@ -10,6 +10,7 @@ import type { SocialLinks } from "@/lib/socialLinks";
 import type { api as demoApi } from "./mockServer";
 import { invoke } from "./supabase";
 import type { AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
+import { withEnabledAttachments } from "@/lib/features";
 
 /**
  * The Supabase implementation of the API (docs/DESIGN.md §33), for the parts of the app that now have a real
@@ -207,7 +208,7 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
 
     promoToday: async (_userId: string) => (must(await sb.rpc("promo_today")) as number) ?? 0,
     posts: async (sort: PostSort, viewer: Viewer) => {
-      const list = await feedRows((q) => q.is("parent_id", null).order("created_at", { ascending: false }).limit(200));
+      const list = withEnabledAttachments(await feedRows((q) => q.is("parent_id", null).order("created_at", { ascending: false }).limit(200)));
       return sort === "forYou" ? forYou(list, viewer) : sortPosts(list, sort);
     },
     thread: async (id: string) => {

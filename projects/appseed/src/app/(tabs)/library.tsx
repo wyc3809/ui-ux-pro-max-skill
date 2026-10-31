@@ -25,9 +25,10 @@ import { useSession } from "@/store/session";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space, font } from "@/theme/tokens";
+import { FEATURES } from "@/lib/features";
 
 type Seg = "owned" | "prompts" | "offers" | "saved";
-const SEGS: Seg[] = ["owned", "prompts", "offers", "saved"];
+const SEGS: Seg[] = (["owned", "prompts", "offers", "saved"] as Seg[]).filter((s) => s !== "offers" || FEATURES.buyouts);
 
 type Item =
   | { kind: "template"; key: string; t: Template }
@@ -59,7 +60,7 @@ export default function LibraryScreen() {
     return x ? { kind: "prompt", key: `prompt:${slug}`, p: x } : null;
   };
   const bo = (slug: string, offer?: Offer): Item | null => {
-    const x = buyouts?.find((y) => y.slug === slug);
+    const x = FEATURES.buyouts ? buyouts?.find((y) => y.slug === slug) : undefined;
     return x ? { kind: "buyout", key: `buyout:${slug}`, b: x, offer } : null;
   };
   // Favourites are namespaced: plain slug = template, "prompt:" / "buyout:" prefixes for the other markets.
@@ -92,12 +93,14 @@ export default function LibraryScreen() {
               prevCount.current = null;
               setSeg(v);
             }}
-            options={[
-              { value: "owned", label: t("library.owned") },
-              { value: "prompts", label: t("mine.prompts") },
-              { value: "offers", label: t("mine.offers") },
-              { value: "saved", label: t("library.saved") },
-            ]}
+            options={(
+              [
+                { value: "owned", label: t("library.owned") },
+                { value: "prompts", label: t("mine.prompts") },
+                { value: "offers", label: t("mine.offers") },
+                { value: "saved", label: t("library.saved") },
+              ] as { value: Seg; label: string }[]
+            ).filter((o) => SEGS.includes(o.value))}
           />
         </View>
         <DirectionalSwap value={seg} order={SEGS}>

@@ -17,6 +17,7 @@ import { formatPrice } from "@/lib/price";
 import { requireAuth } from "@/store/authGate";
 import { useTheme } from "@/theme/ThemeProvider";
 import { font, gap, nested, radius } from "@/theme/tokens";
+import { kindEnabled } from "@/lib/features";
 
 export const AVATAR = 36;
 const ROUTE: Record<PostAttachment["kind"], string> = { template: "template", prompt: "prompt", buyout: "buyout", launch: "launch" };
@@ -148,7 +149,7 @@ export function PostItem({ p, now, mine, large, onReply, onMore, threadLine }: {
         <PressableScale onPress={open} disabled={large} scaleTo={0.99} accessibilityRole="link" accessibilityLabel={t("discuss.thread")}>
           <PostBody body={p.body} large={large} />
         </PressableScale>
-        {p.attachment && <AttachmentCard a={p.attachment} />}
+        {p.attachment && kindEnabled(p.attachment.kind) && <AttachmentCard a={p.attachment} />}
         <View style={{ flexDirection: "row", alignItems: "center", marginLeft: -gap.xs }}>
           <Action icon="heart" label={t("discuss.like")} count={p.likes} active={p.liked} color={c.danger} onPress={() => requireAuth("discuss.reasonPost", () => like.mutate(p.id))} />
           <Action icon="comment" label={t("discuss.reply")} count={p.replies} motion="bounce" onPress={() => requireAuth("discuss.reasonPost", onReply)} />

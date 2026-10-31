@@ -851,3 +851,17 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 **仍用示範伺服器**：作品目錄（模板、Prompt、買斷、新作的內容和排行榜計算）、創作中心、GitHub／zip 上載、數據報告、付費購買（免費項目已可領取；付費要接 RevenueCat 和 Stripe Checkout）、封鎖名單同步、Android／iOS 原生 Google 登入、刪除帳戶時撤銷 Apple token。
 
+---
+
+## 34. 第一版範圍：不做買斷
+
+第一版用個人開發者帳戶上架，未有托管合作機構，所以**買斷 App 整個市集關閉**，由 `src/lib/features.ts` 的 `FEATURES.buyouts` 控制（伺服器規則同步同一個檔案）：
+
+- 探索沒有「買斷 App」分頁；搜尋沒有買斷分類和結果
+- 創作中心沒有「出售 App」；`/studio/new-buyout` 和 `/buyout/<slug>` 舊連結轉回創作中心和探索
+- 已購沒有「報價」分頁，收藏中的買斷不顯示
+- 討論區不顯示附上買斷的宣傳帖；伺服器拒絕買斷報價和買斷宣傳帖（`featureOff`）
+- 條款「收費與結算」不顯示買斷規則和例子
+
+買斷的程式碼、資料表和測試全部保留；有公司帳戶和托管合約後，把旗標改為 `true` 即可重新開放，並恢復 `docs/APP_REVIEW.md` 中買斷的送審說明。
+

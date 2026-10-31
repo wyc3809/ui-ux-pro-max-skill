@@ -34,12 +34,13 @@ import { ExplainSheet } from "@/components/ui/ExplainSheet";
 import { useTheme } from "@/theme/ThemeProvider";
 import { gap, nested, radius, space } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
+import { FEATURES } from "@/lib/features";
 
 const CATEGORIES: (CategoryKey | "all")[] = ["all", "tools", "finance", "ai", "games", "hk", "merchant"];
 
 type Hub = "launches" | "discuss" | "templates" | "prompts" | "buyouts";
 /** The leaderboard opens first, then the discussion feed (§28). */
-const HUBS: Hub[] = ["launches", "discuss", "templates", "prompts", "buyouts"];
+const HUBS: Hub[] = (["launches", "discuss", "templates", "prompts", "buyouts"] as Hub[]).filter((h) => h !== "buyouts" || FEATURES.buyouts);
 const HUB_QUERIES: Record<Hub, readonly unknown[]> = { launches: ["leaderboard"], discuss: ["posts"], templates: qk.templates, prompts: qk.prompts, buyouts: qk.buyouts };
 
 export default function Explore() {

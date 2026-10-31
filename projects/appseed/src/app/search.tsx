@@ -24,10 +24,11 @@ import { useHistory } from "@/store/history";
 import { crossfadeIn, rowIn, rowOut, reorder } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { space, font } from "@/theme/tokens";
+import { FEATURES } from "@/lib/features";
 
 type Filters = Required<Omit<SearchParams, "q" | "category">>;
 type Kind = "all" | "templates" | "prompts" | "buyouts" | "launches";
-const KINDS: Kind[] = ["all", "launches", "templates", "prompts", "buyouts"];
+const KINDS: Kind[] = (["all", "launches", "templates", "prompts", "buyouts"] as Kind[]).filter((k) => k !== "buyouts" || FEATURES.buyouts);
 type Result =
   | { kind: "templates"; key: string; t: Template }
   | { kind: "prompts"; key: string; p: PromptListing }
@@ -54,7 +55,7 @@ export default function SearchScreen() {
   const results: Result[] | undefined = data && [
     ...(kind === "all" || kind === "templates" ? data.map((x): Result => ({ kind: "templates", key: x.slug, t: x })) : []),
     ...(kind === "all" || kind === "prompts" ? (prompts ?? []).filter((p) => matches(debounced, [p.title, p.summary, p.tool, ...p.tags])).map((p): Result => ({ kind: "prompts", key: `p:${p.slug}`, p })) : []),
-    ...(kind === "all" || kind === "buyouts" ? (buyouts ?? []).filter((b) => matches(debounced, [b.name, b.tagline, ...b.stack])).map((b): Result => ({ kind: "buyouts", key: `b:${b.slug}`, b })) : []),
+    ...(FEATURES.buyouts && (kind === "all" || kind === "buyouts") ? (buyouts ?? []).filter((b) => matches(debounced, [b.name, b.tagline, ...b.stack])).map((b): Result => ({ kind: "buyouts", key: `b:${b.slug}`, b })) : []),
     ...(kind === "all" || kind === "launches" ? (launches ?? []).filter((l) => matches(debounced, [l.name, l.tagline, ...l.aiTools])).map((l): Result => ({ kind: "launches", key: `l:${l.slug}`, l })) : []),
   ];
 

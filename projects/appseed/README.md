@@ -43,6 +43,10 @@
 - 只轉讓 App（App Store／Google Play 官方轉移），不轉讓開發者帳戶
 - 上架前檢查轉移條件；收入只用唯讀權限核實；交接清單全部確認後才放款
 
+## 第一版範圍（§34）
+
+- 第一版不做買斷 App：`src/lib/features.ts` 一個開關收起所有買斷入口，伺服器同樣拒絕；程式碼保留，日後改為 `true` 即可開放
+
 ## 真後端（§33）
 
 - 預設用內建示範伺服器；在 `.env` 設定 Supabase 網址和 anon key（見 `.env.example`）後，登入、創作者資料、已購、討論區、留言、讚好、檢舉、買斷報價、刪除帳戶改用 Supabase
@@ -96,7 +100,7 @@
 
 ```bash
 npm install
-npm test             # 189 個測試（App 和後台）
+npm test             # 193 個測試（App 和後台）
 npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
 npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽

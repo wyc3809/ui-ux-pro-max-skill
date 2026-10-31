@@ -1,3 +1,4 @@
+import { Redirect } from "expo-router";
 import type { Platform } from "@/api/types";
 import { ReadinessList } from "@/components/market/Transfer";
 import { Field, Group, Note } from "@/components/studio/FormFields";
@@ -19,6 +20,7 @@ import { transferReadiness, verifyOptions } from "@/lib/transfer";
 import { formatPrice } from "@/lib/price";
 import { useFormDraft } from "@/store/formDrafts";
 import { Reveal } from "@/components/ui/Reveal";
+import { FEATURES } from "@/lib/features";
 
 
 const INCLUDED = ["source", "design", "appStore", "play", "domain", "subscribers", "social", "handover"] as const;
@@ -40,7 +42,12 @@ const EMPTY: BuyoutDraft = {
 };
 const toggle = <T,>(list: T[], x: T) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
 
-export default function NewBuyout() {
+/** Buyouts are off in this release (lib/features.ts). */
+export default function NewBuyoutRoute() {
+  return FEATURES.buyouts ? <NewBuyout /> : <Redirect href="/studio" />;
+}
+
+function NewBuyout() {
   const t = useT();
   const [d, patch, reset] = useFormDraft("buyout", EMPTY);
   const asking = Number(d.asking) || 0;

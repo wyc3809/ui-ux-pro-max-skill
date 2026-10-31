@@ -5,12 +5,14 @@ import { PressableScale } from "@/components/ui/PressableScale";
 import { Reveal } from "@/components/ui/Reveal";
 import { Txt } from "@/components/ui/Txt";
 import { useT, type TKey } from "@/i18n";
+import { FEATURES } from "@/lib/features";
 import { buyoutCosts, FEES, pct, splitSale } from "@/lib/fees";
 import { useTheme } from "@/theme/ThemeProvider";
 import { gap, radius } from "@/theme/tokens";
 
 const money = (n: number) => (Number.isInteger(n) ? n.toLocaleString("en-US") : n.toFixed(2));
-const RULES: TKey[] = ["terms.fee1", "terms.fee2", "terms.fee3", "terms.fee4", "terms.fee5", "terms.fee6", "terms.fee7", "terms.fee8", "terms.fee9", "terms.fee10"];
+// fee9 is the buyout rule; it appears only while buyouts are offered.
+const RULES: TKey[] = (["terms.fee1", "terms.fee2", "terms.fee3", "terms.fee4", "terms.fee5", "terms.fee6", "terms.fee7", "terms.fee8", "terms.fee9", "terms.fee10"] as TKey[]).filter((k) => k !== "terms.fee9" || FEATURES.buyouts);
 
 /**
  * 收費與結算 in the terms (§31): every fee, who pays it and when, filled in from lib/fees.ts so the wording
@@ -64,7 +66,7 @@ export function FeesSection({ open: initial = false }: { open?: boolean }) {
             <Txt variant="bodyStrong">{t("terms.feesExample")}</Txt>
             <Txt tone="fgMuted">{t("terms.feesExampleIos", { store: money(ios.channelFee), platform: money(ios.platform), seller: money(ios.seller) })}</Txt>
             <Txt tone="fgMuted">{t("terms.feesExampleWeb", { card: money(web.channelFee), platform: money(web.platform), seller: money(web.seller) })}</Txt>
-            <Txt tone="fgMuted">{t("terms.feesExampleBuyout", { escrow: money(buyout.escrowFee), commission: money(buyout.commission), seller: money(buyout.sellerReceives) })}</Txt>
+            {FEATURES.buyouts && <Txt tone="fgMuted">{t("terms.feesExampleBuyout", { escrow: money(buyout.escrowFee), commission: money(buyout.commission), seller: money(buyout.sellerReceives) })}</Txt>}
           </View>
         </Reveal>
       )}

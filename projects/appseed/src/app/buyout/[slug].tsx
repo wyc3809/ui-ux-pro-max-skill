@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
@@ -47,6 +47,7 @@ import { screenText } from "@/lib/moderation";
 import { useStorefront } from "@/store/storefront";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
 import { CreatorCard } from "@/components/creator/CreatorCard";
+import { FEATURES } from "@/lib/features";
 
 const STEP_KEYS = { agree: "buyout.stepAgree", deposit: "buyout.stepDeposit", transfer: "buyout.stepTransfer", verify: "buyout.stepVerify", release: "buyout.stepRelease" } as const;
 const hk = (n: number) => formatPrice(n, "HKD", "HK$0");
@@ -56,7 +57,12 @@ const services = (stack: string[]) => ({
   payments: stack.filter((s) => /stripe|revenuecat/i.test(s)).join("、"),
 });
 
-export default function BuyoutScreen() {
+/** Buyouts are off in this release (lib/features.ts); old links land on Explore. */
+export default function BuyoutRoute() {
+  return FEATURES.buyouts ? <BuyoutScreen /> : <Redirect href="/" />;
+}
+
+function BuyoutScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { data: b, isLoading } = useBuyout(slug);
   const { data: offers } = useOffers();

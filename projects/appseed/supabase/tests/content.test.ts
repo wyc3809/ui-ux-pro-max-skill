@@ -20,7 +20,7 @@ const run = (input: Parameters<typeof handleContent>[2]) => {
 };
 
 describe("server copies of the shared rules", () => {
-  it.each(["moderation", "posts", "auth", "socialLinks", "contact"])("%s matches src/lib", (name) => {
+  it.each(["moderation", "posts", "auth", "socialLinks", "contact", "features"])("%s matches src/lib", (name) => {
     const root = join(__dirname, "../..");
     const copy = readFileSync(join(root, "supabase/functions/_shared/rules", `${name}.ts`), "utf8");
     const source = readFileSync(join(root, "src/lib", `${name}.ts`), "utf8");
@@ -68,10 +68,15 @@ describe("content function", () => {
 
   it("screens comments and offers, and stores offer amounts in cents", async () => {
     await expect(run({ action: "postComment", key: "demo-tpl", body: "" }).result).rejects.toThrow("empty");
-    const offer = run({ action: "makeOffer", slug: "demo-buyout", amount: 150000, message: "Interested" });
-    await offer.result;
-    expect(offer.calls[0]!.args).toMatchObject({ p_amount: 15_000_000, p_message: "Interested" });
-    await expect(run({ action: "makeOffer", slug: "demo-buyout", amount: 1.5, message: "" }).result).rejects.toThrow("invalidAmount");
+    const f = fakeDb();
+    await handleContent(f.db, "user-1", { action: "makeOffer", slug: "demo-buyout", amount: 150000, message: "Interested" }, { buyouts: true });
+    expect(f.calls[0]!.args).toMatchObject({ p_amount: 15_000_000, p_message: "Interested" });
+    await expect(handleContent(f.db, "user-1", { action: "makeOffer", slug: "demo-buyout", amount: 1.5, message: "" }, { buyouts: true })).rejects.toThrow("invalidAmount");
+  });
+
+  it("refuses buyout offers and buyout promotion while buyouts are off", async () => {
+    await expect(run({ action: "makeOffer", slug: "demo-buyout", amount: 150000, message: "" }).result).rejects.toThrow("featureOff");
+    await expect(run({ action: "createPost", body: "Selling", attachment: { kind: "buyout", slug: "demo-buyout" } }).result).rejects.toThrow("featureOff");
   });
 
   it("deletes the account's content, then the sign-in", async () => {

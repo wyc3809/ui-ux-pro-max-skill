@@ -1,5 +1,6 @@
 import { validateHandle } from "./rules/auth.ts";
 import { TERMS_VERSION } from "./rules/contact.ts";
+import { FEATURES, kindEnabled } from "./rules/features.ts";
 import { screenText } from "./rules/moderation.ts";
 import { POST_MAX, PROMO_PER_DAY, validatePost } from "./rules/posts.ts";
 import { BIO_MAX, normalizeSocial, SOCIALS, type SocialLinks } from "./rules/socialLinks.ts";
@@ -50,7 +51,7 @@ function cleanLinks(input: unknown): SocialLinks {
   return out;
 }
 
-export async function handleContent(db: ContentDb, userId: string, input: ContentInput): Promise<unknown> {
+export async function handleContent(db: ContentDb, userId: string, input: ContentInput, features: { buyouts: boolean } = FEATURES): Promise<unknown> {
   switch (input.action) {
     case "completeProfile": {
       const handle = str(input.handle);
@@ -76,6 +77,7 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
       if (error) fail(error);
       screen(body);
       const a = input.parentId ? undefined : input.attachment;
+      if (a && !kindEnabled(a.kind, features)) fail("featureOff");
       return {
         id: await db.rpc<string>("content_create_post", {
           p_user: userId,
@@ -96,6 +98,7 @@ export async function handleContent(db: ContentDb, userId: string, input: Conten
       return { id: await db.rpc<string>("content_post_comment", { p_user: userId, p_key: str(input.key), p_body: body, p_min_terms: TERMS_VERSION }) };
     }
     case "makeOffer": {
+      if (!features.buyouts) fail("featureOff");
       const message = str(input.message).trim();
       // The app sends whole HK dollars; the database stores cents like every other amount.
       if (!Number.isInteger(input.amount) || input.amount <= 0) fail("invalidAmount");
