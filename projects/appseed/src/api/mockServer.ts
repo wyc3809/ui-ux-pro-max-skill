@@ -10,7 +10,7 @@ import { promoCountToday, sortPosts, validatePost, type PostSort } from "@/lib/p
 import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
 import { toggleVote } from "@/lib/launch";
-import { boardScore, MOVEMENT_HOURS, rankBoard, REPORT_LIMIT, sponsoredPick, withMovement, type Period } from "@/lib/ranking";
+import { boardScore, buildLeaderboard, REPORT_LIMIT, type Period } from "@/lib/ranking";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
@@ -159,23 +159,8 @@ function withVotes(l: Launch): Launch & { voted: boolean } {
   return { ...anchored(l), upvotes: l.upvotes + (voted ? 1 : 0), voted };
 }
 
-/**
- * Leaderboard for a period, with rank movement against the board MOVEMENT_HOURS ago. The real server keeps
- * snapshots; here the earlier vote counts are estimated from how votes accrue over a launch's first days.
- */
 function leaderboard(period: Period) {
-  const now = Date.now();
-  const all = launches.map(withVotes);
-  const then = now - MOVEMENT_HOURS * 3_600_000;
-  const earlier = all
-    .filter((l) => Date.parse(l.launchedAt) <= then)
-    .map((l) => {
-      const age = (now - Date.parse(l.launchedAt)) / 3_600_000;
-      const share = Math.pow((age - MOVEMENT_HOURS) / age, 0.6);
-      return { ...l, upvotes: Math.round(l.upvotes * share), comments: Math.round(l.comments * share), shares: Math.round(l.shares * share) };
-    });
-  const board = withMovement(rankBoard(all, period, now), rankBoard(earlier, period, then));
-  return { board, sponsored: sponsoredPick(all, period, now) ?? null };
+  return buildLeaderboard(launches.map(withVotes), period, Date.now());
 }
 
 export type SearchParams = {

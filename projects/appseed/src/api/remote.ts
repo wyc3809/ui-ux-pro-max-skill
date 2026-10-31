@@ -8,6 +8,7 @@ import type { ReportReason, ReportTarget } from "@/lib/moderation";
 import { sortPosts, type PostSort } from "@/lib/posts";
 import type { SocialLinks } from "@/lib/socialLinks";
 import type { api as demoApi } from "./mockServer";
+import { catalogueApi } from "./catalogue";
 import { invoke } from "./supabase";
 import type { AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
 import { withEnabledAttachments } from "@/lib/features";
@@ -110,6 +111,9 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     return new Promise<never>(() => {});
   };
 
+  const catalogue = catalogueApi(sb);
+  const { templatesBy: _templatesBy, ...catalogueReads } = catalogue;
+
   const feedRows = async (filter: (q: ReturnType<ReturnType<SupabaseClient["from"]>["select"]>) => unknown) => {
     const q = sb.from("post_feed").select("*");
     filter(q);
@@ -181,10 +185,15 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
       return { ok: true as const };
     },
 
+    ...catalogueReads,
     creator: async (handle: string) => {
-      const base = await demo.creator(handle);
-      const { data } = await sb.from("profiles").select("handle, name, bio, links, avatar_hue").eq("handle", handle).maybeSingle<ProfileRow & { avatar_hue: number }>();
-      return data ? { ...base, creator: toCreator(data, base.creator) } : base;
+      // Sales and rating badges still come from the demo creator when there is one; the profile is the server's.
+      const seed = (await demo.creator(handle)).creator;
+      const [{ data }, templates] = await Promise.all([
+        sb.from("profiles").select("handle, name, bio, links, avatar_hue").eq("handle", handle).maybeSingle<ProfileRow & { avatar_hue: number }>(),
+        catalogue.templatesBy(handle),
+      ]);
+      return { creator: data ? toCreator(data, seed) : null, templates };
     },
     saveProfile: async ({ handle, name, bio, links }: { handle: string; name: string; bio: string; links: SocialLinks }) => {
       const p = await invoke<ProfileRow & { avatar_hue: number }>("content", { action: "saveProfile", name, bio, links });

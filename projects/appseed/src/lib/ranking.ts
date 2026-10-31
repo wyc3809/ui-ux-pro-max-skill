@@ -89,3 +89,20 @@ export function sponsoredPick<T extends RankSignals>(items: T[], period: Period,
 function clamp01(n: number) {
   return Math.min(1, Math.max(0, n));
 }
+
+/**
+ * A full board for a period, with rank movement against the board MOVEMENT_HOURS earlier. Until the server keeps
+ * snapshots, the earlier counts are estimated from how votes accrue over a launch's first days.
+ */
+export function buildLeaderboard<T extends RankSignals & { slug: string; launchedAt: string; comments: number; shares: number }>(all: T[], period: Period, now: number) {
+  const then = now - MOVEMENT_HOURS * 3_600_000;
+  const earlier = all
+    .filter((l) => Date.parse(l.launchedAt) <= then)
+    .map((l) => {
+      const age = (now - Date.parse(l.launchedAt)) / 3_600_000;
+      const share = Math.pow((age - MOVEMENT_HOURS) / age, 0.6);
+      return { ...l, upvotes: Math.round(l.upvotes * share), comments: Math.round(l.comments * share), shares: Math.round(l.shares * share) };
+    });
+  const board = withMovement(rankBoard(all, period, now), rankBoard(earlier, period, then));
+  return { board, sponsored: sponsoredPick(all, period, now) ?? null };
+}
