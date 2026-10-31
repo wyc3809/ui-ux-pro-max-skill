@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Platform, Share, View } from "react-native";
 import Animated, { Extrapolation, interpolate, ReduceMotion, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { api } from "@/api/backend";
 import { findCreator } from "@/api/mockServer";
 import { ownsFresh, useLaunches, useOwned, usePurchase, useTemplate } from "@/api/queries";
 import { CommentsSection } from "@/components/engage/CommentsSection";
@@ -429,14 +430,30 @@ function SendSheet({ t: tpl, open, onClose }: { t: Template; open: boolean; onCl
     onClose();
     toast(msg);
   };
+  const fail = (e: unknown) => toast(t.error(e instanceof Error ? e.message : "", ["studio.errors"]), "warning");
   return (
     <Sheet open={open} onClose={onClose} title={t("send.title")}>
       <Txt tone="fgMuted">{t("send.body")}</Txt>
       <Card padded={false} style={{ shadowOpacity: 0, elevation: 0 }}>
-        <ListRow icon="mail" title={t("send.email")} detail={t("send.emailHint")} onPress={() => done(t("send.sent"))} />
+        <ListRow icon="mail" title={t("send.email")} detail={t("send.emailHint")} onPress={() => api.sendToComputer(tpl.slug).then(() => done(t("send.sent")), fail)} />
         <RowDivider />
-        <ListRow icon="git" title={t("send.github")} detail={t("send.githubHint")} onPress={() => done(t("common.done"))} />
-        <RowDivider />
+        {Platform.OS === "web" && (
+          <>
+            {/* Downloading is for computers: the phone apps never fetch or open source code. */}
+            <ListRow
+              icon="download"
+              title={t("send.download")}
+              detail={t("send.downloadHint")}
+              onPress={() =>
+                api.sourceDownload(tpl.slug).then(({ url }) => {
+                  if (url) window.location.assign(url);
+                  done(url ? t("send.downloading") : t("send.sent"));
+                }, fail)
+              }
+            />
+            <RowDivider />
+          </>
+        )}
         <ListRow
           icon="link"
           title={t("send.link")}

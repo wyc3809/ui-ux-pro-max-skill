@@ -9,6 +9,7 @@ import { sortPosts, type PostSort } from "@/lib/posts";
 import type { SocialLinks } from "@/lib/socialLinks";
 import type { api as demoApi } from "./mockServer";
 import { catalogueApi } from "./catalogue";
+import { studioApi } from "./studioRemote";
 import { buyTier, iapLogIn, syncStore, waitForOwnership } from "@/lib/iap";
 import { invoke } from "./supabase";
 import type { AuthResult, Comment, Creator, Engagement, Offer, Post, PostAttachment, User } from "./types";
@@ -217,6 +218,7 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
     },
 
     ...catalogueReads,
+    ...studioApi(sb),
     creator: async (handle: string) => {
       // Sales and rating badges still come from the demo creator when there is one; the profile is the server's.
       const seed = (await demo.creator(handle)).creator;

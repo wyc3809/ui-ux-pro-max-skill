@@ -327,10 +327,11 @@ function ZipSource({ value, onChange, onStack }: { value: Extract<SourceChoice, 
     progress.value = withTiming(0.92, { duration: 2200, easing: Easing.out(Easing.quad), reduceMotion: ReduceMotion.System });
     onChange({ kind: "zip", fileName: "my-app.zip", report: null });
     upload.mutate(undefined, {
-      onSuccess: ({ fileName, report }) => {
+      onSuccess: (r) => {
+        const { fileName, report } = r;
         progress.value = withTiming(1, { duration: 200 });
         haptic(isBlocking(report.checks) ? "warning" : "success");
-        onChange({ kind: "zip", fileName, report });
+        onChange({ kind: "zip", fileName, report, path: "path" in r ? (r.path as string) : undefined });
         if (!isBlocking(report.checks)) onStack?.(report.stack);
       },
       // A failed upload returns to the upload button so it can be retried; the bar never sticks at 92%.

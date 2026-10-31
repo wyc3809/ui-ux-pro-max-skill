@@ -120,6 +120,9 @@ export const zhHant = {
     link: "複製網頁版連結",
     linkHint: "在電腦登入後下載",
     sent: "已寄出，請查看電郵",
+    download: "立即下載",
+    downloadHint: "在這部電腦下載 zip，連結 10 分鐘內有效",
+    downloading: "開始下載",
   },
   library: {
     title: "已購",
@@ -144,6 +147,7 @@ export const zhHant = {
     payoutNext: "下次結算：{date}",
     payoutHistory: "查看收款紀錄",
     feeDetails: "收費與結算說明",
+    errors: { attestRequired: "請確認你擁有這個作品的權利", invalidPrice: "請選擇一個價格級別", sourceRequired: "請連接 GitHub 或上載 zip", sourceBlocked: "原始碼未通過檢查，請先修正", missingFields: "請填寫所有必填欄位", invalidLicense: "請選擇授權", notOwned: "購買後才可以取得原始碼", noSource: "這個作品暫時沒有原始碼", noEmail: "你的帳戶沒有電郵地址", emailNotConfigured: "暫時未能寄出電郵，請改用網頁版下載", zipOnWeb: "請在網頁版上載 zip", githubNotConfigured: "GitHub 連接暫時未開放", githubNotYours: "這個 GitHub 安裝不屬於你的帳戶", githubNotLinked: "請先連接 GitHub", profileRequired: "請先建立帳戶資料" },
     payoutSetup: "設定收款帳戶",
     payoutSetupBody: "經 Stripe 收款，只需要銀行戶口",
     payoutContinue: "完成收款設定",

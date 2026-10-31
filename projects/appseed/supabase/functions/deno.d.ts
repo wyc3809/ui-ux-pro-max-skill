@@ -4,3 +4,7 @@ declare namespace Deno {
   const env: { get(key: string): string | undefined };
   function serve(handler: (req: Request) => Response | Promise<Response>): unknown;
 }
+
+declare module "npm:fflate@0.8.2" {
+  export function unzipSync(data: Uint8Array): Record<string, Uint8Array>;
+}

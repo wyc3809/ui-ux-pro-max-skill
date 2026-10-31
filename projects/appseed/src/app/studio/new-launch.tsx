@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/Switch";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { missingLaunchFields, type LaunchDraft } from "@/lib/listing";
+import { launchSubmission, missingLaunchFields, type LaunchDraft } from "@/lib/listing";
 import { useFormDraft } from "@/store/formDrafts";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
@@ -32,10 +32,15 @@ export default function NewLaunch() {
       submitLabel={t("form.publish")}
       onSubmit={() => {
         const boost = d.boost;
-        reset();
-        if (!boost) return toast(t("form.published"));
-        // The boost is charged through in-app purchase; the listing publishes either way.
-        api.purchaseBoost(BOOST_PRODUCT.id).then(() => toast(t("form.boostPaid")));
+        api
+          .submitListing(launchSubmission(d))
+          .then(() => {
+            reset();
+            if (!boost) return toast(t("form.published"));
+            // The boost is charged through in-app purchase; the listing publishes either way.
+            api.purchaseBoost(BOOST_PRODUCT.id).then(() => toast(t("form.boostPaid")));
+          })
+          .catch((e) => toast(t.error(e instanceof Error ? e.message : "", ["studio.errors", "moderation"]), "warning"));
       }}
     >
       {d.step === 0 && (

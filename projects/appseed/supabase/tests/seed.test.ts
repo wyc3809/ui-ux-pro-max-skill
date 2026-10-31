@@ -38,7 +38,7 @@ export function buildSeed(): string {
   }
   lines.push("");
   const listing = (slug: string, kind: string, owner: string, price: number, data: object) =>
-    `insert into public.listings (slug, kind, owner_id, status, price, data) values (${q(slug)}, ${q(kind)}, ${q(demoUserId(owner))}, 'live', ${price}, ${json(data)}) on conflict do nothing;`;
+    `insert into public.listings (slug, kind, owner_id, status, price, data, attested_at) values (${q(slug)}, ${q(kind)}, ${q(demoUserId(owner))}, 'live', ${price}, ${json(data)}, now()) on conflict do nothing;`;
   const priceRow = (slug: string, owner: string, price: number) =>
     `insert into public.listing_prices (listing_id, seller_id, product_id, price) values (${q(slug)}, ${q(demoUserId(owner))}, ${q(`tier_${price / 100}`)}, ${price}) on conflict do nothing;`;
 

@@ -6,7 +6,8 @@ import { Chip, Tag } from "@/components/ui/Chip";
 import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
-import { missingPromptFields, promptDraftVariables, type PromptDraft } from "@/lib/listing";
+import { missingPromptFields, promptDraftVariables, promptSubmission, type PromptDraft } from "@/lib/listing";
+import { api } from "@/api/backend";
 import { formatPrice } from "@/lib/price";
 import { PROMPT_TIERS, splitPreview } from "@/lib/prompt";
 import { useFormDraft } from "@/store/formDrafts";
@@ -32,10 +33,15 @@ export default function NewPrompt() {
       setStep={(step) => patch({ step })}
       missing={(s) => missingPromptFields(d, s)}
       submitLabel={t("upload.submit")}
-      onSubmit={() => {
-        reset();
-        toast(t("form.listed"));
-      }}
+      onSubmit={() =>
+        api
+          .submitListing(promptSubmission(d))
+          .then(() => {
+            reset();
+            toast(t("form.listed"));
+          })
+          .catch((e) => toast(t.error(e instanceof Error ? e.message : "", ["studio.errors", "moderation"]), "warning"))
+      }
     >
       {d.step === 0 && (
         <>

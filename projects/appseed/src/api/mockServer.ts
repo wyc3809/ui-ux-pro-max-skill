@@ -419,6 +419,19 @@ export const api = {
     await wait(null, 2400);
     return { fileName: "my-app.zip", report: report(zipManifest) };
   },
+  /** Listing submission: the real server screens, scans the source and puts it in review. */
+  submitListing: async (_listing: Record<string, unknown>) => {
+    await wait(null, 900);
+    return { slug: "demo-submitted", status: "review" };
+  },
+  /** Emails a 24-hour download link in production; the demo just confirms. */
+  sendToComputer: async (_slug: string) => wait({ ok: true as const }, 600),
+  /** A short-lived signed URL in production (web only); the demo has no files. */
+  sourceDownload: async (_slug: string) => wait({ url: null as string | null }, 300),
+  linkGithub: async (_code: string, _installationId: string) => {
+    mmkv.set(GITHUB_KEY, githubLogin);
+    return wait({ login: githubLogin }, 300);
+  },
   studio: () => wait({ listings: myListings, sales: salesSeries, revenue: 8296, payout: 5420, nextPayout: "2026-11-09" }),
   /** For you is ranked per viewer (§28); the real server builds the viewer profile from its own records. */
   /** Records acceptance of the current terms and returns the updated account. */

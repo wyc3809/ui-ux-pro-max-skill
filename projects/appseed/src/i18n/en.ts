@@ -122,6 +122,9 @@ export const en: Dict = {
     link: "Copy web link",
     linkHint: "Sign in on your computer to download",
     sent: "Sent. Check your inbox",
+    download: "Download now",
+    downloadHint: "Download the zip on this computer; the link lasts 10 minutes",
+    downloading: "Download started",
   },
   library: {
     title: "Library",
@@ -146,6 +149,7 @@ export const en: Dict = {
     payoutNext: "Next payout: {date}",
     payoutHistory: "Payout history",
     feeDetails: "Fees and payouts explained",
+    errors: { attestRequired: "Confirm you own the rights to this work", invalidPrice: "Choose a price tier", sourceRequired: "Connect GitHub or upload a zip", sourceBlocked: "The source didn't pass the checks. Fix it first", missingFields: "Fill in every required field", invalidLicense: "Choose a licence", notOwned: "Buy it to get the source", noSource: "This listing has no source yet", noEmail: "Your account has no email address", emailNotConfigured: "Email isn't available right now. Download on the web instead", zipOnWeb: "Upload the zip from the web studio", githubNotConfigured: "GitHub isn't available yet", githubNotYours: "That GitHub installation isn't yours", githubNotLinked: "Connect GitHub first", profileRequired: "Create your profile first" },
     payoutSetup: "Set up payouts",
     payoutSetupBody: "Paid through Stripe. All you need is a bank account",
     payoutContinue: "Finish payout setup",

@@ -32,15 +32,15 @@ begin
   exception when raise_exception then if sqlerrm <> 'profileExists' then raise; end if; end;
 end $$;
 
-insert into public.listings (slug, kind, owner_id, status, price, data) values
-  ('demo-tpl', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 15800, '{"name": "Demo template"}'),
-  ('demo-tpl-2', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 7800, '{}'),
-  ('demo-prompt', 'prompt', '00000000-0000-0000-0000-0000000000d1', 'live', 3800, '{}'),
-  ('demo-free', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}'),
-  ('demo-launch', 'launch', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}'),
-  ('demo-buyout', 'buyout', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}'),
-  ('demo-draft', 'template', '00000000-0000-0000-0000-0000000000d1', 'draft', 5800, '{}'),
-  ('demo-other-tpl', 'template', '00000000-0000-0000-0000-0000000000d3', 'live', 5800, '{}');
+insert into public.listings (slug, kind, owner_id, status, price, data, attested_at) values
+  ('demo-tpl', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 15800, '{"name": "Demo template"}', now()),
+  ('demo-tpl-2', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 7800, '{}', now()),
+  ('demo-prompt', 'prompt', '00000000-0000-0000-0000-0000000000d1', 'live', 3800, '{}', now()),
+  ('demo-free', 'template', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}', now()),
+  ('demo-launch', 'launch', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}', now()),
+  ('demo-buyout', 'buyout', '00000000-0000-0000-0000-0000000000d1', 'live', 0, '{}', now()),
+  ('demo-draft', 'template', '00000000-0000-0000-0000-0000000000d1', 'draft', 5800, '{}', now()),
+  ('demo-other-tpl', 'template', '00000000-0000-0000-0000-0000000000d3', 'live', 5800, '{}', now());
 insert into public.prompt_texts values ('demo-prompt', 'Full prompt text only owners can read.');
 
 do $$

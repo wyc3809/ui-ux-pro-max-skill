@@ -18,7 +18,8 @@ import { useT } from "@/i18n";
 import { haptic } from "@/lib/haptic";
 import { LICENSES } from "@/lib/license";
 import { formatPrice, PRICE_TIERS } from "@/lib/price";
-import { missingFields, UPLOAD_STEPS } from "@/lib/upload";
+import { missingFields, templateSubmission, UPLOAD_STEPS } from "@/lib/upload";
+import { api } from "@/api/backend";
 import { useUploadDraft } from "@/store/uploadDraft";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -45,9 +46,16 @@ export default function UploadWizard() {
       haptic("selection");
       patch({ step: step + 1 });
     } else {
-      toast(t("upload.submitted"));
-      reset();
-      router.back();
+      // The server screens the text, rescans the source and puts the listing in review.
+      api
+        .submitListing(templateSubmission(d))
+        .then(() => {
+          haptic("success");
+          toast(t("upload.submitted"));
+          reset();
+          router.back();
+        })
+        .catch((e) => toast(t.error(e instanceof Error ? e.message : "", ["studio.errors", "moderation"]), "warning"));
     }
   };
 

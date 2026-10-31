@@ -154,7 +154,7 @@ export type ScanReport = { checks: import("@/lib/sourceScan").Check[]; stack: st
 /** Where a listing's source code comes from. Serializable so it lives in the auto-saved draft. */
 export type SourceChoice =
   | { kind: "github"; repo: string; branch: string; report: ScanReport | null }
-  | { kind: "zip"; fileName: string | null; report: ScanReport | null };
+  | { kind: "zip"; fileName: string | null; report: ScanReport | null; /** Storage path once uploaded (Supabase). */ path?: string };
 
 export type User = {
   id: string;

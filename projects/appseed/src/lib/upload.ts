@@ -4,6 +4,26 @@ import { isBlocking } from "./sourceScan";
 
 export const UPLOAD_STEPS = 5;
 
+/** What the studio function receives for a template (the server re-checks all of it). */
+export function templateSubmission(d: UploadDraft) {
+  const s = d.source;
+  return {
+    kind: "template",
+    name: d.name,
+    tagline: d.tagline,
+    category: d.category,
+    platforms: d.platforms,
+    stack: d.stack,
+    screenshots: d.screenshots,
+    storySteps: d.storySteps,
+    freePreviewSteps: d.freePreviewSteps,
+    tier: d.tier,
+    license: d.license,
+    source: s?.kind === "github" ? { kind: "github", repo: s.repo, branch: s.branch } : s?.kind === "zip" ? { kind: "zip", path: s.path ?? null } : null,
+    attest: d.originalityConfirmed,
+  };
+}
+
 /** Which required fields are missing on a given wizard step (0-based). Empty = can advance. */
 export function missingFields(d: UploadDraft, step: number): string[] {
   const miss: string[] = [];

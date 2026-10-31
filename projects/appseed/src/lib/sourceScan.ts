@@ -1,4 +1,5 @@
-import type { FileNode } from "@/api/types";
+/** Same shape as FileNode in src/api/types.ts; declared here so the server can run this file unchanged. */
+type FileNode = { name: string; size?: number; children?: FileNode[] };
 
 /**
  * Pre-review checks on a template's source (GitHub repo or zip). The real scan runs in a

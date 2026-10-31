@@ -8,7 +8,7 @@ insert into auth.users values
   ('00000000-0000-0000-0000-00000000000c'); -- another seller
 
 set role service_role;
-insert into public.listings (slug, kind, owner_id, status, price) values ('demo-listing', 'template', '00000000-0000-0000-0000-00000000000a', 'live', 15800);
+insert into public.listings (slug, kind, owner_id, status, price, attested_at) values ('demo-listing', 'template', '00000000-0000-0000-0000-00000000000a', 'live', 15800, now());
 insert into public.listing_prices values ('demo-listing', '00000000-0000-0000-0000-00000000000a', 'tier_158', 15800, true);
 insert into public.connect_accounts (seller_id, stripe_account_id, payouts_enabled) values ('00000000-0000-0000-0000-00000000000a', 'acct_demo', true);
 insert into public.orders (provider, external_id, buyer_id, seller_id, listing_id, gross, channel_fee, platform_fee, seller_amount, purchased_at)

@@ -89,3 +89,7 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
   }
   return miss;
 }
+
+/** What the studio function receives for a prompt or a launch (the server re-checks all of it). */
+export const promptSubmission = (d: PromptDraft) => ({ kind: "prompt", title: d.title, summary: d.summary, tool: d.tool, text: d.text, previewLines: d.previewLines, tier: d.tier, attest: d.attest });
+export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, attest: d.attest });
