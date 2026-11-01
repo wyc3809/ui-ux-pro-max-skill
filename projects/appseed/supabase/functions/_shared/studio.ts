@@ -5,6 +5,8 @@ import { screenText } from "./rules/moderation.ts";
 import { PRICE_TIERS } from "./rules/price.ts";
 import { PROMPT_TIERS } from "./rules/prompt.ts";
 import { isBlocking } from "./rules/sourceScan.ts";
+import { extensionFor, MEDIA, type MediaKind, MIN_TEMPLATE_SCREENSHOTS, validateMedia } from "./rules/media.ts";
+import { normalizeStoreLinks } from "./rules/storeLinks.ts";
 import { manifestFromEntries, scanReport, shouldRead, type SourceEntry } from "./source.ts";
 
 /**
@@ -28,7 +30,11 @@ export interface StudioDeps {
     signUpload(path: string): Promise<{ url: string; token: string }>;
     read(path: string): Promise<Uint8Array>;
     write(path: string, bytes: Uint8Array): Promise<void>;
+    /** Signed upload into the public `media` bucket. */
+    signMediaUpload(path: string): Promise<{ url: string; token: string }>;
   };
+  /** Public URL prefix of the `media` bucket, e.g. https://<project>.supabase.co/storage/v1/object/public/media */
+  mediaBase: string;
   unzip(bytes: Uint8Array): SourceEntry[];
   github: {
     /** Exchanges the OAuth code from the install redirect; returns the person's login and their installation ids. */
@@ -117,6 +123,15 @@ export async function handleStudio(deps: StudioDeps, userId: string, body: Recor
       const path = `uploads/${userId}/${now.getTime()}-${name}`;
       return { path, ...(await storage.signUpload(path)) };
     }
+    case "mediaUploadUrl": {
+      const kind = body.kind as MediaKind;
+      if (!["icon", "screenshot", "video"].includes(kind)) fail("mediaType");
+      const file = { mime: str(body.mime, 40), bytes: Number(body.bytes), width: Number(body.width) || 0, height: Number(body.height) || 0, durationMs: Number(body.durationMs) || 0 };
+      const error = validateMedia(kind, file);
+      if (error) fail(error);
+      const path = `${userId}/${now.getTime()}-${suffix}.${extensionFor(file.mime)}`;
+      return { path, ...(await storage.signMediaUpload(path)), publicUrl: `${deps.mediaBase}/${path}` };
+    }
     case "scanZip":
       return (await scanZip(ownUpload(body.path))).report;
     case "linkGithub": {
@@ -147,6 +162,25 @@ export async function handleStudio(deps: StudioDeps, userId: string, body: Recor
     default:
       return fail("unknownAction");
   }
+}
+
+/**
+ * Media on a listing must be files this person uploaded to the media bucket (no hotlinking or someone else's
+ * images), within the counts lib/media.ts allows. Returns the cleaned media, or throws.
+ */
+export function cleanMedia(input: unknown, userId: string, mediaBase: string, minScreenshots = 0) {
+  const m = (input && typeof input === "object" ? input : {}) as { icon?: unknown; screenshots?: unknown; video?: unknown };
+  const mine = (u: unknown) => typeof u === "string" && u.startsWith(`${mediaBase}/${userId}/`) && !u.includes("..");
+  const own = (u: unknown) => (u == null || u === "" ? undefined : mine(u) ? (u as string) : fail("mediaNotYours"));
+  const shots = Array.isArray(m.screenshots) ? m.screenshots : [];
+  if (shots.length > MEDIA.screenshot.max) fail("mediaTooMany");
+  if (shots.length < minScreenshots) fail("screenshotsRequired");
+  return { icon: own(m.icon), screenshots: shots.map((s) => own(s)!), video: own(m.video) };
+}
+
+export function cleanStoreLinks(input: unknown) {
+  const r = normalizeStoreLinks((input && typeof input === "object" ? input : {}) as Record<string, unknown>);
+  return "error" in r ? fail(r.error) : r.links;
 }
 
 async function submit(
@@ -185,6 +219,8 @@ async function submit(
     source = (l.source as SourceInput) ?? fail("sourceRequired");
     price = tier * 100;
     data = {
+      media: cleanMedia(l.media, userId, deps.mediaBase, MIN_TEMPLATE_SCREENSHOTS),
+      storeLinks: cleanStoreLinks(l.storeLinks),
       name,
       tagline,
       category: str(l.category, 20) || "tools",
@@ -245,9 +281,13 @@ async function submit(
     const name = str(l.name, 60);
     const tagline = str(l.tagline, 140);
     const link = str(l.link, 300);
-    if (!name || !tagline || !/^https:\/\//.test(link)) fail("missingFields");
+    const storeLinks = cleanStoreLinks(l.storeLinks);
+    // Somewhere to try it: an https website, a store page, or both.
+    if (!name || !tagline || (link ? !/^https:\/\//.test(link) : !Object.keys(storeLinks).length)) fail("missingFields");
     screen(name, tagline);
     data = {
+      media: cleanMedia(l.media, userId, deps.mediaBase),
+      storeLinks,
       name,
       tagline,
       maker: handle,
@@ -263,7 +303,7 @@ async function submit(
       newAccountShare: 0,
       reports: 0,
       story: "",
-      links: [{ label: new URL(link).hostname, url: link }],
+      links: link ? [{ label: new URL(link).hostname, url: link }] : [],
       cover,
     };
   } else if (l.kind === "buyout" && !FEATURES.buyouts) {

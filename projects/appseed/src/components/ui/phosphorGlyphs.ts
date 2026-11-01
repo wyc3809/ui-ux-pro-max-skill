@@ -4,6 +4,7 @@
  * Regenerate when adding an icon: both fonts in assets/fonts must contain the new glyph.
  */
 export const PHOSPHOR_REGULAR = {
+  "app-store-logo": 59764,
   "apple-logo": 58646,
   "arrow-bend-down-right": 57370,
   "arrow-clockwise": 57398,
@@ -39,6 +40,7 @@ export const PHOSPHOR_REGULAR = {
   "envelope-simple": 57880,
   "eye": 57888,
   "file-text": 57914,
+  "film-strip": 59282,
   "flag": 57924,
   "folder": 57930,
   "funnel": 57958,
@@ -49,6 +51,7 @@ export const PHOSPHOR_REGULAR = {
   "github-logo": 58742,
   "globe": 57992,
   "google-logo": 58002,
+  "google-play-logo": 58004,
   "grid-four": 58006,
   "hammer": 59406,
   "hand": 58008,
@@ -72,6 +75,7 @@ export const PHOSPHOR_REGULAR = {
   "pencil-simple": 58292,
   "pencil-simple-line": 60358,
   "plant": 60334,
+  "play": 58320,
   "plus": 58324,
   "presentation-chart": 58966,
   "receipt": 58348,
@@ -97,6 +101,7 @@ export const PHOSPHOR_REGULAR = {
   "trend-down": 58540,
   "trend-up": 58542,
   "trophy": 59006,
+  "upload-simple": 58560,
   "user": 58562,
   "user-minus": 58574,
   "users": 58582,
@@ -111,6 +116,7 @@ export const PHOSPHOR_REGULAR = {
 } as const;
 
 export const PHOSPHOR_FILL = {
+  "app-store-logo": 59764,
   "apple-logo": 58646,
   "arrow-bend-down-right": 57370,
   "arrow-clockwise": 57398,
@@ -146,6 +152,7 @@ export const PHOSPHOR_FILL = {
   "envelope-simple": 57880,
   "eye": 57888,
   "file-text": 57914,
+  "film-strip": 59282,
   "flag": 57924,
   "folder": 57930,
   "funnel": 57958,
@@ -156,6 +163,7 @@ export const PHOSPHOR_FILL = {
   "github-logo": 58742,
   "globe": 57992,
   "google-logo": 58002,
+  "google-play-logo": 58004,
   "grid-four": 58006,
   "hammer": 59406,
   "hand": 58008,
@@ -179,6 +187,7 @@ export const PHOSPHOR_FILL = {
   "pencil-simple": 58292,
   "pencil-simple-line": 60358,
   "plant": 60334,
+  "play": 58320,
   "plus": 58324,
   "presentation-chart": 58966,
   "receipt": 58348,
@@ -204,6 +213,7 @@ export const PHOSPHOR_FILL = {
   "trend-down": 58540,
   "trend-up": 58542,
   "trophy": 59006,
+  "upload-simple": 58560,
   "user": 58562,
   "user-minus": 58574,
   "users": 58582,

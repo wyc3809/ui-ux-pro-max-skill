@@ -49,6 +49,9 @@ describe("GitHub App JWT", () => {
   });
 });
 
+const MEDIA_BASE = "https://demo.supabase.co/storage/v1/object/public/media";
+const shot = (n: number) => `${MEDIA_BASE}/u1/shot-${n}.png`;
+
 function fakeDeps(over: { owns?: boolean; installation?: boolean; email?: boolean } = {}) {
   const calls: { fn: string; args: Record<string, unknown> }[] = [];
   const sources: unknown[] = [];
@@ -71,7 +74,9 @@ function fakeDeps(over: { owns?: boolean; installation?: boolean; email?: boolea
       signUpload: async (path) => ({ url: `https://files.example/upload/${path}`, token: "t" }),
       read: async () => new Uint8Array(10),
       write: async (path) => void written.push(path),
+      signMediaUpload: async (path) => ({ url: `https://files.example/upload/${path}`, token: "m" }),
     },
+    mediaBase: MEDIA_BASE,
     unzip: () => clean,
     github: {
       userInstallations: async () => ({ login: "demo", ids: [7] }),
@@ -97,6 +102,8 @@ const template = (over: Record<string, unknown> = {}) => ({
   storySteps: [{ title: "Data model", body: "Amounts in cents." }],
   freePreviewSteps: 1,
   source: { kind: "zip", path: "uploads/u1/1-app.zip" },
+  media: { icon: `${MEDIA_BASE}/u1/icon.png`, screenshots: [shot(1), shot(2), shot(3)] },
+  storeLinks: { appStore: "https://apps.apple.com/hk/app/pocket-ledger/id1234567890", googlePlay: "" },
   attest: true,
   ...over,
 });
@@ -163,6 +170,33 @@ describe("studio function", () => {
     const f = fakeDeps();
     await expect(handleStudio(f.deps, "u1", { action: "sourceUploadUrl", fileName: "my app.zip" })).resolves.toMatchObject({ path: expect.stringMatching(/^uploads\/u1\/\d+-my_app\.zip$/) });
     await expect(handleStudio(f.deps, "u1", { action: "sourceUploadUrl", fileName: "app.exe" })).rejects.toThrow("zipOnly");
+  });
+
+  it("signs media uploads only for files that pass the rules", async () => {
+    const f = fakeDeps();
+    const ok = (await handleStudio(f.deps, "u1", { action: "mediaUploadUrl", kind: "icon", mime: "image/png", bytes: 200_000, width: 1024, height: 1024 })) as { path: string; publicUrl: string };
+    expect(ok.path).toMatch(/^u1\/\d+-x7k2\.png$/);
+    expect(ok.publicUrl).toBe(`${MEDIA_BASE}/${ok.path}`);
+    await expect(handleStudio(f.deps, "u1", { action: "mediaUploadUrl", kind: "icon", mime: "image/png", bytes: 200_000, width: 1024, height: 800 })).rejects.toThrow("iconNotSquare");
+    await expect(handleStudio(f.deps, "u1", { action: "mediaUploadUrl", kind: "video", mime: "video/mp4", bytes: 1000, durationMs: 60_000 })).rejects.toThrow("videoTooLong");
+  });
+
+  it("keeps media and canonical store links on the listing, and refuses someone else's images", async () => {
+    const f = fakeDeps();
+    await handleStudio(f.deps, "u1", { action: "submitListing", listing: template() });
+    expect(f.calls[0]!.args.p_data).toMatchObject({ media: { icon: `${MEDIA_BASE}/u1/icon.png`, screenshots: [shot(1), shot(2), shot(3)] }, storeLinks: { appStore: "https://apps.apple.com/app/id1234567890" } });
+    const run = (listing: object) => handleStudio(fakeDeps().deps, "u1", { action: "submitListing", listing });
+    await expect(run(template({ media: { screenshots: [shot(1), shot(2), `${MEDIA_BASE}/u2/stolen.png`] } }))).rejects.toThrow("mediaNotYours");
+    await expect(run(template({ media: { screenshots: ["https://evil.example/a.png", shot(2), shot(3)] } }))).rejects.toThrow("mediaNotYours");
+    await expect(run(template({ media: { screenshots: [shot(1)] } }))).rejects.toThrow("screenshotsRequired");
+    await expect(run(template({ storeLinks: { appStore: "https://apps.apple.com.evil.example/app/id1234567890" } }))).rejects.toThrow("storeLinkInvalid");
+  });
+
+  it("lets a launch use a store link instead of a website", async () => {
+    const f = fakeDeps();
+    await handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "Ferry Now", tagline: "Next ferry at a glance", link: "", storeLinks: { googlePlay: "app.ferrynow.hk" }, attest: true } });
+    expect(f.calls[0]!.args.p_data).toMatchObject({ links: [], storeLinks: { googlePlay: "https://play.google.com/store/apps/details?id=app.ferrynow.hk" } });
+    await expect(handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "X", tagline: "Y", link: "", attest: true } })).rejects.toThrow("missingFields");
   });
 
   it("makes readable slugs", () => {

@@ -11,12 +11,13 @@ import { useFormDraft } from "@/store/formDrafts";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius } from "@/theme/tokens";
 import { api } from "@/api/backend";
+import { MediaEditor, StoreLinkFields } from "@/components/studio/MediaEditor";
 import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { BOOST_PRODUCT } from "@/lib/launch";
 import { formatPrice } from "@/lib/price";
 
 const TOOLS = ["Claude Code", "Cursor", "v0", "Windsurf", "Bolt", "Lovable"];
-const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", aiTools: [], buildDays: "", link: "", boost: false, attest: false };
+const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", aiTools: [], buildDays: "", link: "", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: false };
 
 export default function NewLaunch() {
   const { c } = useTheme();
@@ -25,7 +26,7 @@ export default function NewLaunch() {
   return (
     <ListingWizard
       title={t("listing.launch")}
-      steps={[t("form.launchS1"), t("form.launchS2")]}
+      steps={[t("form.launchS1"), t("media.title"), t("form.launchS2")]}
       step={d.step}
       setStep={(step) => patch({ step })}
       missing={(s) => missingLaunchFields(d, s)}
@@ -57,7 +58,18 @@ export default function NewLaunch() {
       )}
       {d.step === 1 && (
         <>
-          <Field label={t("form.link")} value={d.link} onChangeText={(link) => patch({ link })} placeholder="https://" autoCapitalize="none" keyboardType="url" />
+          <MediaEditor value={d.media} onChange={(media) => patch({ media })} />
+          <Group label={t("media.storeLinks")}>
+            <Txt variant="caption" tone="fgMuted" style={{ width: "100%" }}>
+              {t("media.storeLinksHint")}
+            </Txt>
+            <StoreLinkFields value={d.storeLinks} onChange={(storeLinks) => patch({ storeLinks })} />
+          </Group>
+        </>
+      )}
+      {d.step === 2 && (
+        <>
+          <Field label={t("form.link")} value={d.link} onChangeText={(link) => patch({ link })} placeholder="https://" autoCapitalize="none" keyboardType="url" hint={d.storeLinks.appStore || d.storeLinks.googlePlay ? t("media.linkOptional") : undefined} />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 16, borderRadius: radius.inset, backgroundColor: c.bgMuted }}>
             <View style={{ flex: 1, gap: 4 }}>
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>

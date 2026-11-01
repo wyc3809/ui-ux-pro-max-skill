@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import type { CategoryKey } from "@/api/types";
 import { Field, Group, Note } from "@/components/studio/FormFields";
+import { MediaEditor, StoreLinkFields } from "@/components/studio/MediaEditor";
 import { SourcePicker } from "@/components/studio/SourcePicker";
+import { MIN_TEMPLATE_SCREENSHOTS } from "@/lib/media";
 import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
 import { UploadStepper } from "@/components/studio/UploadStepper";
 import { Chip } from "@/components/ui/Chip";
@@ -98,20 +100,15 @@ export default function UploadWizard() {
             </>
           )}
           {step === 2 && (
-            <Group label={t("upload.screenshots")}>
-              {Array.from({ length: d.screenshots }, (_, i) => (
-                <Animated.View key={i} entering={rowIn} exiting={rowOut} style={{ width: 72, aspectRatio: 9 / 19.5, borderRadius: 12, backgroundColor: c.accentSoft, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center" }}>
-                  <Txt tone="accent" variant="caption">
-                    {i + 1}
-                  </Txt>
-                </Animated.View>
-              ))}
-              {d.screenshots < 8 && (
-                <PressableScale onPress={() => patch({ screenshots: d.screenshots + 1 })} hapticKind="tap" accessibilityLabel={t("upload.addShot")} style={{ width: 72, aspectRatio: 9 / 19.5, borderRadius: 12, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.fgSubtle, alignItems: "center", justifyContent: "center" }}>
-                  <Icon name="image" size={20} color={c.fgSubtle} motion="bounce" trigger={d.screenshots} />
-                </PressableScale>
-              )}
-            </Group>
+            <>
+              <MediaEditor value={d.media} onChange={(media) => patch({ media })} minScreenshots={MIN_TEMPLATE_SCREENSHOTS} />
+              <Group label={t("media.storeLinks")}>
+                <Txt variant="caption" tone="fgMuted" style={{ width: "100%" }}>
+                  {t("media.storeLinksHint")}
+                </Txt>
+                <StoreLinkFields value={d.storeLinks} onChange={(storeLinks) => patch({ storeLinks })} />
+              </Group>
+            </>
           )}
           {step === 3 && (
             <>

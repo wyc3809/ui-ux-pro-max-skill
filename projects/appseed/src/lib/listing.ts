@@ -1,3 +1,5 @@
+import type { ListingMedia } from "./media";
+import { normalizeStoreLinks } from "./storeLinks";
 import type { Platform, SourceChoice } from "@/api/types";
 import { promptVariables } from "./prompt";
 import { isTransferReady, needsVerification, type StoreFacts, type VerifySource } from "./transfer";
@@ -23,7 +25,19 @@ export type BuyoutDraft = {
 
 /** Buyout wizard steps, in order. */
 export const BUYOUT_STEPS = ["info", "metrics", "transfer", "source", "included", "asking"] as const;
-export type LaunchDraft = { step: number; name: string; tagline: string; aiTools: string[]; buildDays: string; link: string; boost: boolean; attest: boolean };
+export type LaunchDraft = {
+  step: number;
+  name: string;
+  tagline: string;
+  aiTools: string[];
+  buildDays: string;
+  /** The app's website; optional when it has a store link. */
+  link: string;
+  media: ListingMedia;
+  storeLinks: { appStore: string; googlePlay: string };
+  boost: boolean;
+  attest: boolean;
+};
 
 const num = (s: string) => (/^\d+$/.test(s.trim()) ? Number(s.trim()) : NaN);
 const isUrl = (s: string) => /^https:\/\/[^\s/]+\.[^\s]+$/.test(s.trim());
@@ -84,7 +98,14 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
     if (Number.isNaN(num(d.buildDays)) || num(d.buildDays) < 1) miss.push("buildDays");
   }
   if (step === 1) {
-    if (!isUrl(d.link)) miss.push("link");
+    // Media is optional; a store link that is there must be a real store link.
+    if ("error" in normalizeStoreLinks(d.storeLinks)) miss.push("storeLinks");
+  }
+  if (step === 2) {
+    const stores = normalizeStoreLinks(d.storeLinks);
+    const hasStore = "links" in stores && Object.keys(stores.links).length > 0;
+    // Somewhere to try it: a website, a store page, or both.
+    if (d.link.trim() ? !isUrl(d.link) : !hasStore) miss.push("link");
     if (!d.attest) miss.push("attest");
   }
   return miss;
@@ -92,7 +113,7 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
 
 /** What the studio function receives for a prompt or a launch (the server re-checks all of it). */
 export const promptSubmission = (d: PromptDraft) => ({ kind: "prompt", title: d.title, summary: d.summary, tool: d.tool, text: d.text, previewLines: d.previewLines, tier: d.tier, attest: d.attest });
-export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, attest: d.attest });
+export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, media: d.media, storeLinks: d.storeLinks, attest: d.attest });
 
 /** A newer version came out after this account bought it (unknown purchase date: no badge). */
 export const hasUpdate = (latest: string | undefined, boughtAt: string | undefined) => !!latest && !!boughtAt && latest > boughtAt.slice(0, 10);

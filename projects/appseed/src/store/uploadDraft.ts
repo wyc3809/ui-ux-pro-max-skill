@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { SourceChoice } from "@/api/types";
 import type { PriceTier } from "@/lib/price";
 import type { LicenseKind } from "@/lib/license";
+import type { ListingMedia } from "@/lib/media";
 import { mmkvStorage } from "./storage";
 
 export type UploadDraft = {
@@ -14,7 +15,9 @@ export type UploadDraft = {
   source: SourceChoice | null;
   /** Filled from the scan; the creator can still edit it later. */
   stack: string[];
-  screenshots: number;
+  /** Uploaded icon, screenshots and video (URLs once uploaded). */
+  media: ListingMedia;
+  storeLinks: { appStore: string; googlePlay: string };
   storySteps: { title: string; body: string }[];
   freePreviewSteps: number;
   tier: PriceTier | null;
@@ -30,7 +33,8 @@ const empty: UploadDraft = {
   platforms: [],
   source: null,
   stack: [],
-  screenshots: 0,
+  media: { screenshots: [] },
+  storeLinks: { appStore: "", googlePlay: "" },
   storySteps: [{ title: "", body: "" }],
   freePreviewSteps: 1,
   tier: null,
@@ -52,6 +56,16 @@ export const useUploadDraft = create<DraftState>()(
       patch: (p) => set({ draft: { ...get().draft, ...p } }),
       reset: () => set({ draft: empty }),
     }),
-    { name: "upload-draft", storage: createJSONStorage(() => mmkvStorage) },
+    {
+      name: "upload-draft",
+      storage: createJSONStorage(() => mmkvStorage),
+      // Drafts saved before media existed had a screenshot count instead; start their media empty.
+      version: 1,
+      migrate: (old) => {
+        const s = old as { draft?: Partial<UploadDraft> & { screenshots?: unknown } } | undefined;
+        const { screenshots: _count, ...rest } = s?.draft ?? {};
+        return { draft: { ...empty, ...rest, media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" } } } as unknown as DraftState;
+      },
+    },
   ),
 );

@@ -1,4 +1,6 @@
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import type { ListingMedia } from "@/lib/media";
 import { View, type ViewStyle } from "react-native";
 import Animated, { FadeIn, FadeInDown, FadeInLeft, ReduceMotion } from "react-native-reanimated";
 import type { CoverIcon, Template } from "@/api/types";
@@ -35,8 +37,24 @@ const RM = ReduceMotion.System;
  * Creator-supplied gradients are content, not UI chrome, so they are exempt from tokens.
  * Motion: the phone rises into frame on a spring and its UI blocks build up one by one.
  */
-export function Cover({ t, style, screen = 0, rounded = radius.media }: { t: { cover: Template["cover"] }; style?: ViewStyle; screen?: number; rounded?: number }) {
+export function Cover({ t, style, screen = 0, rounded = radius.media }: { t: { cover: Template["cover"]; media?: ListingMedia }; style?: ViewStyle; screen?: number; rounded?: number }) {
   const { c } = useTheme();
+  // A creator's uploaded icon replaces the placeholder: full-bleed in square thumbnails, centred on the creator's
+  // gradient in wider cards (§39).
+  if (t.media?.icon) {
+    const square = style?.aspectRatio === 1;
+    return (
+      <View style={[{ aspectRatio: 16 / 10, borderRadius: rounded, overflow: "hidden", borderWidth: 1, borderColor: c.border }, style]}>
+        {square ? (
+          <Image source={{ uri: t.media.icon }} style={{ flex: 1 }} contentFit="cover" transition={160} accessibilityIgnoresInvertColors />
+        ) : (
+          <LinearGradient colors={[t.cover.from, t.cover.to]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+            <Image source={{ uri: t.media.icon }} style={{ width: "34%", aspectRatio: 1, borderRadius: radius.card }} contentFit="cover" transition={160} accessibilityIgnoresInvertColors />
+          </LinearGradient>
+        )}
+      </View>
+    );
+  }
   const angle = screen % 2 === 0 ? { start: { x: 0, y: 0 }, end: { x: 1, y: 1 } } : { start: { x: 1, y: 0 }, end: { x: 0, y: 1 } };
   return (
     <View style={[{ aspectRatio: 16 / 10, borderRadius: rounded, overflow: "hidden", borderWidth: 1, borderColor: c.border }, style]}>

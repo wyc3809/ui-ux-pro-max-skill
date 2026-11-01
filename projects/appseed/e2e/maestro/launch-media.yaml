@@ -1,0 +1,33 @@
+# A maker adds an app icon, screenshots and an App Store link to a launch (§39)
+appId: app.appseed.mobile
+---
+- addMedia:
+    - "assets/icon.png"
+    - "assets/shot.png"
+- launchApp
+- tapOn: "創作"
+- tapOn: "你想上架甚麼？"
+- tapOn: "推廣 App"
+- tapOn: "App 名稱"
+- inputText: "Ferry Now"
+- tapOn: "一句話簡介"
+- inputText: "天星小輪和離島渡輪實時班次。"
+- tapOn: "Claude Code"
+- tapOn: "用了多少日完成"
+- inputText: "4"
+- tapOn: "下一步"
+- assertVisible: "預覽圖片和連結"
+- tapOn: "加入 App 圖示"
+- tapOn:
+    index: 0
+    id: "PhotosGridView"
+    optional: true
+- assertVisible: "更換 App 圖示"
+- tapOn: "App Store 連結"
+- inputText: "https://apps.apple.com.evil.example/app/id1234567890"
+- assertVisible: "請貼上完整的商店連結"
+- eraseText
+- inputText: "https://apps.apple.com/hk/app/ferry-now/id1234567890"
+- assertNotVisible: "請貼上完整的商店連結"
+- tapOn: "下一步"
+- assertVisible: "已填商店連結，網站可以留空。"

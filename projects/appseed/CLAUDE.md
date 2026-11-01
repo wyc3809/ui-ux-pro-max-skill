@@ -89,7 +89,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Content others read (profiles, posts, replies, comments, offers) is written only by the `content` Edge Function;
   reactions, votes, blocks and reports go straight in under RLS. Purchases come from `my_purchases()`.
 - The server enforces src/lib rules through copies in supabase/functions/_shared/rules: after editing moderation,
-  posts, auth, socialLinks, contact, features, price, prompt, license or sourceScan, run `node scripts/sync-shared.mjs`
+  posts, auth, socialLinks, contact, features, price, prompt, license, sourceScan, media or storeLinks, run `node scripts/sync-shared.mjs`
   (a test fails otherwise). Those files must stay import-free.
 - supabase/seed.sql is generated from src/data: after changing demo data run `WRITE_SEED=1 npx jest supabase/tests/seed`.
 - Edge Functions: logic in supabase/functions/_shared (pure, Jest-tested, dependencies injected); `index.ts` files only
@@ -108,6 +108,13 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   app.json (android.intentFilters) and public/.well-known/apple-app-site-association; a test checks they match.
 - Layout is one column, centred at `layout.maxWidth` on iPad and desktop browsers.
 - Builds: `npx eas-cli@latest build --profile development|preview|production` (eas.json); keep `npx expo-doctor` at 20/20.
+
+## Listing media & store links (docs/DESIGN.md §39)
+- Icons, screenshots and videos follow lib/media.ts in the app and in the studio function; uploads only through URLs
+  the server signs, into the uploader's own folder of the public `media` bucket. Listings may only reference the
+  creator's own files, and nothing is public before staff review.
+- Store links are reduced to the app id and rebuilt as canonical apps.apple.com / play.google.com URLs (lib/storeLinks.ts);
+  never store or open a pasted store URL as is. Videos never autoplay.
 
 ## Data & security
 - Source code lives in a private bucket; downloads only via short-lived signed URLs.

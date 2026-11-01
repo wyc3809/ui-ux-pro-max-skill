@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { View } from "react-native";
+import { Image } from "expo-image";
+import { ScrollView, View } from "react-native";
 import { api } from "@/api/backend";
 import type { AdminListing, AdminReport } from "@/api/types";
 import { DetailScaffold } from "@/components/shell/DetailScaffold";
@@ -11,7 +12,7 @@ import { toast } from "@/components/ui/Toast";
 import { Txt } from "@/components/ui/Txt";
 import { useT } from "@/i18n";
 import { formatPrice } from "@/lib/price";
-import { gap } from "@/theme/tokens";
+import { gap, radius } from "@/theme/tokens";
 
 /**
  * Staff tools (§36), opened from Me for staff only: the report queue Apple expects handled within 24 hours,
@@ -91,6 +92,19 @@ function ListingCard({ l, onAct }: { l: AdminListing; onAct: (run: () => Promise
       </Txt>
       <Txt variant="bodyStrong">{l.data.name ?? l.data.title ?? l.slug}</Txt>
       <Txt tone="fgMuted">{l.data.tagline ?? l.data.summary ?? ""}</Txt>
+      {/* Every uploaded image is seen by a person before the listing goes live (§39). */}
+      {!!(l.data.media?.icon || l.data.media?.screenshots.length) && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: gap.sm }}>
+          {[l.data.media?.icon, ...(l.data.media?.screenshots ?? [])].filter(Boolean).map((uri) => (
+            <Image key={uri} source={{ uri: uri! }} style={{ width: 64, height: uri === l.data.media?.icon ? 64 : 128, borderRadius: radius.control }} contentFit="cover" />
+          ))}
+        </ScrollView>
+      )}
+      {l.data.media?.video && (
+        <Txt variant="caption" tone="fgSubtle">
+          {t("media.videoAdded")}
+        </Txt>
+      )}
       {failed.length > 0 && (
         <Txt variant="caption" tone="warn">
           {t("admin.warnings", { list: failed.join(", ") })}

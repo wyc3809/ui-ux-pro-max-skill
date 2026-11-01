@@ -438,6 +438,8 @@ export const api = {
     await wait(null, 2400);
     return { fileName: "my-app.zip", report: report(zipManifest) };
   },
+  /** Media upload (lib/media.ts rules). The demo keeps the picked file's local address; Supabase stores it. */
+  uploadMedia: async (_kind: import("@/lib/media").MediaKind, file: import("@/lib/pickMedia").PickedMedia) => wait({ url: file.uri }, 500),
   /** Listing submission: the real server screens, scans the source and puts it in review. */
   submitListing: async (_listing: Record<string, unknown>) => {
     await wait(null, 900);

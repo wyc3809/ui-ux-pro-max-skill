@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import * as WebBrowser from "expo-web-browser";
 import { Platform } from "react-native";
 import { emptyTotals, type AnalyticsReport, type DayStat, type RangeDays } from "@/lib/analytics";
+import type { MediaKind } from "@/lib/media";
+import type { PickedMedia } from "@/lib/pickMedia";
 import type { TemplateStatus } from "@/lib/status";
 import { invoke } from "./supabase";
 import type { GithubRepo, Listing, ScanReport } from "./types";
@@ -93,6 +95,17 @@ export function studioApi(sb: SupabaseClient) {
     },
     analytics: async (range: RangeDays, slug: string | null) => reportFrom(must(await sb.rpc("creator_daily", { p_days: range * 2 })) as DailyRow[], range, slug),
 
+    /** Asks the studio function to sign an upload (it re-checks the rules), uploads, returns the public URL. */
+    uploadMedia: async (kind: MediaKind, file: PickedMedia) => {
+      const { path, token, publicUrl } = (await studio({ action: "mediaUploadUrl", kind, mime: file.mime, bytes: file.bytes, width: file.width, height: file.height, durationMs: file.durationMs })) as {
+        path: string;
+        token: string;
+        publicUrl: string;
+      };
+      const blob = await fetch(file.uri).then((r) => r.blob());
+      must(await sb.storage.from("media").uploadToSignedUrl(path, token, blob, { contentType: file.mime }));
+      return { url: publicUrl };
+    },
     submitListing: async (listing: Record<string, unknown>) => (await studio({ action: "submitListing", listing })) as { slug: string; status: string },
 
     uploadZip: async () => {

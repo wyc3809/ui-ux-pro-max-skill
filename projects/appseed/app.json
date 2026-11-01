@@ -96,7 +96,16 @@
       "expo-system-ui",
       "expo-asset",
       "expo-apple-authentication",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AppSeed uses your photos to add an app icon, screenshots and a preview video to your listing.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

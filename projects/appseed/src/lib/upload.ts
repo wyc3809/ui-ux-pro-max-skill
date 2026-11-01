@@ -1,3 +1,5 @@
+import { normalizeStoreLinks } from "./storeLinks";
+import { MIN_TEMPLATE_SCREENSHOTS } from "./media";
 import type { SourceChoice } from "@/api/types";
 import type { UploadDraft } from "@/store/uploadDraft";
 import { isBlocking } from "./sourceScan";
@@ -14,7 +16,8 @@ export function templateSubmission(d: UploadDraft) {
     category: d.category,
     platforms: d.platforms,
     stack: d.stack,
-    screenshots: d.screenshots,
+    media: d.media,
+    storeLinks: d.storeLinks,
     storySteps: d.storySteps,
     freePreviewSteps: d.freePreviewSteps,
     tier: d.tier,
@@ -38,7 +41,8 @@ export function missingFields(d: UploadDraft, step: number): string[] {
       if (!sourceReady(d.source)) miss.push("source");
       break;
     case 2:
-      if (d.screenshots < 3) miss.push("screenshots");
+      if (d.media.screenshots.length < MIN_TEMPLATE_SCREENSHOTS) miss.push("screenshots");
+    if ("error" in normalizeStoreLinks(d.storeLinks)) miss.push("storeLinks");
       break;
     case 3:
       if (!d.storySteps.some((s) => s.title.trim() && s.body.trim())) miss.push("storySteps");

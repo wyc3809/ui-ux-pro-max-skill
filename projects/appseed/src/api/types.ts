@@ -39,7 +39,10 @@ export type Review = {
 
 export type Version = { version: string; date: string; notes: string };
 
-export type Template = {
+/** Creator-uploaded media (lib/media.ts) and store links (lib/storeLinks.ts), shared by templates and launches. */
+export type ListingMediaFields = { media?: import("@/lib/media").ListingMedia; storeLinks?: import("@/lib/storeLinks").StoreLinks };
+
+export type Template = ListingMediaFields & {
   slug: string;
   name: string;
   tagline: string;
@@ -121,7 +124,7 @@ export type BuyoutListing = {
 };
 
 /** "新作推廣": a vibe-coded app its maker is promoting. */
-export type Launch = {
+export type Launch = ListingMediaFields & {
   slug: string;
   name: string;
   tagline: string;
@@ -195,6 +198,6 @@ export type Post = {
 
 /** Staff queues (§36). `reports` counts open reports on the same target; `preview` is the reported text. */
 export type AdminReport = { id: string; target_kind: "post" | "comment" | "listing" | "profile"; target_id: string; target_handle: string; reason: string; detail: string; reports: number; preview: string; created_at: string };
-export type AdminListing = { slug: string; kind: string; owner_handle: string; price: number; data: { name?: string; title?: string; tagline?: string; summary?: string }; report: { checks?: { id: string; status: string }[] } | null; created_at: string };
+export type AdminListing = { slug: string; kind: string; owner_handle: string; price: number; data: { name?: string; title?: string; tagline?: string; summary?: string; media?: import("@/lib/media").ListingMedia; storeLinks?: import("@/lib/storeLinks").StoreLinks }; report: { checks?: { id: string; status: string }[] } | null; created_at: string };
 
 export type Comment = { id: string; userId: string; author: string; handle: string; body: string; createdAt: string };

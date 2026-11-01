@@ -20,7 +20,7 @@ const PhosphorFill = createIconSet(PHOSPHOR_FILL, "phosphor-fill", require("../.
 /** Load with the app's other fonts so icons never flash as boxes. */
 export const iconFonts = { ...PhosphorRegular.font, ...PhosphorFill.font };
 
-const BRANDS = { x: "x-logo", linkedin: "linkedin-logo", threads: "threads-logo", whatsapp: "whatsapp-logo", apple: "apple-logo", google: "google-logo", instagram: "instagram-logo", github: "github-logo", youtube: "youtube-logo" } as const;
+const BRANDS = { appStore: "app-store-logo", googlePlay: "google-play-logo", x: "x-logo", linkedin: "linkedin-logo", threads: "threads-logo", whatsapp: "whatsapp-logo", apple: "apple-logo", google: "google-logo", instagram: "instagram-logo", github: "github-logo", youtube: "youtube-logo" } as const;
 export type Brand = keyof typeof BRANDS;
 
 /** Third-party logos for sign-in and share buttons (filled brand marks), from the same font. */
@@ -108,6 +108,9 @@ export const ICONS = {
   flash: "lightning",
   eye: "eye",
   terminal: "terminal-window",
+  play: "play",
+  film: "film-strip",
+  upload: "upload-simple",
   layers: "stack",
   trophy: "trophy",
   globe: "globe",

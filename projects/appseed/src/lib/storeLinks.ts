@@ -1,0 +1,54 @@
+/**
+ * App Store and Google Play links on listings (docs/DESIGN.md §39). People paste whatever they copied; we keep
+ * only the app's id and rebuild the canonical URL, so a link can only ever open the real store page.
+ * Nothing here imports anything, so the server runs this file unchanged.
+ */
+export type Store = "appStore" | "googlePlay";
+export type StoreLinks = Partial<Record<Store, string>>;
+export type StoreLinkError = "storeLinkInvalid" | "storeLinkWrongStore";
+
+const PLAY_ID = /^[a-zA-Z][\w]*(\.[a-zA-Z][\w]*)+$/;
+
+export const storeUrl = (store: Store, id: string) => (store === "appStore" ? `https://apps.apple.com/app/id${id}` : `https://play.google.com/store/apps/details?id=${id}`);
+
+/** "https://apps.apple.com/hk/app/name/id1234567890?l=en" → "1234567890"; Play URL or package name → package. */
+export function storeIdFrom(store: Store, input: string): { id: string } | { error: StoreLinkError } | { id: "" } {
+  const raw = input.trim();
+  if (!raw) return { id: "" };
+  if (store === "appStore") {
+    if (/^\d{6,12}$/.test(raw)) return { id: raw };
+    let u: URL;
+    try {
+      u = new URL(raw);
+    } catch {
+      return { error: "storeLinkInvalid" };
+    }
+    if (u.hostname === "play.google.com") return { error: "storeLinkWrongStore" };
+    if (u.protocol !== "https:" || !["apps.apple.com", "itunes.apple.com"].includes(u.hostname)) return { error: "storeLinkInvalid" };
+    const m = u.pathname.match(/\/id(\d{6,12})(?:\/|$)/);
+    return m ? { id: m[1]! } : { error: "storeLinkInvalid" };
+  }
+  if (PLAY_ID.test(raw)) return { id: raw };
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return { error: "storeLinkInvalid" };
+  }
+  if (u.hostname === "apps.apple.com" || u.hostname === "itunes.apple.com") return { error: "storeLinkWrongStore" };
+  if (u.protocol !== "https:" || u.hostname !== "play.google.com" || !u.pathname.startsWith("/store/apps/details")) return { error: "storeLinkInvalid" };
+  const id = u.searchParams.get("id") ?? "";
+  return PLAY_ID.test(id) ? { id } : { error: "storeLinkInvalid" };
+}
+
+/** Normalises both links; the first problem wins. Stored values are canonical URLs. */
+export function normalizeStoreLinks(input: Partial<Record<Store, unknown>> | undefined): { links: StoreLinks } | { error: StoreLinkError; store: Store } {
+  const links: StoreLinks = {};
+  for (const store of ["appStore", "googlePlay"] as const) {
+    const v = input?.[store];
+    const r = storeIdFrom(store, typeof v === "string" ? v : "");
+    if ("error" in r) return { error: r.error, store };
+    if (r.id) links[store] = storeUrl(store, r.id);
+  }
+  return { links };
+}

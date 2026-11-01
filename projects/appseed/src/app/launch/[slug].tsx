@@ -34,6 +34,8 @@ import { font, nested, radius } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 import { ZoomTarget } from "@/components/ui/ZoomLink";
 import { CreatorCard } from "@/components/creator/CreatorCard";
+import { MediaCarousel } from "@/components/template/MediaCarousel";
+import { StoreBadges } from "@/components/template/StoreBadges";
 
 /** A promoted vibe-coded app: maker's story, tools used, links, and the template / prompt behind it. */
 export default function LaunchScreen() {
@@ -84,9 +86,7 @@ export default function LaunchScreen() {
         <>
           <Reveal kind="card">
             <Card style={{ gap: 12, padding: 12, borderRadius: radius.hero }}>
-              <ZoomTarget>
-                <Cover t={l} rounded={nested(radius.hero, 12)} />
-              </ZoomTarget>
+              <ZoomTarget>{l.media?.video || l.media?.screenshots.length ? <MediaCarousel t={{ ...l, screens: 0 }} /> : <Cover t={l} rounded={nested(radius.hero, 12)} />}</ZoomTarget>
               <View style={{ paddingHorizontal: 8, gap: 8 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                   <Txt variant="eyebrow" tone="fgSubtle">
@@ -125,6 +125,11 @@ export default function LaunchScreen() {
                   <Tag key={p} label={p} index={l.aiTools.length + 1 + i} />
                 ))}
               </View>
+              {l.storeLinks && (
+                <View style={{ paddingHorizontal: 8, paddingBottom: 8 }}>
+                  <StoreBadges links={l.storeLinks} />
+                </View>
+              )}
             </Card>
           </Reveal>
 

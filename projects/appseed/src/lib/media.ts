@@ -1,0 +1,39 @@
+/**
+ * Listing media (docs/DESIGN.md §39): an app icon, screenshots and one short preview video. The same rules run
+ * in the app before uploading and on the server before it signs an upload, so a file that breaks them never
+ * reaches storage. Nothing here imports anything, so the server runs this file unchanged.
+ */
+export type MediaKind = "icon" | "screenshot" | "video";
+
+export const MEDIA = {
+  icon: { types: ["image/png", "image/jpeg"], maxBytes: 2 * 1024 * 1024, minSide: 512 },
+  screenshot: { types: ["image/png", "image/jpeg", "image/webp"], maxBytes: 8 * 1024 * 1024, minSide: 320, max: 8 },
+  video: { types: ["video/mp4", "video/quicktime"], maxBytes: 50 * 1024 * 1024, maxSeconds: 30, max: 1 },
+} as const;
+
+/** Screenshots a template needs before it can be submitted. */
+export const MIN_TEMPLATE_SCREENSHOTS = 3;
+
+export type MediaFile = { mime: string; bytes: number; width?: number; height?: number; durationMs?: number };
+export type MediaError = "mediaType" | "mediaTooLarge" | "iconNotSquare" | "iconTooSmall" | "imageTooSmall" | "videoTooLong";
+
+export function validateMedia(kind: MediaKind, f: MediaFile): MediaError | null {
+  const rule = MEDIA[kind];
+  if (!(rule.types as readonly string[]).includes(f.mime)) return "mediaType";
+  if (!(f.bytes > 0) || f.bytes > rule.maxBytes) return "mediaTooLarge";
+  const w = f.width ?? 0;
+  const h = f.height ?? 0;
+  if (kind === "icon") {
+    if (w !== h) return "iconNotSquare";
+    if (w < MEDIA.icon.minSide) return "iconTooSmall";
+  }
+  if (kind === "screenshot" && Math.min(w, h) < MEDIA.screenshot.minSide) return "imageTooSmall";
+  if (kind === "video" && (f.durationMs ?? 0) > MEDIA.video.maxSeconds * 1000) return "videoTooLong";
+  return null;
+}
+
+/** File extension for a storage path. */
+export const extensionFor = (mime: string) => ({ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "video/mp4": "mp4", "video/quicktime": "mov" })[mime] ?? "bin";
+
+export type ListingMedia = { icon?: string; screenshots: string[]; video?: string };
+export const emptyMedia = (): ListingMedia => ({ screenshots: [] });

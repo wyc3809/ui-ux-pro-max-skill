@@ -43,6 +43,11 @@
 - 只轉讓 App（App Store／Google Play 官方轉移），不轉讓開發者帳戶
 - 上架前檢查轉移條件；收入只用唯讀權限核實；交接清單全部確認後才放款
 
+## 作品預覽（§39）
+
+- 創作者可以上載 App 圖示、最多 8 張截圖和 30 秒預覽影片（iOS、Android、網頁版都可以），伺服器再檢查一次，審核後公開
+- 可以加入 App Store／Google Play 連結，系統只保留 App ID 再組合官方網址，作品頁顯示下載按鈕
+
 ## 第一版範圍（§34）
 
 - 第一版不做買斷 App：`src/lib/features.ts` 一個開關收起所有買斷入口，伺服器同樣拒絕；程式碼保留，日後改為 `true` 即可開放
@@ -107,7 +112,7 @@
 
 ```bash
 npm install
-npm test             # 233 個測試（App 和後台）
+npm test             # 249 個測試（App 和後台）
 npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
 npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽

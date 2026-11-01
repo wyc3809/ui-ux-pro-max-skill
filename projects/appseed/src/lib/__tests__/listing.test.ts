@@ -16,13 +16,13 @@ const buyout: BuyoutDraft = {
   asking: "20000",
   attest: true,
 };
-const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", boost: false, attest: true };
+const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: true };
 
 describe("listing validation", () => {
   it("accepts complete drafts", () => {
     for (const s of [0, 1]) expect(missingPromptFields(prompt, s)).toEqual([]);
     for (const s of [0, 1, 2, 3, 4, 5]) expect(missingBuyoutFields(buyout, s)).toEqual([]);
-    for (const s of [0, 1]) expect(missingLaunchFields(launch, s)).toEqual([]);
+    for (const s of [0, 1, 2]) expect(missingLaunchFields(launch, s)).toEqual([]);
   });
   it("requires a locked part for paid prompts, not free ones", () => {
     expect(missingPromptFields({ ...prompt, previewLines: 3 }, 1)).toEqual(["previewLines"]);
@@ -46,10 +46,14 @@ describe("listing validation", () => {
   it("requires the ownership confirmation on the last step of every listing", () => {
     expect(missingPromptFields({ ...prompt, attest: false }, 1)).toEqual(["attest"]);
     expect(missingBuyoutFields({ ...buyout, attest: false }, 5)).toEqual(["attest"]);
-    expect(missingLaunchFields({ ...launch, attest: false }, 1)).toEqual(["attest"]);
+    expect(missingLaunchFields({ ...launch, attest: false }, 2)).toEqual(["attest"]);
   });
   it("validates launch tools, days and https link", () => {
     expect(missingLaunchFields({ ...launch, aiTools: [], buildDays: "0" }, 0)).toEqual(["aiTools", "buildDays"]);
-    expect(missingLaunchFields({ ...launch, link: "http://example.com" }, 1)).toEqual(["link"]);
+    expect(missingLaunchFields({ ...launch, link: "http://example.com" }, 2)).toEqual(["link"]);
+    // A store link is enough on its own; a bad one is caught on the media step.
+    expect(missingLaunchFields({ ...launch, link: "", storeLinks: { appStore: "", googlePlay: "app.ferrynow.hk" } }, 2)).toEqual([]);
+    expect(missingLaunchFields({ ...launch, link: "" }, 2)).toEqual(["link"]);
+    expect(missingLaunchFields({ ...launch, storeLinks: { appStore: "https://evil.example/id1234567", googlePlay: "" } }, 1)).toEqual(["storeLinks"]);
   });
 });

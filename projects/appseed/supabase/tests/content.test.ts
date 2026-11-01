@@ -21,7 +21,7 @@ const run = (input: Parameters<typeof handleContent>[2]) => {
 };
 
 describe("server copies of the shared rules", () => {
-  it.each(["moderation", "posts", "auth", "socialLinks", "contact", "features", "price", "prompt", "license", "sourceScan"])("%s matches src/lib", (name) => {
+  it.each(["moderation", "posts", "auth", "socialLinks", "contact", "features", "price", "prompt", "license", "sourceScan", "media", "storeLinks"])("%s matches src/lib", (name) => {
     const root = join(__dirname, "../..");
     const copy = readFileSync(join(root, "supabase/functions/_shared/rules", `${name}.ts`), "utf8");
     const source = readFileSync(join(root, "src/lib", `${name}.ts`), "utf8");

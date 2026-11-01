@@ -52,4 +52,8 @@ do $$ declare v record; begin
 end $$;
 
 reset role;
+do $$ begin
+  assert (select public from storage.buckets where id = 'media'), 'public media bucket';
+  assert not (select public from storage.buckets where id = 'sources'), 'source code stays private';
+end $$;
 select 'studio_test: all passed' as result;

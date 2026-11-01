@@ -18,6 +18,7 @@ import { FavoriteButton } from "@/components/template/FavoriteButton";
 import { MediaCarousel } from "@/components/template/MediaCarousel";
 import { ReviewRow } from "@/components/template/ReviewRow";
 import { StackChips } from "@/components/template/StackChips";
+import { StoreBadges } from "@/components/template/StoreBadges";
 import { StoryStep } from "@/components/template/StoryStep";
 import { VersionTimeline } from "@/components/template/VersionTimeline";
 import { useFloatClearance } from "@/components/ui/BottomBar";
@@ -222,6 +223,11 @@ function Hero({ t: tpl }: { t: Template }) {
       <View style={{ paddingHorizontal: 8 }}>
         <StackChips stack={tpl.stack} />
       </View>
+      {tpl.storeLinks && (
+        <View style={{ paddingHorizontal: 8 }}>
+          <StoreBadges links={tpl.storeLinks} />
+        </View>
+      )}
       <View style={{ flexDirection: "row", paddingHorizontal: 8, paddingBottom: 8, gap: 16, alignItems: "center", flexWrap: "wrap" }}>
         <RatingStars value={tpl.rating} count={tpl.reviewCount} />
         <Txt variant="caption" tone="fgSubtle" tabular>

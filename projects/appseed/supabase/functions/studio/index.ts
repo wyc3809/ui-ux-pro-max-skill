@@ -37,6 +37,10 @@ const deps: StudioDeps = {
       const r = await rest.call<{ url: string; token: string }>(`/storage/v1/object/upload/sign/sources/${path.split("/").map(encodeURIComponent).join("/")}`, { method: "POST" });
       return { url: `${url}/storage/v1${r.url}`, token: r.token };
     },
+    async signMediaUpload(path) {
+      const r = await rest.call<{ url: string; token: string }>(`/storage/v1/object/upload/sign/media/${path.split("/").map(encodeURIComponent).join("/")}`, { method: "POST" });
+      return { url: `${url}/storage/v1${r.url}`, token: r.token };
+    },
     async read(path) {
       const res = await fetch(object(path), { headers: auth });
       if (!res.ok) throw new StudioError("notFound");
@@ -47,6 +51,7 @@ const deps: StudioDeps = {
       if (!res.ok) throw new Error(`storage ${res.status}`);
     },
   },
+  mediaBase: `${url}/storage/v1/object/public/media`,
   unzip(bytes) {
     const files = unzipSync(bytes);
     const text = new TextDecoder();

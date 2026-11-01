@@ -924,3 +924,21 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 **建置**：`eas.json` 有 development（開發版，內部發佈）、preview（內部測試）、production（自動遞增版本）三個設定，各自使用 EAS 環境變數。`npx expo-doctor` 20 項全部通過；iOS 和 Android 的 JS bundle 已用 `npx expo export --platform ios --platform android` 編譯成功。仍需在真機或模擬器測試原生功能（App 內購買、Sign in with Apple、universal links）。
 
+## 39. 作品預覽：App 圖示、截圖、影片、商店連結
+
+**上載**（`src/components/studio/MediaEditor.tsx`）：模板和新作的上架精靈都可以加入
+- App 圖示：正方形 PNG／JPG，最少 512 × 512，最大 2 MB；選圖時打開正方形裁剪。
+- 截圖：PNG／JPG／WebP，最多 8 張（模板最少 3 張），短邊最少 320，每張最大 8 MB。
+- 預覽影片：MP4／MOV，最長 30 秒，最大 50 MB，最多 1 段。
+
+iOS、Android 和網頁版都用 `expo-image-picker` 從相簿選擇。規則在 `src/lib/media.ts`，App 選完先檢查，`studio` 函數簽發上載網址前再檢查一次；檔案存入公開的 `media` bucket，路徑以上載者的帳戶 ID 開頭。送審時伺服器確認作品引用的每個檔案都在創作者自己的資料夾（不可以引用別人的圖或外部網址）。作品在職員審核前不會公開，管理後台的待審核作品會顯示圖示和截圖。
+
+**商店連結**（`src/lib/storeLinks.ts`）：可以貼上 App Store 或 Google Play 的網址（或 App ID／套件名稱）。系統只保留 ID，再組合成官方網址（`https://apps.apple.com/app/id…`、`https://play.google.com/store/apps/details?id=…`），所以連結只會打開真正的商店頁；仿冒網域、http 和貼錯商店都會被拒。新作有商店連結時，網站連結可以留空。
+
+**顯示**：
+- 有上載圖示時，所有封面（排行榜、卡片、討論區附件、已購、創作中心）都改用圖示；正方形縮圖滿版，闊卡片置中在作品的漸變色上。沒有圖示時照舊用自動生成的封面。
+- 作品頁的輪播先放影片（使用系統播放控制，不會自動播放），再放截圖；沒有上載時顯示原本的示意畫面。新作頁有影片或截圖時同樣用輪播。
+- 有商店連結時顯示「在 App Store 下載」「在 Google Play 下載」按鈕。
+
+**私隱**：私隱政策已寫明作品的圖示、截圖、影片和商店連結經審核後公開。
+
