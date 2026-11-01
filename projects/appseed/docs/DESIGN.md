@@ -834,7 +834,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 `STRIPE_INVOICES=1` 會在網頁版付款後寄發票 PDF 給買家（Stripe Invoicing 按張收費），預設關閉。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 由 Supabase 提供。
 
-**Stripe 設定（§32.1）**
+**Stripe 設定（§32.1）**：逐步操作見 docs/STRIPE_SETUP.md。
 - 先在 [sandbox](https://docs.stripe.com/sandboxes.md) 開發和測試，正式環境用另一組金鑰；所有呼叫固定 API 版本 `2026-10-28.endive`（`STRIPE_API_VERSION`）。
 - Webhook：一個 snapshot 目的地指向 `/payments-webhook/stripe`，訂閱 `checkout.session.completed`、`checkout.session.async_payment_succeeded`、`checkout.session.async_payment_failed`、`refund.created`、`charge.dispute.created`、`charge.dispute.closed`、`account.updated`；另一個 thin 目的地指向 `/payments-webhook/stripe-thin`，訂閱 `v2.core.account[requirements].updated` 和 `v2.core.account[configuration.recipient].capability_status_updated`。兩者都驗證簽名；付款後的開通只在 webhook 做，不靠返回頁。
 - Connect：平台模式是 marketplace（VCseed 是賣方、收款後按月轉帳，即 separate charges and transfers，收費以少轉帳方式扣除，不用 `application_fee_amount`）。創作者帳戶用 Accounts v2：`recipient` 配置、`stripe_balance.stripe_transfers`、Express dashboard、`fees_collector` 和 `losses_collector` 都是 `application`（需要在 Stripe Dashboard 確認平台承擔負結餘）。是否可轉帳只看 `stripe_transfers.status === "active"`，不看 v1 的 `payouts_enabled`。
