@@ -3,12 +3,20 @@ appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "創作"
 - tapOn: "上載新模板"
 - tapOn: "名稱"
 - inputText: "Maestro Demo"
 - stopApp
 - launchApp
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "創作"
 - tapOn: "上載新模板"
 - assertVisible: "Maestro Demo"

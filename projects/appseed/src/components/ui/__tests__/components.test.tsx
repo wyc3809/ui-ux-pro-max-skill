@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react-native";
 import type { ReactNode } from "react";
 import { useSettings } from "@/store/settings";
-import { LaunchMark } from "@/components/shell/LaunchMark";
+import { INTRO_MS, LaunchMark } from "@/components/shell/LaunchMark";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { PriceTag } from "../PriceTag";
 import { RatingStars } from "../RatingStars";
@@ -49,5 +49,18 @@ describe("LaunchMark", () => {
       expect(screen.getByText("VCseed")).toBeTruthy();
       expect(screen.getByText("Vibe coding incubator")).toBeTruthy();
     }
+  });
+
+  it("plays the whole opening before letting the app show", async () => {
+    jest.useFakeTimers();
+    const onFinish = jest.fn();
+    const onReady = jest.fn();
+    await wrap(<LaunchMark onFinish={onFinish} onReady={onReady} />);
+    expect(onReady).toHaveBeenCalled(); // hides the native splash once the page is up
+    jest.advanceTimersByTime(INTRO_MS - 100);
+    expect(onFinish).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(200);
+    expect(onFinish).toHaveBeenCalledTimes(1);
+    jest.useRealTimers();
   });
 });

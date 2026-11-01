@@ -3,6 +3,10 @@ appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "我的"
 - scrollUntilVisible:
     element: "恢復購買"

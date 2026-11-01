@@ -5,11 +5,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/api/client";
 import { useFonts } from "expo-font";
 import { type ErrorBoundaryProps, Stack, usePathname } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Animated, { ReduceMotion, useAnimatedStyle, useDerivedValue, withTiming } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { scheduleOnRN } from "react-native-worklets";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthSheet } from "@/components/auth/AuthSheet";
 import { TermsGateSheet } from "@/components/legal/TermsGateSheet";
@@ -26,6 +28,8 @@ import { useT } from "@/i18n";
 
 let route = "/";
 installGlobalErrorHandlers(() => route);
+// The native splash is only the background colour; LaunchMark takes over on the same colour and hides it.
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 /** A screen that crashed: report it (no personal data) and offer a retry instead of a blank app. */
 /** Rendered by the router outside RootLayout, so it brings its own ThemeProvider (Txt and Button need it). */
@@ -123,10 +127,32 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <BottomSheetModalProvider>{loaded ? <Shell /> : <LaunchMark />}</BottomSheetModalProvider>
+            <BottomSheetModalProvider>
+              {loaded ? <Shell /> : null}
+              <Intro ready={loaded} />
+            </BottomSheetModalProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+/**
+ * The opening loading page over the app: it plays in full on every launch while the app mounts underneath,
+ * then fades out once both the opening has played and the fonts are in (docs/BRAND.md §5).
+ */
+function Intro({ ready }: { ready: boolean }) {
+  const [played, setPlayed] = useState(false);
+  const [gone, setGone] = useState(false);
+  const fade = useDerivedValue(() => withTiming(played && ready ? 0 : 1, { duration: 320, reduceMotion: ReduceMotion.System }, (done) => {
+    if (done && played && ready) scheduleOnRN(setGone, true);
+  }), [played, ready]);
+  const style = useAnimatedStyle(() => ({ opacity: fade.value }));
+  if (gone) return null;
+  return (
+    <Animated.View pointerEvents={played && ready ? "none" : "auto"} style={[{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 100 }, style]}>
+      <LaunchMark onReady={() => SplashScreen.hideAsync().catch(() => {})} onFinish={() => setPlayed(true)} />
+    </Animated.View>
   );
 }

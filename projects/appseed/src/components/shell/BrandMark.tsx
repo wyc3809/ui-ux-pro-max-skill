@@ -21,8 +21,9 @@ export function BrandMark({ size = 96, animated = false, delay = 0 }: { size?: n
   const light = useSharedValue(animated ? 0 : 1);
   useEffect(() => {
     if (!animated) return;
-    const spring = { damping: 11, stiffness: 140, reduceMotion: ReduceMotion.System };
-    grow.value = withDelay(delay, withSpring(1, spring));
+    const grow_ = { damping: 16, stiffness: 150, reduceMotion: ReduceMotion.System }; // ~4% overshoot on the grow
+    const spring = { damping: 12, stiffness: 140, reduceMotion: ReduceMotion.System };
+    grow.value = withDelay(delay, withSpring(1, grow_));
     open.value = withDelay(delay + 180, withSpring(1, spring));
     light.value = withDelay(delay + 800, withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic), reduceMotion: ReduceMotion.System }));
   }, [animated, delay, grow, open, light]);

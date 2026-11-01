@@ -21,6 +21,7 @@ const FILES = [
   ["assets/android-icon-background.png", "androidBg", [1024], true],
   ["assets/android-icon-monochrome.png", "androidMono", [1024]],
   ["assets/splash-icon.png", "splash", [1024]],
+  ["assets/splash.png", "splashBlank", [256]],
   ["assets/favicon.png", "rounded", [48]],
   ["assets/brand/leaf-left.png", "layerLeft", [512]],
   ["assets/brand/leaf-right.png", "layerRight", [512]],

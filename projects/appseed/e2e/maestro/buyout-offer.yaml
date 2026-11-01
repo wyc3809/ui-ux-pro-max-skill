@@ -3,6 +3,10 @@ appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "買斷 App"
 - tapOn: "Pomodoro Garden"
 - tapOn: "提出報價"

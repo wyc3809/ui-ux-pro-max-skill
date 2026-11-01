@@ -22,6 +22,8 @@ const JOBS = {
   androidFg: (S = 1024) => { const [c, x] = canvas(S, S); scaled(x, S, 0.78, () => V.mark(x, S)); return c; },
   androidBg: (S = 1024) => { const [c, x] = canvas(S, S); V.background(x, S); return c; },
   androidMono: (S = 1024) => { const [c, x] = canvas(S, S); scaled(x, S, 0.78, () => V.mark(x, S, { mono: "#FFFFFF", glow: false })); return c; },
+  /** Native splash image: empty, so the splash is just the background colour and LaunchMark grows the mark on it. */
+  splashBlank: (S = 256) => canvas(S, S)[0],
   splash: (S = 1024) => { const [c, x] = canvas(S, S); V.mark(x, S); return c; },
   rounded: (S) => { const [c, x] = canvas(S, S); x.beginPath(); x.roundRect(0, 0, S, S, S * 0.2237); x.clip(); V.background(x, S); V.mark(x, S); return c; },
   layerLeft: (S = 512) => { const [c, x] = canvas(S, S); V.leaf(x, "left", S / 1024); return c; },

@@ -2,6 +2,10 @@
 appId: app.vcseed.mobile
 ---
 - launchApp
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - assertVisible: "排行榜"
 - assertNotVisible: "買斷 App"
 - tapOn: "創作"

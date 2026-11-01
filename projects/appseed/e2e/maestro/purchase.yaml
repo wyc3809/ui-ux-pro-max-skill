@@ -3,6 +3,10 @@ appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "模板"
 - tapOn: "Pocket Ledger 記帳本"
 - tapOn: "製作經歷"

@@ -5,6 +5,10 @@ appId: app.vcseed.mobile
     - "assets/icon.png"
     - "assets/shot.png"
 - launchApp
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "創作"
 - tapOn: "你想上架甚麼？"
 - tapOn: "推廣 App"

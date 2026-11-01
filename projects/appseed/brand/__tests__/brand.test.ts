@@ -22,6 +22,10 @@ describe("brand assets", () => {
     for (const v of ["assets/icon-dark.png", "assets/icon-tinted.png", "assets/splash-icon.png", "assets/android-icon-foreground.png", "assets/android-icon-monochrome.png"]) expect(png(v)).toMatchObject({ w: 1024, h: 1024 });
     const app = JSON.parse(fs.readFileSync(file("app.json"), "utf8")).expo;
     expect(app.name).toBe("VCseed");
+    // The native splash is only the app's background colour; the loading page (LaunchMark) draws the mark on it.
+    const splash = app.plugins.find((p: unknown) => Array.isArray(p) && p[0] === "expo-splash-screen")[1];
+    expect([splash.backgroundColor, splash.dark.backgroundColor]).toEqual([light.bg, "#000000"]);
+    expect(png("assets/splash.png")).toMatchObject({ alpha: true });
     expect(app.ios.icon).toEqual({ light: "./assets/icon.png", dark: "./assets/icon-dark.png", tinted: "./assets/icon-tinted.png" });
     for (const p of [app.icon, app.android.adaptiveIcon.foregroundImage, app.android.adaptiveIcon.backgroundImage, app.android.adaptiveIcon.monochromeImage]) expect(fs.existsSync(file(p))).toBe(true);
   });

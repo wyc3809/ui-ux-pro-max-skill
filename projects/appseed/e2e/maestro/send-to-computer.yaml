@@ -2,6 +2,10 @@
 appId: app.vcseed.mobile
 ---
 - launchApp
+- extendedWaitUntil: # the opening loading page plays first
+    notVisible:
+      id: "launch-intro"
+    timeout: 6000
 - tapOn: "已購"
 - tapOn: "傳送到電腦"
 - assertVisible: "手機不會解壓或執行原始碼.*"
