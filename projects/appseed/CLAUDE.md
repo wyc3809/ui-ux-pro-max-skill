@@ -23,6 +23,13 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   respect reduced motion.
 - UI copy: all strings in i18n; Chinese UI is written Chinese (書面語). Creator content is exempt.
 
+## Brand (docs/BRAND.md)
+- VCseed's mark is two glass leaves (violet + mint) crossing into a V. Every brand image (icons, splash, in-app layers,
+  store art, videos) is drawn by brand/src/mark.js and exported by `npm run brand:export` / `npm run brand:shots`; never
+  hand-edit those files. Change the art only in mark.js, keep the five brand colours, and re-export.
+- The in-app mark is `BrandMark` (stacked layers); its intro is the only brand animation. brand/__tests__ checks sizes,
+  opacity, store copy limits and the name.
+
 ## Markets (docs/DESIGN.md §22)
 - Four markets share one design system: templates, prompts, whole-app buyouts, launches. Version 1 ships with
   buyouts off (`FEATURES.buyouts` in src/lib/features.ts, synced to the server): every buyout entry point must
@@ -50,7 +57,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Creator profiles (docs/DESIGN.md §29)
 - Every listing shows a CreatorCard with social links. Store bare handles and build URLs with
   lib/socialLinks.ts so a link can only point at its network; websites must be https.
-- Demo data uses fictional handles with an vcseed demo prefix.
+- Demo data uses fictional handles with a vcseed demo prefix.
 
 ## Discussion (docs/DESIGN.md §27)
 - Threads-style feed is the second Explore hub. Posting, liking, replying and reposting need sign-in.

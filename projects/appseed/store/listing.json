@@ -1,0 +1,30 @@
+{
+  "zh-Hant": {
+    "appStore": {
+      "name": "VCseed",
+      "subtitle": "Vibe coding 孵化器",
+      "promotionalText": "看看大家用 AI 做了甚麼 App：每日新作排行榜、每個類別都有自己的榜，還有可運行的原始碼和好用的 Prompt。",
+      "keywords": "vibe coding,AI,App,原始碼,模板,Prompt,Claude,Cursor,排行榜,創業,孵化,上架,Expo,SaaS,記帳",
+      "description": "VCseed 是 vibe coding 的孵化器：用 AI 做 App 的人在這裏發佈作品、分享做法，也可以買下別人做好、可以直接運行的原始碼。\n\n每日新作排行榜\n今日、本週、本月最受歡迎的新作，排名方法公開透明：按帳戶可信度計票、防刷票，贊助作品清楚標示，不參與排名。\n\n每個類別都有自己的榜\n與 App Store 一致的類別，加上 vibe coding 最常見的類別，例如記帳、習慣、AI 聊天、小店工具。每個類別都有新作排行榜、熱門付費和熱門免費模板。\n\n買下可運行的原始碼\n每個模板都附開發故事：用過的 Prompt、架構決定、踩過的坑和上架步驟。買完在電腦上下載，馬上可以運行。\n\nPrompt 先看再買\n預覽前幾行，滿意才解鎖完整 Prompt。\n\n和同路人一起交流\n分享作品、發問、互相幫忙；可以附上自己的作品，標示為作者作品。\n\n上架你的作品\n連接 GitHub 或上載 zip，通過自動檢查和人手審核後上架，收入經 Stripe 直接存入你的帳戶。\n\n私隱：VCseed 不使用廣告或第三方追蹤。"
+    },
+    "googlePlay": {
+      "title": "VCseed：Vibe coding 孵化器",
+      "shortDescription": "AI 做的 App 排行榜、可運行的原始碼和 Prompt。每個類別都有自己的榜。",
+      "fullDescription": "@appStore.description"
+    }
+  },
+  "en": {
+    "appStore": {
+      "name": "VCseed",
+      "subtitle": "Vibe coding incubator",
+      "promotionalText": "See what people build with AI: daily launch leaderboards, a board for every category, runnable source code and prompts that work.",
+      "keywords": "vibe coding,AI,app,source code,template,prompt,Claude,Cursor,leaderboard,startup,indie,Expo,SaaS",
+      "description": "VCseed is the vibe coding incubator: people who build apps with AI launch them here, share how they did it, and sell runnable source code.\n\nDaily launch leaderboards\nThe most loved new apps today, this week and this month. The ranking is public: votes are weighted by account trust, vote rings are caught, and sponsored launches are labelled and never ranked.\n\nA leaderboard for every category\nThe App Store's categories plus the ones vibe coders build most, like expense tracking, habits, AI chat and small shop tools. Every category has its own launch board, top paid and top free templates.\n\nBuy runnable source\nEvery template comes with its build story: the prompts used, architecture decisions, pitfalls and launch steps. Download it on your computer and run it.\n\nPrompts that work\nPreview the first lines, unlock the full prompt when you are sure.\n\nBuild together\nShare launches, ask questions and help each other. Attach your own app and it is labelled as the maker's.\n\nList your work\nConnect GitHub or upload a zip, pass the automatic checks and a human review, and get paid through Stripe.\n\nPrivacy: no ads and no third party tracking."
+    },
+    "googlePlay": {
+      "title": "VCseed: Vibe coding incubator",
+      "shortDescription": "Leaderboards of AI built apps, runnable source code and prompts.",
+      "fullDescription": "@appStore.description"
+    }
+  }
+}

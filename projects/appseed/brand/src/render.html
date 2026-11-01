@@ -27,6 +27,8 @@ const JOBS = {
   layerLeft: (S = 512) => { const [c, x] = canvas(S, S); V.leaf(x, "left", S / 1024); return c; },
   layerRight: (S = 512) => { const [c, x] = canvas(S, S); V.leaf(x, "right", S / 1024); return c; },
   layerOverlap: (S = 512) => { const [c, x] = canvas(S, S); V.overlap(x, S / 1024); return c; },
+  /** Intro frame on a tall canvas (App Preview): the ink fills the whole frame, the mark sits in the middle. */
+  frameTall: (t, w, h) => { const [c, x] = canvas(w, h); x.fillStyle = (() => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, V.BRAND.ink[0]); g.addColorStop(1, V.BRAND.ink[1]); return g; })(); x.fillRect(0, 0, w, h); x.save(); x.translate(0, (h - w) / 2); V.markAt(x, w, t); x.restore(); return c; },
   frame: (t, S = 1080) => { const [c, x] = canvas(S, S); V.background(x, S); V.markAt(x, S, t); return c; },
   /** Wide brand art (OG image, Play feature graphic): ink canvas, mark left, wordmark + line right. */
   wide: (w, h, line, sub) => {

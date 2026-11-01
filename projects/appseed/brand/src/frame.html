@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+/* Store screenshot frame (docs/BRAND.md §Store art). Sizes come from the compose script as CSS variables. */
+@font-face { font-family: Geist; src: url(../fonts/Geist_700Bold.ttf); font-weight: 700; }
+@font-face { font-family: Geist; src: url(../fonts/Geist_500Medium.ttf); font-weight: 500; }
+html, body { margin: 0; }
+body { width: var(--w); height: var(--h); overflow: hidden; position: relative; font-family: Geist, "PingFang HK", "Noto Sans CJK TC", sans-serif;
+  background: radial-gradient(circle at 12% 6%, rgba(91,63,214,0.42), transparent 42%), radial-gradient(circle at 92% 88%, rgba(22,181,119,0.20), transparent 40%), linear-gradient(#1C1C22, #08080A); }
+.head { position: absolute; left: 0; right: 0; top: var(--top); text-align: center; padding: 0 var(--pad); }
+h1 { text-wrap: balance; margin: 0; color: #fff; font-weight: 700; font-size: var(--h1); line-height: 1.12; letter-spacing: -0.02em; }
+h1 em { font-style: normal; background: linear-gradient(90deg, #A6F7D3, #4FD9A0); -webkit-background-clip: text; color: transparent; }
+p { margin: calc(var(--h1) * 0.32) 0 0; color: rgba(255,255,255,0.62); font-weight: 500; font-size: var(--sub); line-height: 1.35; }
+.brand { display: inline-flex; align-items: center; gap: calc(var(--sub) * 0.4); color: #fff; font-weight: 700; font-size: var(--sub); margin-bottom: calc(var(--h1) * 0.45); }
+.brand[hidden] { display: none; }
+.brand img { width: calc(var(--sub) * 1.6); height: calc(var(--sub) * 1.6); }
+.shot { position: absolute; left: 50%; transform: translateX(-50%); top: var(--shotTop); width: var(--shotW); border-radius: var(--r); overflow: hidden;
+  box-shadow: 0 0 0 calc(var(--shotW) * 0.0025) rgba(255,255,255,0.18), 0 calc(var(--shotW) * 0.04) calc(var(--shotW) * 0.12) rgba(0,0,0,0.55), 0 0 calc(var(--shotW) * 0.2) rgba(91,63,214,0.25); }
+.shot img { display: block; width: 100%; }
+</style></head><body>
+<div class="head"><div class="brand" id="brand" hidden><img id="mark"><span>VCseed</span></div><h1 id="h1"></h1><p id="sub"></p></div>
+<div class="shot"><img id="shot"></div>
+<script>
+window.setup = async ({ vars, title, sub, shot, mark }) => {
+  for (const [k, v] of Object.entries(vars)) document.body.style.setProperty(`--${k}`, v);
+  document.getElementById("h1").innerHTML = title;
+  document.getElementById("sub").textContent = sub;
+  if (mark) { document.getElementById("brand").hidden = false; document.getElementById("mark").src = mark; }
+  const img = document.getElementById("shot"); img.src = shot;
+  await img.decode(); if (mark) await document.getElementById("mark").decode();
+  await document.fonts.ready;
+};
+</script></body></html>

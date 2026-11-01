@@ -26,6 +26,8 @@ const SCREENS = [
   for (const [device, opts] of Object.entries(DEVICES)) {
     for (const [lang, locale] of Object.entries(LOCALES)) {
       const ctx = await browser.newContext({ ...opts, locale, colorScheme: "dark", reducedMotion: "reduce" });
+      // The app's language is a saved setting (zustand persist in MMKV → localStorage on the web).
+      await ctx.addInitScript((l) => localStorage.setItem("vcseed\\settings", JSON.stringify({ state: { theme: "dark", haptics: true, locale: l }, version: 0 })), lang);
       const page = await ctx.newPage();
       for (const [name, url, act] of SCREENS) {
         await page.goto(BASE + url, { waitUntil: "networkidle" });

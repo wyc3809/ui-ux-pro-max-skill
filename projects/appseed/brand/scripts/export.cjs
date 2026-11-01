@@ -59,6 +59,11 @@ async function main() {
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(fps), "-i", path.join(dir, "f%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-movflags", "+faststart", out("store/video/brand-intro.mp4")]);
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", out("store/video/brand-intro.mp4"), "-vf", "fps=30,scale=480:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse", out("store/video/brand-intro.gif")]);
     fs.rmSync(dir, { recursive: true });
+    // The same intro on the App Preview canvas (886 × 1920), so it flows into the framed screens.
+    const tall = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "vcseed-intro-tall-"));
+    for (let i = 0; i < 30 * seconds; i++) fs.writeFileSync(path.join(tall, `f${String(i).padStart(4, "0")}.png`), await render("frameTall", [Math.min(1, i / (30 * 1.6)), 886, 1920]));
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(tall, "f%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", out("brand/out/intro-886x1920.mp4")]);
+    fs.rmSync(tall, { recursive: true });
     console.log("brand: intro video");
   }
   await browser.close();

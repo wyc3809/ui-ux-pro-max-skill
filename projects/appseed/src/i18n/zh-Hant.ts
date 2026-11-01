@@ -85,6 +85,7 @@ export const zhHant = {
     appleBody: "與 App Store 的分類一致，上架時可選同一個類別。",
     more: "所有類別",
     count: "{n} 個作品",
+    countOne: "1 個作品",
     none: "暫時未有作品",
     board: "新作排行榜",
     topPaid: "熱門付費模板",

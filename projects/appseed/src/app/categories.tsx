@@ -44,7 +44,7 @@ function Group({ title, body, keys, counts, index }: { title: string; body: stri
         {keys.map((k, i) => (
           <View key={k}>
             {i > 0 && <RowDivider />}
-            <CategoryRow k={k} value={counts[k] ? t("categories.count", { n: counts[k] }) : undefined} />
+            <CategoryRow k={k} value={counts[k] ? (counts[k] === 1 ? t("categories.countOne") : t("categories.count", { n: counts[k] })) : undefined} />
           </View>
         ))}
       </View>

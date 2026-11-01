@@ -87,6 +87,7 @@ export const en: Dict = {
     appleBody: "The same list as the App Store, so you can pick the category you will publish under.",
     more: "All categories",
     count: "{n} listings",
+    countOne: "1 listing",
     none: "Nothing here yet",
     board: "Launch leaderboard",
     topPaid: "Top paid templates",
