@@ -1,3 +1,5 @@
+> **已搬到 [wyc3809/vcseed](https://github.com/wyc3809/vcseed)。** 這個資料夾停在搬遷時的版本，不再更新；請到新 repo 修改。
+
 # VCseed · Vibe coding incubator
 
 依照 [`docs/DESIGN.md`](docs/DESIGN.md) 實作的 Expo（SDK 58）App：iOS、Android、Web 同一份程式碼。
