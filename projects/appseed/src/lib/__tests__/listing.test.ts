@@ -1,6 +1,6 @@
 import { missingBuyoutFields, missingLaunchFields, missingPromptFields, type BuyoutDraft, type LaunchDraft, type PromptDraft } from "../listing";
 
-const prompt: PromptDraft = { step: 0, title: "T", summary: "", tool: "Claude Code", text: "line 1 {{x}}\nline 2\nline 3", previewLines: 1, tier: 18, attest: true };
+const prompt: PromptDraft = { step: 0, title: "T", summary: "", category: "aiChat", secondaryCategory: null, tool: "Claude Code", text: "line 1 {{x}}\nline 2\nline 3", previewLines: 1, tier: 18, attest: true };
 const buyout: BuyoutDraft = {
   step: 0,
   name: "App",
@@ -16,7 +16,7 @@ const buyout: BuyoutDraft = {
   asking: "20000",
   attest: true,
 };
-const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: true };
+const launch: LaunchDraft = { step: 0, name: "App", tagline: "Does a thing", category: "expense", secondaryCategory: null, aiTools: ["Cursor"], buildDays: "3", link: "https://example.com/app", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: true };
 
 describe("listing validation", () => {
   it("accepts complete drafts", () => {
@@ -50,6 +50,9 @@ describe("listing validation", () => {
   });
   it("validates launch tools, days and https link", () => {
     expect(missingLaunchFields({ ...launch, aiTools: [], buildDays: "0" }, 0)).toEqual(["aiTools", "buildDays"]);
+    // Every launch and prompt needs a primary category: it decides which leaderboard it ranks on (§40).
+    expect(missingLaunchFields({ ...launch, category: null }, 0)).toEqual(["category"]);
+    expect(missingPromptFields({ ...prompt, category: null }, 0)).toEqual(["category"]);
     expect(missingLaunchFields({ ...launch, link: "http://example.com" }, 2)).toEqual(["link"]);
     // A store link is enough on its own; a bad one is caught on the media step.
     expect(missingLaunchFields({ ...launch, link: "", storeLinks: { appStore: "", googlePlay: "app.ferrynow.hk" } }, 2)).toEqual([]);

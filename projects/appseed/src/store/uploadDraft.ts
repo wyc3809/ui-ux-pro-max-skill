@@ -4,13 +4,15 @@ import type { SourceChoice } from "@/api/types";
 import type { PriceTier } from "@/lib/price";
 import type { LicenseKind } from "@/lib/license";
 import type { ListingMedia } from "@/lib/media";
+import { isCategory, type CategoryKey } from "@/lib/categories";
 import { mmkvStorage } from "./storage";
 
 export type UploadDraft = {
   step: number;
   name: string;
   tagline: string;
-  category: string | null;
+  category: CategoryKey | null;
+  secondaryCategory: CategoryKey | null;
   platforms: string[];
   source: SourceChoice | null;
   /** Filled from the scan; the creator can still edit it later. */
@@ -30,6 +32,7 @@ const empty: UploadDraft = {
   name: "",
   tagline: "",
   category: null,
+  secondaryCategory: null,
   platforms: [],
   source: null,
   stack: [],
@@ -59,12 +62,14 @@ export const useUploadDraft = create<DraftState>()(
     {
       name: "upload-draft",
       storage: createJSONStorage(() => mmkvStorage),
-      // Drafts saved before media existed had a screenshot count instead; start their media empty.
-      version: 1,
-      migrate: (old) => {
+      // v1: drafts saved before media existed had a screenshot count instead; start their media empty.
+      // v2: the old six categories became App Store + vibe coding categories (lib/categories.ts); pick again.
+      version: 2,
+      migrate: (old, version) => {
         const s = old as { draft?: Partial<UploadDraft> & { screenshots?: unknown } } | undefined;
         const { screenshots: _count, ...rest } = s?.draft ?? {};
-        return { draft: { ...empty, ...rest, media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" } } } as unknown as DraftState;
+        const media = version < 1 ? { media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" } } : {};
+        return { draft: { ...empty, ...rest, ...media, category: isCategory(rest.category) ? rest.category : null, secondaryCategory: isCategory(rest.secondaryCategory) ? rest.secondaryCategory : null } } as unknown as DraftState;
       },
     },
   ),

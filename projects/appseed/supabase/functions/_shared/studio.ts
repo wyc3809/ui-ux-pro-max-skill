@@ -7,6 +7,7 @@ import { PROMPT_TIERS } from "./rules/prompt.ts";
 import { isBlocking } from "./rules/sourceScan.ts";
 import { extensionFor, MEDIA, type MediaKind, MIN_TEMPLATE_SCREENSHOTS, validateMedia } from "./rules/media.ts";
 import { normalizeStoreLinks } from "./rules/storeLinks.ts";
+import { cleanCategories as checkCategories } from "./rules/categories.ts";
 import { manifestFromEntries, scanReport, shouldRead, type SourceEntry } from "./source.ts";
 
 /**
@@ -178,6 +179,12 @@ export function cleanMedia(input: unknown, userId: string, mediaBase: string, mi
   return { icon: own(m.icon), screenshots: shots.map((s) => own(s)!), video: own(m.video) };
 }
 
+/** Primary category (required) and optional secondary, from the shared list (lib/categories.ts, §40). */
+export function cleanCategories(l: Record<string, unknown>) {
+  const r = checkCategories(l.category, l.secondaryCategory);
+  return "error" in r ? fail(r.error) : r;
+}
+
 export function cleanStoreLinks(input: unknown) {
   const r = normalizeStoreLinks((input && typeof input === "object" ? input : {}) as Record<string, unknown>);
   return "error" in r ? fail(r.error) : r.links;
@@ -223,7 +230,7 @@ async function submit(
       storeLinks: cleanStoreLinks(l.storeLinks),
       name,
       tagline,
-      category: str(l.category, 20) || "tools",
+      ...cleanCategories(l),
       creator: handle,
       currency: "HKD",
       rating: 0,
@@ -262,7 +269,7 @@ async function submit(
       title,
       summary: str(l.summary, 200),
       tool: str(l.tool, 40),
-      category: "ai",
+      ...cleanCategories(l),
       creator: handle,
       rating: 0,
       reviewCount: 0,
@@ -290,6 +297,7 @@ async function submit(
       storeLinks,
       name,
       tagline,
+      ...cleanCategories(l),
       maker: handle,
       aiTools: (Array.isArray(l.aiTools) ? l.aiTools : []).slice(0, 8).map((s) => str(s, 30)),
       buildDays: Math.max(0, Math.min(Number(l.buildDays) || 0, 365)),

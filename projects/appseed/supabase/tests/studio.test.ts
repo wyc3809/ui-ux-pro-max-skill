@@ -97,6 +97,7 @@ const template = (over: Record<string, unknown> = {}) => ({
   kind: "template",
   name: "Pocket Ledger 2",
   tagline: "A simple ledger",
+  category: "expense",
   tier: 158,
   license: "personal",
   storySteps: [{ title: "Data model", body: "Amounts in cents." }],
@@ -145,7 +146,7 @@ describe("studio function", () => {
 
   it("keeps a paid prompt's full text out of the public listing", async () => {
     const f = fakeDeps();
-    await handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "prompt", title: "Landing copy", summary: "Writes copy", tool: "Claude", text: "line 1\nline 2\nline 3", previewLines: 1, tier: 18, attest: true } });
+    await handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "prompt", title: "Landing copy", summary: "Writes copy", category: "website", tool: "Claude", text: "line 1\nline 2\nline 3", previewLines: 1, tier: 18, attest: true } });
     expect((f.calls[0]!.args.p_data as { text: string }).text).toBe("line 1");
     expect(f.calls[1]).toEqual({ fn: "studio_save_prompt_text", args: { p_slug: "landing-copy-x7k2", p_text: "line 1\nline 2\nline 3" } });
   });
@@ -194,9 +195,20 @@ describe("studio function", () => {
 
   it("lets a launch use a store link instead of a website", async () => {
     const f = fakeDeps();
-    await handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "Ferry Now", tagline: "Next ferry at a glance", link: "", storeLinks: { googlePlay: "app.ferrynow.hk" }, attest: true } });
+    await handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "Ferry Now", tagline: "Next ferry at a glance", category: "hkLife", secondaryCategory: "navigation", link: "", storeLinks: { googlePlay: "app.ferrynow.hk" }, attest: true } });
     expect(f.calls[0]!.args.p_data).toMatchObject({ links: [], storeLinks: { googlePlay: "https://play.google.com/store/apps/details?id=app.ferrynow.hk" } });
-    await expect(handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "X", tagline: "Y", link: "", attest: true } })).rejects.toThrow("missingFields");
+    await expect(handleStudio(f.deps, "u1", { action: "submitListing", listing: { kind: "launch", name: "X", tagline: "Y", category: "hkLife", link: "", attest: true } })).rejects.toThrow("missingFields");
+  });
+
+  it("accepts only the shared categories (§40)", async () => {
+    const f = fakeDeps();
+    await handleStudio(f.deps, "u1", { action: "submitListing", listing: template({ secondaryCategory: "business" }) });
+    expect(f.calls[0]!.args.p_data).toMatchObject({ category: "expense", secondaryCategory: "business" });
+    const run = (listing: object) => handleStudio(fakeDeps().deps, "u1", { action: "submitListing", listing });
+    await expect(run(template({ category: undefined }))).rejects.toThrow("invalidCategory");
+    await expect(run(template({ category: "tools" }))).rejects.toThrow("invalidCategory");
+    await expect(run(template({ secondaryCategory: "expense" }))).rejects.toThrow("invalidCategory");
+    await expect(run({ kind: "launch", name: "X", tagline: "Y", category: "crypto", link: "https://x.example", attest: true })).rejects.toThrow("invalidCategory");
   });
 
   it("makes readable slugs", () => {

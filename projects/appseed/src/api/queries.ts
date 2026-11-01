@@ -3,6 +3,7 @@ import type { RangeDays } from "@/lib/analytics";
 import type { Viewer } from "@/lib/feed";
 import type { PostSort } from "@/lib/posts";
 import type { Period } from "@/lib/ranking";
+import type { CategoryKey } from "@/lib/categories";
 import { toggleVote } from "@/lib/launch";
 import { queryClient } from "./client";
 import { api } from "./backend";
@@ -29,7 +30,7 @@ export const qk = {
   comments: (key: string) => ["comments", key] as const,
   githubRepos: ["github-repos"] as const,
   analytics: (range: RangeDays, slug: string | null) => ["analytics", range, slug ?? "all"] as const,
-  leaderboard: (period: Period) => ["leaderboard", period] as const,
+  leaderboard: (period: Period, category: CategoryKey | "all" = "all") => ["leaderboard", period, category] as const,
   posts: (sort: PostSort, viewer: string) => ["posts", sort, viewer] as const,
   thread: (id: string) => ["thread", id] as const,
   promoToday: (userId: string) => ["promo-today", userId] as const,
@@ -94,7 +95,9 @@ export const useBuyout = (slug: string) => useQuery({ queryKey: qk.buyout(slug),
 export const useOffers = () => useQuery({ queryKey: qk.offers, queryFn: api.offers });
 export const useLaunches = () => useQuery({ queryKey: qk.launches, queryFn: api.launches });
 /** Keeps the previous board on screen while another period loads, so rows reorder instead of blanking. */
-export const useLeaderboard = (period: Period) => useQuery({ queryKey: qk.leaderboard(period), queryFn: () => api.leaderboard(period), placeholderData: (prev) => prev });
+/** One board per period and category; the previous board stays on screen while the next loads. */
+export const useLeaderboard = (period: Period, category: CategoryKey | "all" = "all") =>
+  useQuery({ queryKey: qk.leaderboard(period, category), queryFn: () => api.leaderboard(period, category), placeholderData: (prev) => prev });
 export const useLaunch = (slug: string) => useQuery({ queryKey: qk.launch(slug), queryFn: () => api.launch(slug) });
 
 /** Same rule as templates: prompt ownership comes from the server only. */

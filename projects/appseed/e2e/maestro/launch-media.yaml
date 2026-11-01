@@ -12,6 +12,8 @@ appId: app.appseed.mobile
 - inputText: "Ferry Now"
 - tapOn: "一句話簡介"
 - inputText: "天星小輪和離島渡輪實時班次。"
+- tapOn: "主要類別: 選擇類別"
+- tapOn: "香港生活"
 - tapOn: "Claude Code"
 - tapOn: "用了多少日完成"
 - inputText: "4"

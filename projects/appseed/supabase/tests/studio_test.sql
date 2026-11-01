@@ -55,5 +55,13 @@ reset role;
 do $$ begin
   assert (select public from storage.buckets where id = 'media'), 'public media bucket';
   assert not (select public from storage.buckets where id = 'sources'), 'source code stays private';
+  -- Category boards read live listings by primary or secondary category (§40).
+  insert into public.listings (slug, kind, owner_id, status, attested_at, data) values
+    ('cat-a', 'launch', '00000000-0000-0000-0000-0000000000e1', 'live', now(), '{"name": "A", "category": "expense"}'),
+    ('cat-b', 'launch', '00000000-0000-0000-0000-0000000000e1', 'live', now(), '{"name": "B", "category": "habit", "secondaryCategory": "finance"}'),
+    ('cat-c', 'launch', '00000000-0000-0000-0000-0000000000e1', 'live', now(), '{"name": "C", "category": "casualGame"}');
+  assert (select count(*) from public.listings where kind = 'launch' and status = 'live'
+    and (data->>'category' in ('finance', 'expense') or data->>'secondaryCategory' in ('finance', 'expense'))) = 2, 'finance board';
+  assert (select count(*) from pg_indexes where indexname in ('listings_category', 'listings_secondary_category')) = 2, 'category indexes';
 end $$;
 select 'studio_test: all passed' as result;

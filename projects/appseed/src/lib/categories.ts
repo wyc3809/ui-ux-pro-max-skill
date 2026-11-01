@@ -1,0 +1,112 @@
+/**
+ * Listing categories (docs/DESIGN.md §40), shared by the app and the studio Edge Function (keep import-free; run
+ * node scripts/sync-shared.mjs after editing).
+ *
+ * Two layers, like the App Store but tuned for vibe-coded apps:
+ * - App Store categories: the store's own top-level list (Kids and Stickers left out), so a listing's category
+ *   lines up with where the app will sit in the App Store.
+ * - Vibe coding categories: the kinds of app people build most with AI tools (expense trackers, habit apps,
+ *   AI chat, small-shop tools…). Each one belongs to exactly one App Store category, its parent.
+ *
+ * A listing has one primary category and may add one secondary (as App Store Connect allows). Every category has
+ * its own leaderboard; an App Store category's board also counts the vibe categories under it.
+ */
+
+export const APPLE_CATEGORIES = [
+  "books",
+  "business",
+  "developerTools",
+  "education",
+  "entertainment",
+  "finance",
+  "foodDrink",
+  "games",
+  "graphicsDesign",
+  "healthFitness",
+  "lifestyle",
+  "magazines",
+  "medical",
+  "music",
+  "navigation",
+  "news",
+  "photoVideo",
+  "productivity",
+  "reference",
+  "shopping",
+  "social",
+  "sports",
+  "travel",
+  "utilities",
+  "weather",
+] as const;
+export type AppleCategory = (typeof APPLE_CATEGORIES)[number];
+
+/** Vibe coding category → the App Store category it sits under. Order is the order shown. */
+export const VIBE_PARENT = {
+  expense: "finance",
+  habit: "productivity",
+  aiChat: "productivity",
+  aiImage: "graphicsDesign",
+  notes: "productivity",
+  dashboard: "business",
+  smallBiz: "business",
+  booking: "business",
+  orderMenu: "foodDrink",
+  website: "business",
+  saasStarter: "developerTools",
+  casualGame: "games",
+  quizCards: "education",
+  workout: "healthFitness",
+  hkLife: "lifestyle",
+} as const satisfies Record<string, AppleCategory>;
+export type VibeCategory = keyof typeof VIBE_PARENT;
+export const VIBE_CATEGORIES = Object.keys(VIBE_PARENT) as VibeCategory[];
+
+export type CategoryKey = AppleCategory | VibeCategory;
+export const ALL_CATEGORIES: CategoryKey[] = [...VIBE_CATEGORIES, ...APPLE_CATEGORIES];
+
+export function isCategory(x: unknown): x is CategoryKey {
+  return typeof x === "string" && (ALL_CATEGORIES as string[]).includes(x);
+}
+export const isVibe = (k: CategoryKey): k is VibeCategory => k in VIBE_PARENT;
+
+/** The App Store category a listing in `k` appears under (itself for App Store categories). */
+export const appleCategoryOf = (k: CategoryKey): AppleCategory => (isVibe(k) ? VIBE_PARENT[k] : k);
+
+/** Vibe categories under an App Store category, in display order. */
+export const vibeChildren = (k: AppleCategory): VibeCategory[] => VIBE_CATEGORIES.filter((v) => VIBE_PARENT[v] === k);
+
+/** The stored category values that put a listing on `k`'s board: `k` itself plus, for an App Store category, its vibe categories. */
+export const categoryKeys = (k: CategoryKey): CategoryKey[] => (isVibe(k) ? [k] : [k, ...vibeChildren(k)]);
+
+export type Categorized = { category: string; secondaryCategory?: string | null };
+
+/**
+ * Whether a listing belongs on `k`'s board and pages: its primary or secondary category is `k`, or, for an
+ * App Store category, either one is a vibe category under it.
+ */
+export function inCategory(item: Categorized, k: CategoryKey): boolean {
+  const keys: string[] = categoryKeys(k);
+  return keys.includes(item.category) || (!!item.secondaryCategory && keys.includes(item.secondaryCategory));
+}
+
+/** Listings per category (primary or secondary, rolled up into App Store parents), for counts on the category list. */
+export function categoryCounts(items: Categorized[]): Partial<Record<CategoryKey, number>> {
+  const out: Partial<Record<CategoryKey, number>> = {};
+  for (const item of items) for (const k of ALL_CATEGORIES) if (inCategory(item, k)) out[k] = (out[k] ?? 0) + 1;
+  return out;
+}
+
+/** Checks a submitted pair: a known primary is required; the secondary is optional, known, and not the primary. */
+export function cleanCategories(primary: unknown, secondary: unknown): { category: CategoryKey; secondaryCategory?: CategoryKey } | { error: "invalidCategory" } {
+  if (!isCategory(primary)) return { error: "invalidCategory" };
+  if (secondary == null || secondary === "") return { category: primary };
+  if (!isCategory(secondary) || secondary === primary) return { error: "invalidCategory" };
+  return { category: primary, secondaryCategory: secondary };
+}
+
+/** Top charts inside one category, the App Store way: best sellers that cost money, and the most claimed free ones. */
+export function topCharts<T extends Categorized & { price: number; sales: number }>(items: T[], k: CategoryKey, size = 10): { paid: T[]; free: T[] } {
+  const here = items.filter((x) => inCategory(x, k)).sort((a, b) => b.sales - a.sales);
+  return { paid: here.filter((x) => x.price > 0).slice(0, size), free: here.filter((x) => x.price === 0).slice(0, size) };
+}

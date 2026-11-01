@@ -24,10 +24,10 @@ describe("studio on Supabase", () => {
   });
 
   it("sends wizard drafts as the studio function expects", () => {
-    const t = templateSubmission({ step: 4, name: "A", tagline: "B", category: "tools", platforms: ["iOS"], source: { kind: "zip", fileName: "a.zip", report: null, path: "uploads/u/a.zip" }, stack: [], media: { screenshots: ["a", "b", "c"] }, storeLinks: { appStore: "", googlePlay: "" }, storySteps: [], freePreviewSteps: 0, tier: 158, license: "personal", originalityConfirmed: true });
+    const t = templateSubmission({ step: 4, name: "A", tagline: "B", category: "expense", secondaryCategory: null, platforms: ["iOS"], source: { kind: "zip", fileName: "a.zip", report: null, path: "uploads/u/a.zip" }, stack: [], media: { screenshots: ["a", "b", "c"] }, storeLinks: { appStore: "", googlePlay: "" }, storySteps: [], freePreviewSteps: 0, tier: 158, license: "personal", originalityConfirmed: true });
     expect(t).toMatchObject({ kind: "template", tier: 158, source: { kind: "zip", path: "uploads/u/a.zip" }, attest: true });
-    expect(promptSubmission({ step: 1, title: "P", summary: "S", tool: "Claude", text: "x", previewLines: 1, tier: 8, attest: true })).toMatchObject({ kind: "prompt", tier: 8 });
-    expect(launchSubmission({ step: 1, name: "L", tagline: "T", aiTools: [], buildDays: "4", link: "https://a.example", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: true })).toMatchObject({ kind: "launch", buildDays: 4 });
+    expect(promptSubmission({ step: 1, title: "P", summary: "S", category: "developerTools", secondaryCategory: null, tool: "Claude", text: "x", previewLines: 1, tier: 8, attest: true })).toMatchObject({ kind: "prompt", tier: 8 });
+    expect(launchSubmission({ step: 1, name: "L", tagline: "T", category: "habit", secondaryCategory: "education", aiTools: [], buildDays: "4", link: "https://a.example", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: true })).toMatchObject({ kind: "launch", buildDays: 4, category: "habit", secondaryCategory: "education" });
   });
 
   it("flags an update only when a version came out after the purchase", () => {

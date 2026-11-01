@@ -11,6 +11,7 @@ import { creators, myListings, salesSeries, templates } from "@/data/mock";
 import type { RangeDays } from "@/lib/analytics";
 import { toggleVote } from "@/lib/launch";
 import { boardScore, buildLeaderboard, REPORT_LIMIT, type Period } from "@/lib/ranking";
+import { inCategory } from "@/lib/categories";
 import { detectStack, scanSource, type SourceManifest } from "@/lib/sourceScan";
 import { matches } from "@/lib/search";
 import { mmkv } from "@/store/storage";
@@ -176,8 +177,9 @@ function withVotes(l: Launch): Launch & { voted: boolean } {
   return { ...anchored(l), upvotes: l.upvotes + (voted ? 1 : 0), voted };
 }
 
-function leaderboard(period: Period) {
-  return buildLeaderboard(launches.map(withVotes), period, Date.now());
+function leaderboard(period: Period, category: CategoryKey | "all") {
+  // Every category has its own board: the same ranking over just the launches in it (lib/categories.ts).
+  return buildLeaderboard(launches.filter((l) => category === "all" || inCategory(l, category)).map(withVotes), period, Date.now());
 }
 
 export type SearchParams = {
@@ -191,7 +193,7 @@ export type SearchParams = {
 export function searchTemplates(list: Template[], p: SearchParams): Template[] {
   const out = list.filter(
     (t) =>
-      (!p.category || p.category === "all" || t.category === p.category) &&
+      (!p.category || p.category === "all" || inCategory(t, p.category)) &&
       (!p.price || p.price === "any" || (p.price === "free" ? t.price === 0 : t.price > 0)) &&
       (!p.platform || p.platform === "any" || t.platforms.includes(p.platform)) &&
       matches(p.q, [t.name, t.tagline, ...t.stack, t.category]),
@@ -299,7 +301,7 @@ export const api = {
   },
   /** How many promotional posts this account made today, so the composer can say so before posting. */
   promoToday: (userId: string) => wait(promoCountToday(readPosts(), userId), 120),
-  leaderboard: (period: Period) => wait(leaderboard(period), 320),
+  leaderboard: (period: Period, category: CategoryKey | "all" = "all") => wait(leaderboard(period, category), 320),
   launch: (slug: string) => {
     const l = launches.find((x) => x.slug === slug);
     return wait(l ? withVotes(l) : null);

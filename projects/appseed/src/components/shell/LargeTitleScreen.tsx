@@ -12,6 +12,8 @@ const HEADER = 52;
 
 type Props = {
   title: string;
+  /** A back button on pushed screens. */
+  left?: React.ReactNode;
   right?: React.ReactNode;
   children: React.ReactNode;
   onRefresh?: () => Promise<unknown>;
@@ -22,7 +24,7 @@ type Props = {
  * iOS large-title behaviour on every platform: the 30pt title shrinks and lifts as you scroll,
  * while a compact title and a glass bar fade in over the content scrolling beneath. Runs on the UI thread.
  */
-export function LargeTitleScreen({ title, right, children, onRefresh, bottomInset }: Props) {
+export function LargeTitleScreen({ title, left, right, children, onRefresh, bottomInset }: Props) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const clearance = useFloatClearance();
@@ -59,6 +61,8 @@ export function LargeTitleScreen({ title, right, children, onRefresh, bottomInse
               {title}
             </Txt>
           </Animated.View>
+          {left}
+          {left ? <View style={{ flex: 1 }} /> : null}
           {right}
         </View>
       </View>

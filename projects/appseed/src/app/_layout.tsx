@@ -74,6 +74,8 @@ function Shell() {
           <Stack.Screen name="template/[slug]/index" />
           <Stack.Screen name="template/[slug]/story" />
           <Stack.Screen name="creator/[handle]" />
+          <Stack.Screen name="categories" />
+          <Stack.Screen name="category/[key]" />
           <Stack.Screen name="studio/new" options={{ presentation: "modal" }} />
           <Stack.Screen name="studio/new-prompt" options={{ presentation: "modal" }} />
           <Stack.Screen name="studio/new-buyout" options={{ presentation: "modal" }} />

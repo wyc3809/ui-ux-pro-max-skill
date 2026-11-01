@@ -1,6 +1,7 @@
 import { View } from "react-native";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
+import { CategoryPicker } from "@/components/market/Category";
 import { ListingWizard } from "@/components/studio/ListingWizard";
 import { Chip, Tag } from "@/components/ui/Chip";
 import { toast } from "@/components/ui/Toast";
@@ -17,7 +18,7 @@ import { radius, font } from "@/theme/tokens";
 import { Reveal } from "@/components/ui/Reveal";
 
 const TOOLS = ["Claude Code", "Claude", "Cursor", "v0", "Windsurf"];
-const EMPTY: PromptDraft = { step: 0, title: "", summary: "", tool: null, text: "", previewLines: 2, tier: null, attest: false };
+const EMPTY: PromptDraft = { step: 0, title: "", summary: "", category: null, secondaryCategory: null, tool: null, text: "", previewLines: 2, tier: null, attest: false };
 
 export default function NewPrompt() {
   const { c } = useTheme();
@@ -47,6 +48,7 @@ export default function NewPrompt() {
         <>
           <Field label={t("form.promptTitle")} value={d.title} onChangeText={(title) => patch({ title })} />
           <Field label={t("upload.tagline")} value={d.summary} onChangeText={(summary) => patch({ summary })} />
+          <CategoryPicker value={d.category} secondary={d.secondaryCategory} onChange={(category, secondaryCategory) => patch({ category, secondaryCategory })} />
           <Group label={t("form.promptTool")}>
             {TOOLS.map((tool) => (
               <Chip key={tool} label={tool} selected={d.tool === tool} onPress={() => patch({ tool })} />

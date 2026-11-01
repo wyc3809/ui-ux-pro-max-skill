@@ -3,7 +3,8 @@ import type { VerifySource } from "@/lib/transfer";
 import type { LicenseKind } from "@/lib/license";
 import type { TemplateStatus } from "@/lib/status";
 
-export type CategoryKey = "tools" | "finance" | "ai" | "games" | "hk" | "merchant";
+import type { CategoryKey } from "@/lib/categories";
+export type { CategoryKey };
 export type Platform = "iOS" | "Android" | "Web";
 export type CoverIcon = "wallet" | "building" | "chef" | "grid" | "ticket" | "sprout" | "bus" | "receipt" | "sparkles" | "code" | "chat" | "camera" | "rocket" | "game" | "megaphone" | "hammer" | "globe";
 
@@ -47,6 +48,8 @@ export type Template = ListingMediaFields & {
   name: string;
   tagline: string;
   category: CategoryKey;
+  /** Optional second category (lib/categories.ts); the listing shows on both boards. */
+  secondaryCategory?: CategoryKey;
   creator: string;
   price: number;
   currency: "HKD";
@@ -81,6 +84,8 @@ export type PromptListing = {
   summary: string;
   tool: string;
   category: CategoryKey;
+  /** Optional second category (lib/categories.ts); the listing shows on both boards. */
+  secondaryCategory?: CategoryKey;
   creator: string;
   price: number;
   rating: number;
@@ -103,6 +108,8 @@ export type BuyoutListing = {
   tagline: string;
   seller: string;
   category: CategoryKey;
+  /** Optional second category (lib/categories.ts); the listing shows on both boards. */
+  secondaryCategory?: CategoryKey;
   asking: number;
   monthlyRevenue: number;
   monthlyActive: number;
@@ -128,6 +135,9 @@ export type Launch = ListingMediaFields & {
   slug: string;
   name: string;
   tagline: string;
+  category: CategoryKey;
+  /** Optional second category (lib/categories.ts); the launch ranks on both boards. */
+  secondaryCategory?: CategoryKey;
   maker: string;
   aiTools: string[];
   buildDays: number;

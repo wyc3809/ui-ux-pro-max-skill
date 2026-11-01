@@ -1,4 +1,5 @@
 import * as Clipboard from "expo-clipboard";
+import { CategoryLinks } from "@/components/market/Category";
 import { router, useLocalSearchParams } from "expo-router";
 import { Linking, Platform, Share, View } from "react-native";
 import { findCreator } from "@/api/mockServer";
@@ -100,6 +101,7 @@ export default function LaunchScreen() {
                 <Txt variant="heroLede" tone="fgMuted">
                   {l.tagline}
                 </Txt>
+                <CategoryLinks item={l} />
               </View>
               {maker && (
                 <PressableScale onPress={() => router.push(`/creator/${maker.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>

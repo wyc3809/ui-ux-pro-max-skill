@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { boardScore, buildLeaderboard, REPORT_LIMIT, type Period } from "@/lib/ranking";
+import { categoryKeys, type CategoryKey } from "@/lib/categories";
 import { searchTemplates, type SearchParams } from "./mockServer";
 import type { BuyoutListing, Launch, PromptListing, Template } from "./types";
 
@@ -41,8 +42,14 @@ export function toLaunch(r: ListingRow, s: StatsRow | undefined, voted: boolean)
 }
 
 export function catalogueApi(sb: SupabaseClient) {
-  const rows = async (kind: string) => {
-    const r = await sb.from("listings").select("slug, kind, price, data").eq("kind", kind).eq("status", "live").order("updated_at", { ascending: false });
+  /** Live listings of a kind; with a category, only that category's (indexed: listings_category, §40). */
+  const rows = async (kind: string, category: CategoryKey | "all" = "all") => {
+    let q = sb.from("listings").select("slug, kind, price, data").eq("kind", kind).eq("status", "live");
+    if (category !== "all") {
+      const keys = categoryKeys(category).join(",");
+      q = q.or(`data->>category.in.(${keys}),data->>secondaryCategory.in.(${keys})`);
+    }
+    const r = await q.order("updated_at", { ascending: false });
     if (r.error) throw new Error(r.error.message);
     return (r.data ?? []) as ListingRow[];
   };
@@ -53,8 +60,8 @@ export function catalogueApi(sb: SupabaseClient) {
   };
   const userId = async () => (await sb.auth.getUser()).data.user?.id ?? null;
 
-  const launchList = async () => {
-    const [list, stats, me] = await Promise.all([rows("launch"), sb.from("launch_stats").select("*"), userId()]);
+  const launchList = async (category: CategoryKey | "all" = "all") => {
+    const [list, stats, me] = await Promise.all([rows("launch", category), sb.from("launch_stats").select("*"), userId()]);
     const mine = me ? (((await sb.from("launch_votes").select("slug").eq("user_id", me)).data ?? []) as { slug: string }[]).map((v) => v.slug) : [];
     const bySlug = new Map(((stats.data ?? []) as StatsRow[]).map((s) => [s.slug, s]));
     return list.map((r) => toLaunch(r, bySlug.get(r.slug), mine.includes(r.slug)));
@@ -84,7 +91,7 @@ export function catalogueApi(sb: SupabaseClient) {
       const now = Date.now();
       return (await launchList()).filter((l) => l.reports < REPORT_LIMIT).sort((a, b) => boardScore(b, "week", now) - boardScore(a, "week", now));
     },
-    leaderboard: async (period: Period) => buildLeaderboard(await launchList(), period, Date.now()),
+    leaderboard: async (period: Period, category: CategoryKey | "all" = "all") => buildLeaderboard(await launchList(category), period, Date.now()),
     launch: async (slug: string) => (await launchList()).find((l) => l.slug === slug) ?? null,
     vote: async (slug: string) => {
       const me = await userId();

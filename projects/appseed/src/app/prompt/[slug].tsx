@@ -1,4 +1,5 @@
 import * as Clipboard from "expo-clipboard";
+import { CategoryLinks } from "@/components/market/Category";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
@@ -126,6 +127,7 @@ export default function PromptScreen() {
                 <Txt variant="heroLede" tone="fgMuted">
                   {p.summary}
                 </Txt>
+                <CategoryLinks item={p} />
               </View>
               {creator && (
                 <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>

@@ -41,6 +41,12 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
   vote-ring halving, period decay, reports, unranked sponsored slot); For you lives in lib/feed.ts. Every
   ranking surface has an ⓘ sheet explaining it in plain language; keep the sheet in sync with the code.
 
+## Categories (docs/DESIGN.md §40)
+- Categories come only from lib/categories.ts (synced to the server): the App Store's own top-level list plus vibe coding
+  categories, each under one App Store parent. Listings need a primary category, may add one secondary.
+- Every category has its own leaderboard: filter with `inCategory`, then rank with the normal `buildLeaderboard`, never a
+  separate formula. An App Store category's board includes its vibe children. Labels live in i18n `category.<key>`.
+
 ## Creator profiles (docs/DESIGN.md §29)
 - Every listing shows a CreatorCard with social links. Store bare handles and build URLs with
   lib/socialLinks.ts so a link can only point at its network; websites must be https.
@@ -89,7 +95,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Content others read (profiles, posts, replies, comments, offers) is written only by the `content` Edge Function;
   reactions, votes, blocks and reports go straight in under RLS. Purchases come from `my_purchases()`.
 - The server enforces src/lib rules through copies in supabase/functions/_shared/rules: after editing moderation,
-  posts, auth, socialLinks, contact, features, price, prompt, license, sourceScan, media or storeLinks, run `node scripts/sync-shared.mjs`
+  posts, auth, socialLinks, contact, features, price, prompt, license, sourceScan, media, storeLinks or categories, run `node scripts/sync-shared.mjs`
   (a test fails otherwise). Those files must stay import-free.
 - supabase/seed.sql is generated from src/data: after changing demo data run `WRITE_SEED=1 npx jest supabase/tests/seed`.
 - Edge Functions: logic in supabase/functions/_shared (pure, Jest-tested, dependencies injected); `index.ts` files only

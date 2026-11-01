@@ -1,11 +1,12 @@
 import type { ListingMedia } from "./media";
+import type { CategoryKey } from "./categories";
 import { normalizeStoreLinks } from "./storeLinks";
 import type { Platform, SourceChoice } from "@/api/types";
 import { promptVariables } from "./prompt";
 import { isTransferReady, needsVerification, type StoreFacts, type VerifySource } from "./transfer";
 import { sourceReady } from "./upload";
 
-export type PromptDraft = { step: number; title: string; summary: string; tool: string | null; text: string; previewLines: number; tier: number | null; attest: boolean };
+export type PromptDraft = { step: number; title: string; summary: string; category: CategoryKey | null; secondaryCategory: CategoryKey | null; tool: string | null; text: string; previewLines: number; tier: number | null; attest: boolean };
 export type BuyoutDraft = {
   step: number;
   name: string;
@@ -29,6 +30,8 @@ export type LaunchDraft = {
   step: number;
   name: string;
   tagline: string;
+  category: CategoryKey | null;
+  secondaryCategory: CategoryKey | null;
   aiTools: string[];
   buildDays: string;
   /** The app's website; optional when it has a store link. */
@@ -47,6 +50,7 @@ export function missingPromptFields(d: PromptDraft, step: number): string[] {
   const miss: string[] = [];
   if (step === 0) {
     if (!d.title.trim()) miss.push("title");
+    if (!d.category) miss.push("category");
     if (!d.tool) miss.push("tool");
     if (d.text.trim().split("\n").length < 2) miss.push("text");
   }
@@ -94,6 +98,7 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
   if (step === 0) {
     if (!d.name.trim()) miss.push("name");
     if (!d.tagline.trim()) miss.push("tagline");
+    if (!d.category) miss.push("category");
     if (d.aiTools.length === 0) miss.push("aiTools");
     if (Number.isNaN(num(d.buildDays)) || num(d.buildDays) < 1) miss.push("buildDays");
   }
@@ -112,8 +117,8 @@ export function missingLaunchFields(d: LaunchDraft, step: number): string[] {
 }
 
 /** What the studio function receives for a prompt or a launch (the server re-checks all of it). */
-export const promptSubmission = (d: PromptDraft) => ({ kind: "prompt", title: d.title, summary: d.summary, tool: d.tool, text: d.text, previewLines: d.previewLines, tier: d.tier, attest: d.attest });
-export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, media: d.media, storeLinks: d.storeLinks, attest: d.attest });
+export const promptSubmission = (d: PromptDraft) => ({ kind: "prompt", title: d.title, summary: d.summary, category: d.category, secondaryCategory: d.secondaryCategory, tool: d.tool, text: d.text, previewLines: d.previewLines, tier: d.tier, attest: d.attest });
+export const launchSubmission = (d: LaunchDraft) => ({ kind: "launch", name: d.name, tagline: d.tagline, category: d.category, secondaryCategory: d.secondaryCategory, aiTools: d.aiTools, buildDays: Number(d.buildDays) || 0, link: d.link, media: d.media, storeLinks: d.storeLinks, attest: d.attest });
 
 /** A newer version came out after this account bought it (unknown purchase date: no badge). */
 export const hasUpdate = (latest: string | undefined, boughtAt: string | undefined) => !!latest && !!boughtAt && latest > boughtAt.slice(0, 10);

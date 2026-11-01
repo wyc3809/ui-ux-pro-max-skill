@@ -3,7 +3,7 @@ import { ScrollView, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
-import type { CategoryKey } from "@/api/types";
+import { CategoryPicker } from "@/components/market/Category";
 import { Field, Group, Note } from "@/components/studio/FormFields";
 import { MediaEditor, StoreLinkFields } from "@/components/studio/MediaEditor";
 import { SourcePicker } from "@/components/studio/SourcePicker";
@@ -26,8 +26,6 @@ import { useUploadDraft } from "@/store/uploadDraft";
 import { reorder, rowIn, rowOut } from "@/theme/animations";
 import { useTheme } from "@/theme/ThemeProvider";
 import { radius, space } from "@/theme/tokens";
-
-const CATS: CategoryKey[] = ["tools", "finance", "ai", "games", "hk", "merchant"];
 
 export default function UploadWizard() {
   const { c } = useTheme();
@@ -81,11 +79,7 @@ export default function UploadWizard() {
             <>
               <Field label={t("upload.name")} value={d.name} onChangeText={(name) => patch({ name })} />
               <Field label={t("upload.tagline")} value={d.tagline} onChangeText={(tagline) => patch({ tagline })} />
-              <Group label={t("upload.category")}>
-                {CATS.map((k) => (
-                  <Chip key={k} label={t(`category.${k}`)} selected={d.category === k} onPress={() => patch({ category: k })} />
-                ))}
-              </Group>
+              <CategoryPicker value={d.category} secondary={d.secondaryCategory} onChange={(category, secondaryCategory) => patch({ category, secondaryCategory })} />
               <Group label={t("upload.platforms")}>
                 {["iOS", "Android", "Web"].map((p) => (
                   <Chip key={p} label={p} selected={d.platforms.includes(p)} onPress={() => patch({ platforms: d.platforms.includes(p) ? d.platforms.filter((x) => x !== p) : [...d.platforms, p] })} />

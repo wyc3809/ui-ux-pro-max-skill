@@ -1,4 +1,5 @@
 import { BlurView } from "expo-blur";
+import { CategoryLinks } from "@/components/market/Category";
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -202,6 +203,7 @@ function Hero({ t: tpl }: { t: Template }) {
         <Txt variant="heroLede" tone="fgMuted" numberOfLines={2}>
           {tpl.tagline}
         </Txt>
+        <CategoryLinks item={tpl} />
       </View>
       {creator && (
         <PressableScale onPress={() => router.push(`/creator/${creator.handle}`)} scaleTo={0.98} accessibilityLabel={t("template.by", { name: creator.name })} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 8, minHeight: 44 }}>

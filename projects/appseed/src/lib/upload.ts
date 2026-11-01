@@ -14,6 +14,7 @@ export function templateSubmission(d: UploadDraft) {
     name: d.name,
     tagline: d.tagline,
     category: d.category,
+    secondaryCategory: d.secondaryCategory,
     platforms: d.platforms,
     stack: d.stack,
     media: d.media,

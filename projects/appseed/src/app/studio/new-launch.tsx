@@ -13,11 +13,12 @@ import { radius } from "@/theme/tokens";
 import { api } from "@/api/backend";
 import { MediaEditor, StoreLinkFields } from "@/components/studio/MediaEditor";
 import { OwnershipAttest } from "@/components/studio/OwnershipAttest";
+import { CategoryPicker } from "@/components/market/Category";
 import { BOOST_PRODUCT } from "@/lib/launch";
 import { formatPrice } from "@/lib/price";
 
 const TOOLS = ["Claude Code", "Cursor", "v0", "Windsurf", "Bolt", "Lovable"];
-const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", aiTools: [], buildDays: "", link: "", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: false };
+const EMPTY: LaunchDraft = { step: 0, name: "", tagline: "", category: null, secondaryCategory: null, aiTools: [], buildDays: "", link: "", media: { screenshots: [] }, storeLinks: { appStore: "", googlePlay: "" }, boost: false, attest: false };
 
 export default function NewLaunch() {
   const { c } = useTheme();
@@ -48,6 +49,7 @@ export default function NewLaunch() {
         <>
           <Field label={t("form.appName")} value={d.name} onChangeText={(name) => patch({ name })} />
           <Field label={t("upload.tagline")} value={d.tagline} onChangeText={(tagline) => patch({ tagline })} />
+          <CategoryPicker value={d.category} secondary={d.secondaryCategory} onChange={(category, secondaryCategory) => patch({ category, secondaryCategory })} />
           <Group label={t("form.aiTools")}>
             {TOOLS.map((tool) => (
               <Chip key={tool} label={tool} selected={d.aiTools.includes(tool)} onPress={() => patch({ aiTools: d.aiTools.includes(tool) ? d.aiTools.filter((x) => x !== tool) : [...d.aiTools, tool] })} />
