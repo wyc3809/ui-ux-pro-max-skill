@@ -70,7 +70,8 @@ npx supabase functions deploy checkout connect payments-webhook settlement --no-
 - `refund.created`
 - `charge.dispute.created`
 - `charge.dispute.closed`
-- `account.updated`（選「Connected accounts」的事件）
+
+（創作者帳戶的變化由下面 (b) 的 thin 事件處理，這裏不用加 `account.updated`。）
 
 網址：`https://<project-ref>.supabase.co/functions/v1/payments-webhook/stripe`
 
@@ -137,14 +138,24 @@ npx supabase secrets set STRIPE_THIN_WEBHOOK_SECRET=whsec_…
 
 ---
 
-## 想 Claude 代勞第 3 步和第 7 步？
+## 想 Claude 代勞？
 
-在 Claude 雲端環境的設定（對話標題列的環境選單 → Edit）加入以下環境變數（有 Network secrets 一欄就放那裏），然後開新對話：
+你只需要做第 0、1、5、6 步（開帳戶和在 Dashboard 選設定），第 2–4 步和部署可以交給 Claude：腳本 `scripts/stripe-sandbox-setup.mjs` 會用 API 建立兩個 webhook、把 signing secret 和其他 secrets 存入 Supabase、推送資料庫並部署付款函數。它只接受 sandbox 金鑰。
 
-| 變數 | 內容 |
+1. 準備四樣東西：
+   - **Stripe sandbox 的 Secret key**：在 sandbox 內 Developers → API keys → Secret key（`sk_test_…`）→ Reveal。
+   - **Supabase Project ref**：第 0 步記下的。
+   - **Supabase access token**：supabase.com → 右上頭像 → Account → Access Tokens → Generate new token。
+   - **Supabase 資料庫密碼**：開 project 時設定的密碼（忘記可在 Settings → Database 重設）。
+2. 在這個 Claude 對話的標題列打開環境選單 → **Edit**，加入（有 Network secrets 一欄就放那裏，否則放環境變數）：
+
+| 變數名 | 內容 |
 |---|---|
-| `SUPABASE_ACCESS_TOKEN` | Supabase → Account → Access Tokens 建立的 token |
-| `SUPABASE_PROJECT_REF` | 第 0 步的 Project ref |
-| `STRIPE_SANDBOX_CHECKOUT_KEY` 等 | 只放 **sandbox** 的 4 條 `rk_test_…` 和兩個 `whsec_…` |
+| `STRIPE_SANDBOX_SECRET_KEY` | `sk_test_…` |
+| `SUPABASE_PROJECT_REF` | Project ref |
+| `SUPABASE_ACCESS_TOKEN` | access token |
+| `SUPABASE_DB_PASSWORD` | 資料庫密碼 |
 
-Claude 會讀取這些變數來部署、存 secrets 和跑測試；live 金鑰仍然由你自己設定。
+3. 開一個新對話（新設定要新對話才讀到），說「繼續 Stripe 設定」。
+
+正式上線（第 8 步）的 live 金鑰仍然由你自己設定，不要放進 Claude 的環境。
