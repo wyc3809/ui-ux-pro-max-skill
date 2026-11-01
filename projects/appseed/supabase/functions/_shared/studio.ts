@@ -155,7 +155,7 @@ export async function handleStudio(deps: StudioDeps, userId: string, body: Recor
       if (!to) fail("noEmail");
       if (!deps.email) fail("emailNotConfigured");
       const url = await storage.signDownload(path, 24 * 60 * 60);
-      await deps.email!(to!, "AppSeed source code", `Your download link (valid for 24 hours):\n${url}\n\nThe app never opens downloaded code; open it on your computer.`);
+      await deps.email!(to!, "VCseed source code", `Your download link (valid for 24 hours):\n${url}\n\nThe app never opens downloaded code; open it on your computer.`);
       return { ok: true };
     }
     case "submitListing":

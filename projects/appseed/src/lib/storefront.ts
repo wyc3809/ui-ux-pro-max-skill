@@ -15,4 +15,4 @@ export function canLinkOut(storefront: string | null | undefined, overrides: str
   return LINK_OUT.has(code) || overrides.map((o) => o.toUpperCase()).includes(code);
 }
 
-export const ESCROW_URL = "https://appseed.app/deals";
+export const ESCROW_URL = "https://vcseed.app/deals";

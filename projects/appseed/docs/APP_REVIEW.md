@@ -1,4 +1,4 @@
-# App Review 準備清單（AppSeed）
+# App Review 準備清單（VCseed）
 
 送審前逐項核對。指引會變，送審前請再讀一次 Apple 的 [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) 和 Google Play 的開發者政策。
 
@@ -8,7 +8,7 @@
 
 ## 指引對照
 
-| 指引 | 要求 | AppSeed 的做法 | 位置 |
+| 指引 | 要求 | VCseed 的做法 | 位置 |
 |---|---|---|---|
 | 1.2 用戶內容 | 發佈前過濾不當內容 | 帖子、留言、創作者名稱和簡介發佈前檢查（不當字眼、站外聯絡及付款、垃圾訊息），伺服器再檢查一次 | `src/lib/moderation.ts` `screenText` |
 | 1.2 用戶內容 | 檢舉並及時處理 | 每則帖子、回覆、留言、作品、創作者主頁都可以檢舉，須選原因；24 小時內人手審查；檢舉者即時看不到該內容 | `ModerationSheet` |
@@ -27,12 +27,12 @@
 
 ## 送審備註（App Review Information › Notes）範本
 
-> AppSeed is a marketplace where developers sell runnable app source code (templates), AI prompts and build stories, and where makers promote apps they built.
+> VCseed is a marketplace where developers sell runnable app source code (templates), AI prompts and build stories, and where makers promote apps they built.
 >
 > - Templates, prompts and launch boosts are digital content and use In-App Purchase only.
 > - Source code is delivered to the buyer's computer. The app never downloads, unzips, loads or executes code on device (Guideline 2.5.2).
 > - In-App Purchase types: templates and prompts are sold with a small set of fixed price tiers configured as consumable products, because the catalogue has thousands of creator listings and one product per listing is not workable. Buying requires an account; ownership is stored on our server per account, never on the device. "Restore Purchases" (Me › Restore Purchases, and on the empty Library screen) signs in, syncs store receipts and reloads everything the account owns, so purchases survive new devices and reinstalls.
-> - Launches are a community showcase and discussion of apps people built (similar to Product Hunt). AppSeed does not distribute, download or install apps; links go to the official App Store or Google Play page, or the maker's website.
+> - Launches are a community showcase and discussion of apps people built (similar to Product Hunt). VCseed does not distribute, download or install apps; links go to the official App Store or Google Play page, or the maker's website.
 > - User generated content: posts, replies, comments and profiles are screened before publishing, every item can be reported with a reason, users can be blocked, and reports are reviewed within 24 hours. Users must accept the terms (zero tolerance for objectionable content) to create an account.
 > - Demo account: (fill in) / one time code 123456 in the review build.
 
@@ -46,7 +46,7 @@
 
 ## 送審前要做
 
-- [ ] 部署網頁版（`npx expo export --platform web` 的 `dist/`），App Store Connect 的支援網址填 `https://appseed.app/support.html`、私隱政策網址填 `https://appseed.app/privacy.html`
+- [ ] 部署網頁版（`npx expo export --platform web` 的 `dist/`），App Store Connect 的支援網址填 `https://vcseed.app/support.html`、私隱政策網址填 `https://vcseed.app/privacy.html`
 
 - [ ] `src/lib/contact.ts` 換成真實的支援和知識產權電郵，並確保有人處理
 - [x] 審核後台可以在 24 小時內處理檢舉、移除內容和停用帳戶（`/admin`，§36）；仍要安排有人每日處理

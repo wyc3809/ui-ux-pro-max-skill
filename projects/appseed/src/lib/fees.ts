@@ -1,11 +1,11 @@
 /**
  * Fee schedule (docs/DESIGN.md §31). One place for every rate the terms, the studio and the buyout screens
- * show, so the disclosure can never drift from what is charged. AppSeed's own rates are business decisions
+ * show, so the disclosure can never drift from what is charged. VCseed's own rates are business decisions
  * (placeholders until confirmed); third-party rates are approximate public prices that change, and the terms
  * say so. The server's settlement uses its own copy of this schedule; these numbers are for display.
  */
 export const FEES = {
-  /** AppSeed's share of each sale, taken after the store or card fee. */
+  /** VCseed's share of each sale, taken after the store or card fee. */
   platformRate: 0.2,
   /** Apple / Google commission: 15% under the small business programmes, 30% above US$1M a year. */
   storeRate: 0.15,
@@ -15,7 +15,7 @@ export const FEES = {
   cardFixed: 2.35,
   cardIntlExtra: 0.005,
   chargebackFee: 85,
-  /** RevenueCat charges ~1% of revenue above US$2,500 a month; AppSeed absorbs it. */
+  /** RevenueCat charges ~1% of revenue above US$2,500 a month; VCseed absorbs it. */
   revenueCatRate: 0.01,
   /** Stripe Connect payout: ~0.25% + HK$0.25 per transfer, deducted from that payout. */
   payoutRate: 0.0025,
@@ -26,10 +26,10 @@ export const FEES = {
   /** Escrow provider fee for buyouts (paid by the buyer by default): starts at ~3.25%, lower for larger deals. */
   escrowRateFrom: 0.0325,
   escrowMinimum: 80,
-  /** AppSeed's buyout commission, paid by the seller, deducted by the escrow provider at release. */
+  /** VCseed's buyout commission, paid by the seller, deducted by the escrow provider at release. */
   buyoutCommission: 0.05,
   buyoutCommissionMinimum: 500,
-  /** Notice before AppSeed changes its own rates. */
+  /** Notice before VCseed changes its own rates. */
   noticeDays: 30,
 } as const;
 
@@ -37,7 +37,7 @@ export type Channel = "ios" | "android" | "web";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-/** What happens to one sale: the store or card fee, AppSeed's share, and what the seller receives. */
+/** What happens to one sale: the store or card fee, VCseed's share, and what the seller receives. */
 export function splitSale(gross: number, channel: Channel, opts: { largeDeveloper?: boolean; intlCard?: boolean } = {}) {
   if (gross <= 0) return { gross: 0, channelFee: 0, net: 0, platform: 0, seller: 0 };
   const channelFee =
@@ -56,7 +56,7 @@ export function payoutAmount(balance: number): { paid: number; fee: number; roll
   return { paid: round2(balance - fee), fee, rolledOver: 0 };
 }
 
-/** Buyout costs, shown as two separate lines: the escrow provider's fee and AppSeed's commission. */
+/** Buyout costs, shown as two separate lines: the escrow provider's fee and VCseed's commission. */
 export function buyoutCosts(asking: number) {
   const escrowFee = Math.max(FEES.escrowMinimum, Math.round(asking * FEES.escrowRateFrom));
   const commission = Math.max(FEES.buyoutCommissionMinimum, Math.round(asking * FEES.buyoutCommission));

@@ -1,5 +1,5 @@
 # Seller lists an app for buyout: platforms, read-only revenue proof, store transfer checks (§22.2)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "創作"

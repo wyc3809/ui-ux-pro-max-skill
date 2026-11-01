@@ -1,5 +1,5 @@
 # Signed-in maker posts about their app on Explore, likes, replies in a thread and reports a post (§27)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "討論"

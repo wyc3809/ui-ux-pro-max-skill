@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "AppSeed",
-    "slug": "appseed",
-    "description": "AppSeed, the vibe coding incubator: runnable app source, build stories, prompts, launches and whole app buyouts.",
-    "scheme": "appseed",
+    "name": "VCseed",
+    "slug": "vcseed",
+    "description": "VCseed, the vibe coding incubator: runnable app source, build stories, prompts, launches and whole app buyouts.",
+    "scheme": "vcseed",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,14 +11,14 @@
     "backgroundColor": "#f5f6f3",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.appseed.mobile",
+      "bundleIdentifier": "app.vcseed.mobile",
       "usesAppleSignIn": true,
       "associatedDomains": [
-        "applinks:appseed.app"
+        "applinks:vcseed.app"
       ]
     },
     "android": {
-      "package": "app.appseed.mobile",
+      "package": "app.vcseed.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#5b3fd6",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,47 +33,47 @@
           "data": [
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/t"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/p"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/l"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/b"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/template"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/prompt"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/launch"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/post"
             },
             {
               "scheme": "https",
-              "host": "appseed.app",
+              "host": "vcseed.app",
               "pathPrefix": "/creator"
             }
           ],
@@ -101,7 +101,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "AppSeed uses your photos to add an app icon, screenshots and a preview video to your listing.",
+          "photosPermission": "VCseed uses your photos to add an app icon, screenshots and a preview video to your listing.",
           "cameraPermission": false,
           "microphonePermission": false
         }

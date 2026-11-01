@@ -1,6 +1,6 @@
 # Categories and per-category leaderboards (§40): filter the board, open the category list, a vibe coding
 # category's own board, its App Store parent, and the category picker in the launch wizard.
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - assertVisible: "排行榜"

@@ -9,7 +9,7 @@ import { useT } from "@/i18n";
 import { useTheme } from "@/theme/ThemeProvider";
 
 /**
- * Where GitHub sends a creator after installing the AppSeed GitHub App (web). The server links the
+ * Where GitHub sends a creator after installing the VCseed GitHub App (web). The server links the
  * installation only if GitHub confirms it belongs to them, then the upload wizard continues.
  */
 export default function GithubCallback() {

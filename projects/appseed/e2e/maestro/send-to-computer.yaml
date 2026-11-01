@@ -1,5 +1,5 @@
 # An owner sends a template's source to their computer; the phone never downloads or opens code (§22.6)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "已購"

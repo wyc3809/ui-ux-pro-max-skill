@@ -16,7 +16,7 @@ import { gap } from "@/theme/tokens";
 
 /**
  * Payout account state in the studio (§32): set up → finish setup → connected. Stripe hosts every page that
- * asks for identity or bank details; AppSeed only opens it and re-reads the state afterwards.
+ * asks for identity or bank details; VCseed only opens it and re-reads the state afterwards.
  */
 export function PayoutSetupRow() {
   const { c } = useTheme();

@@ -2,7 +2,7 @@
 
 > 用途：放在新 repo 的 `docs/DESIGN.md`，並在 `CLAUDE.md` 寫明「所有 UI 必須跟從 docs/DESIGN.md」。
 > 手感、數值和規則沿用 WorthBook 及「香港公司查冊 App」藍圖（同一位作者），以 **React Native + Expo** 實作，一份程式碼出 iOS、Android 和網頁版。
-> 產品名稱 **AppSeed**，副標 **Vibe coding incubator**（所有語言相同，見 i18n `brand`）：創作者上載**可運行的 App 原始碼**和**製作經歷**（用過的 prompt、架構決定、踩過的坑、上架步驟），其他人付費取得，用作自己 App 的起點，再用 Claude Code 等 AI 工具修改。
+> 產品名稱 **VCseed**，副標 **Vibe coding incubator**（所有語言相同，見 i18n `brand`）：創作者上載**可運行的 App 原始碼**和**製作經歷**（用過的 prompt、架構決定、踩過的坑、上架步驟），其他人付費取得，用作自己 App 的起點，再用 Claude Code 等 AI 工具修改。
 
 ---
 
@@ -330,7 +330,7 @@ export const motion = {
 6. **破壞性操作**（下架模板、刪除帳戶、清除紀錄）：用 ConfirmSheet 確認，按鈕用紅色；下架不影響已購用戶的存取權。
 7. **重複購買保護**：已購模板不可再購買，按鈕直接變成「傳送到電腦」。
 8. **Android 返回鍵**：先關最上層 sheet，再返回上一頁，在首頁才離開 App。
-9. **Deep link**：`appseed://t/<slug>`、`appseed://c/<handle>` 和 universal link `https://<domain>/t/<slug>`；分享模板時用網頁連結，沒有安裝 App 的人也可以打開。
+9. **Deep link**：`vcseed://t/<slug>`、`vcseed://c/<handle>` 和 universal link `https://<domain>/t/<slug>`；分享模板時用網頁連結，沒有安裝 App 的人也可以打開。
 10. **長按 prompt**：複製並顯示 success 提示。
 
 ---
@@ -504,7 +504,7 @@ export const motion = {
 
 ```md
 ## Product
-AppSeed: a marketplace for runnable app source code plus "build stories" (prompts,
+VCseed: a marketplace for runnable app source code plus "build stories" (prompts,
 architecture decisions, pitfalls, launch steps). React Native + Expo for iOS, Android
 and Web. Buyers browse and purchase on mobile, then send the code to their computer.
 Creators upload templates (web recommended), pass review, and get paid via Stripe Connect.
@@ -555,7 +555,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 項目 | 規格 |
 |---|---|
 | 與模板的分別 | 模板是授權（可賣多次）；買斷是**獨家轉讓**：App（經商店官方轉移）、原始碼、網域、用戶，賣出後下架。**只轉讓 App，不轉讓開發者帳戶**（Apple 帳戶不可轉讓；有收入的個人 Play 帳戶只可逐個 App 轉移） |
-| 付款 | **不經 App 內購買**。屬業務轉讓，款項由**持牌托管合作機構**在網頁版處理，AppSeed 不代為持有款項；App 只顯示資料、收報價、說明流程。正式推出前須確認香港相關牌照要求，大額交易附資產買賣及知識產權轉讓文件 |
+| 付款 | **不經 App 內購買**。屬業務轉讓，款項由**持牌托管合作機構**在網頁版處理，VCseed 不代為持有款項；App 只顯示資料、收報價、說明流程。正式推出前須確認香港相關牌照要求，大額交易附資產買賣及知識產權轉讓文件 |
 | 托管流程 | 雙方同意條款 → 買家付款到托管 → 賣家轉移 App、原始碼和網域 → 買家逐項確認交接清單 → 全部確認後放款（`EscrowSteps`，有次序意義所以用編號；`canRelease` 要求清單每項都已確認） |
 | 轉移條件 | 上架前檢查（`transferReadiness`）：最少一個版本已正式上架、沒有版本在審核／等待發佈／預購、TestFlight 已關閉，任何一項不符合就不能上架。警告（顯示給買家）：使用 Sign in with Apple 須在轉移後用 Apple 轉移識別碼遷移用戶；沒有用 Play App Signing 須加密交出簽署金鑰。只有網頁版則不涉及商店轉移 |
 | 交接清單 | `handoverItems` 按次序列出：App Store 轉移（買家 60 日內接受）→ Sign in with Apple 遷移 → Google Play 轉移（買家提供登記交易編號，約 2 個工作天）→ 簽署金鑰 → 原始碼 → 後端服務 → 收款服務 → 網域 → 社交帳戶 → 最後更換所有密鑰。詳情頁顯示唯讀版本，交易中的買家逐項剔選 |
@@ -563,7 +563,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 收入核實 | 只接受唯讀權限：App Store Connect（銷售報告）、Play Console（財務檢視）、RevenueCat、Stripe，**不接受截圖**。有收入的上架最少要連接一個來源（`needsVerification`）；詳情頁寫明「已透過 … 唯讀權限核實」 |
 | 報價 | 最少為叫價一半（`validateOffer`）；步進按叫價大小調整（`offerStep`）；錯誤時數字搖動並提示 |
 | 狀態 | 出售中＝`live`、洽談中＝`pending`、已售出＝`ended`；已售出列表沉到底部並蓋上「已售出」印章動畫 |
-| 托管費 | 分兩行顯示（§31）：托管機構的托管費（預計，預設買家付）和 AppSeed 佣金（賣家付）；實際由伺服器和托管機構決定 |
+| 托管費 | 分兩行顯示（§31）：托管機構的托管費（預計，預設買家付）和 VCseed 佣金（賣家付）；實際由伺服器和托管機構決定 |
 
 ### 22.3 Prompt 市集
 
@@ -635,7 +635,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 第六格 | 模板／Prompt：衍生作品（引用它的新作數量）；買斷：報價數；新作：製作日數 |
 
 - 數字用簡寫：英文 21.5K、中文 2.2萬（`formatCompact`）；仍然逐位滾動到新值。
-- **分享列**：複製連結、X、LinkedIn、Threads、WhatsApp、更多（系統分享），六個按鈕平均分配一行，逐個彈出。分享用公開網址 `https://appseed.app/{t|p|b|l}/{slug}`，沒有安裝 App 的人也可以打開；平台 logo 是字型圖示，LinkedIn 和 WhatsApp 保留品牌色。
+- **分享列**：複製連結、X、LinkedIn、Threads、WhatsApp、更多（系統分享），六個按鈕平均分配一行，逐個彈出。分享用公開網址 `https://vcseed.app/{t|p|b|l}/{slug}`，沒有安裝 App 的人也可以打開；平台 logo 是字型圖示，LinkedIn 和 WhatsApp 保留品牌色。
 - **留言**：未登入時輸入框會先打開登入。新留言從頂部滑入，自己的留言可以刪除（淡出並收起空位）。超過 400 字顯示字數，上限 500 字（`validateComment`）。時間顯示「剛剛／3 分鐘前／5 小時前／2 日前」，一星期後顯示日期。
 - 讚好、留言、刪除留言都是樂觀更新，伺服器拒絕時還原。
 
@@ -703,7 +703,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 項目 | 規格 |
 |---|---|
 | 版面 | Threads 式：左邊頭像欄（有回覆時有直線向下），右邊名稱、相對時間、內文、附上的作品卡、動作列；帖子之間用 hairline 分隔（與文字欄對齊），不用卡片 |
-| 動作 | 讚好（心形 → `danger` 色）、回覆、轉發（`live` 色）、分享（系統分享 `https://appseed.app/post/{id}`），全部樂觀更新；讚好、回覆、轉發、發帖都要先登入（`requireAuth`），瀏覽不用 |
+| 動作 | 讚好（心形 → `danger` 色）、回覆、轉發（`live` 色）、分享（系統分享 `https://vcseed.app/post/{id}`），全部樂觀更新；讚好、回覆、轉發、發帖都要先登入（`requireAuth`），瀏覽不用 |
 | 排序 | 最新、熱門。熱門 = (讚好 + 2×回覆 + 3×轉發 + 1) ÷ (小時 + 2)^1.5（`postScore`），回覆和轉發比讚好重，舊帖慢慢下沉 |
 | 發帖 | Sheet：最多 500 字（剩 100 字內顯示字數）、最多 2 條連結、`#標籤` 和連結用品牌色。可附上一個**自己已上架的作品**，帖子會標示「作者作品」，每人每天最多 3 則宣傳帖子（`validatePost`、`promoCountToday`，伺服器再檢查一次）；回覆不可附作品 |
 | 討論串 | `/post/[id]`：主帖放大，回覆按時間由舊到新，底部浮動玻璃回覆列 |
@@ -738,7 +738,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 步驟 | 規則 |
 |---|---|
 | 基礎 | 討論熱度 `postScore`（回覆 ×2、轉發 ×3、按時間遞減） |
-| 個人化 | 收藏或購買過的創作者 +0.6；帖子 #標籤與搜尋紀錄相符每個 +0.25（最多 +0.5）；附上作品的種類是你常互動的 +0.2；只用 AppSeed 內的資料，未登入不作個人化 |
+| 個人化 | 收藏或購買過的創作者 +0.6；帖子 #標籤與搜尋紀錄相符每個 +0.25（最多 +0.5）；附上作品的種類是你常互動的 +0.2；只用 VCseed 內的資料，未登入不作個人化 |
 | 新帖曝光 | 一小時內的帖子 ×1.5 |
 | 降權 | 看過的帖子 ×0.6；被檢舉 3 次或以上 ×0.3 |
 | 多樣性 | 同一作者不會連續出現；每三則最多一則宣傳帖子（`diversify`） |
@@ -753,7 +753,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - 每個作品（模板、Prompt、買斷、新作）下方都有「關於創作者」卡：頭像、名稱、創始創作者標記、作品數、簡介和社交連結（圓形品牌圖示按鈕，44pt）。按卡片進入創作者主頁，主頁用「圖示 + 用戶名」顯示連結。
 - 支援 X、Instagram、GitHub、Threads、LinkedIn、YouTube 和個人網站。在「我的 › 創作者資料」編輯。
 - 安全：只儲存用戶名，網址由 App 按平台組合（`socialUrl`），所以連結只可能指向該平台；貼上的網址會檢查網域（`normalizeSocial`，錯誤網站顯示「這不是 GitHub 的網址」）；個人網站必須是 https。伺服器儲存前再檢查一次。簡介最多 160 字。
-- 示範資料的社交帳號全部用 appseed demo 前綴，避免指向真實人物。
+- 示範資料的社交帳號全部用 vcseed demo 前綴，避免指向真實人物。
 
 ---
 
@@ -771,7 +771,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | 知識產權 | 模板、Prompt、買斷、新作四個上架流程最後一步都要確認擁有權利（`OwnershipAttest`）；作品頁底部「檢舉此作品」是侵權投訴入口 |
 | 付費推廣 | 屬 App 內使用的數碼服務，用 IAP（`BOOST_PRODUCT`，HK$38，24 小時） |
 | 恢復購買 | 「我的 › 恢復購買」和「已購」空白頁的按鈕：未登入先登入，再同步商店收據並重新讀取伺服器上這個帳戶擁有的項目（`useRestore`）。價格級別是消耗型商品，擁有權記錄在帳戶，所以換裝置和重裝都靠帳戶恢復 |
-| 買斷付款 | 只有美國 storefront 顯示「前往網頁版付款」連結（`canLinkOut`）；其他地區只說明到 appseed.app 完成托管付款，不放連結、不寄連結。正式版從 StoreKit／Play Billing 讀 storefront |
+| 買斷付款 | 只有美國 storefront 顯示「前往網頁版付款」連結（`canLinkOut`）；其他地區只說明到 vcseed.app 完成托管付款，不放連結、不寄連結。正式版從 StoreKit／Play Billing 讀 storefront |
 | 帳戶切換 | 登入後所有查詢重新載入，購買前再向伺服器確認是否已擁有（`ownsFresh`），避免恢復動作時重複收費；登出或刪除帳戶會清除查詢快取和裝置上的個人資料（封鎖、收藏、搜尋紀錄、已看帖子、草稿）（`store/account.ts`） |
 
 ---
@@ -782,17 +782,17 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 | 項目 | 現行設定 | 誰付 |
 |---|---|---|
-| AppSeed 分成 | 扣除平台或刷卡手續費後 20%（待確認） | 賣家 |
+| VCseed 分成 | 扣除平台或刷卡手續費後 20%（待確認） | 賣家 |
 | Apple／Google | 15%（年收入超過 100 萬美元為 30%） | 在分成前扣除 |
 | Stripe 刷卡（網頁） | 約 3.4% + HK$2.35；海外卡另加約 0.5%，另有匯率費 | 在分成前扣除 |
-| RevenueCat | 約 1%（每月收入 2,500 美元以上） | AppSeed |
+| RevenueCat | 約 1%（每月收入 2,500 美元以上） | VCseed |
 | 結算 | 每月一次；成交 30 日後才可提取；未滿 HK$100 滾存 | — |
-| Stripe Connect 轉帳 | 約 0.25% + HK$0.25，從該次結算扣除；其他帳戶月費由 AppSeed 付 | 賣家 |
+| Stripe Connect 轉帳 | 約 0.25% + HK$0.25，從該次結算扣除；其他帳戶月費由 VCseed 付 | 賣家 |
 | 退款 | 已結算訂單退款在下次結算扣回，不足時結轉 | 賣家 |
-| 拒付 | Stripe 約 HK$85 由 AppSeed 付；拒付成立則扣回該筆收入 | AppSeed／賣家 |
+| 拒付 | Stripe 約 HK$85 由 VCseed 付；拒付成立則扣回該筆收入 | VCseed／賣家 |
 | 買斷托管費 | 托管機構收取，約 3.25% 起，金額越大比例越低 | 預設買家 |
 | 買斷佣金 | 5%，最低 HK$500（待確認），由托管機構在放款時扣除 | 賣家 |
-| 改動通知 | AppSeed 調整自己的分成或規則前 30 日通知 | — |
+| 改動通知 | VCseed 調整自己的分成或規則前 30 日通知 | — |
 
 第三方收費是約數，條款寫明以各服務當時公布的價格為準。正式推出前要向 Stripe、RevenueCat 和托管機構確認最新收費，並由律師和會計師審閱。
 
@@ -817,7 +817,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 | App 內購買 | RevenueCat `NON_RENEWING_PURCHASE` | App 購買前先建立 `purchase_intents`（價格級別是共用的），webhook 配對後建立訂單；平台費用用 RevenueCat 的實際 take-home，非港幣以美元價和 `HKD_PER_USD` 換算 |
 | 網頁購買 | Stripe `checkout.session.completed` | Checkout session 的 metadata 帶 `listing_id`、`buyer_id`；賣家由 `listing_prices` 決定，不信任 metadata |
 | 退款 | RevenueCat 退款取消、Stripe `refund.created` | 按比例扣回賣家收入，多次部分退款合計不會超過原本入帳 |
-| 拒付 | Stripe `charge.dispute.*` | 開始時暫扣賣家收入；勝訴退回，敗訴維持扣除；拒付手續費由 AppSeed 承擔，不入賣家帳 |
+| 拒付 | Stripe `charge.dispute.*` | 開始時暫扣賣家收入；勝訴退回，敗訴維持扣除；拒付手續費由 VCseed 承擔，不入賣家帳 |
 | 帳戶狀態 | Stripe `account.updated` | 更新 `payouts_enabled`；未可收款的賣家餘額保留到可以收款為止 |
 | 每月結算 | pg_cron 每月 9 日呼叫 `settlement` | 先完成上次未完成的轉帳，再為每位賣家結算：可提取餘額 ≥ HK$100 才轉帳，扣除轉帳費；`create_payout` 在同一個交易內重新核對餘額並寫入扣數；轉帳失敗會寫回餘額，下次再付 |
 
@@ -896,7 +896,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 ## 37. 官網
 
-`public/` 內的靜態網頁（about、支援、私隱政策、條款摘要）跟網頁版一齊發佈在 appseed.app，App Store 的支援網址和私隱政策網址指向這裡（見 §38）。依 landing-page-design：Geist、Tailwind 字級、純色背景、深淺色、捲動逐字顯示的標語段、無障礙跳到內容連結。上架前要換成真實聯絡電郵，並由律師審閱私隱政策。
+`public/` 內的靜態網頁（about、支援、私隱政策、條款摘要）跟網頁版一齊發佈在 vcseed.app，App Store 的支援網址和私隱政策網址指向這裡（見 §38）。依 landing-page-design：Geist、Tailwind 字級、純色背景、深淺色、捲動逐字顯示的標語段、無障礙跳到內容連結。上架前要換成真實聯絡電郵，並由律師審閱私隱政策。
 
 ## 38. 三個平台、同一份資料
 
@@ -917,7 +917,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 - Google：網頁重新導向；iOS／Android 用 auth session（PKCE）。
 - 電郵驗證碼：所有平台相同。
 
-**連結**：`appseed.app` 同時是網頁版和連結網域。分享用短連結（`/t/`、`/p/`、`/l/`、`/b/`），會轉到完整頁面。已安裝 App 時，同一條連結經 universal links（iOS，`ios.associatedDomains`）和 App Links（Android，`android.intentFilters`）直接打開 App；`public/.well-known` 的兩個驗證檔案要填入 Apple Team ID 和簽署憑證的 SHA256（`eas credentials -p android`）。
+**連結**：`vcseed.app` 同時是網頁版和連結網域。分享用短連結（`/t/`、`/p/`、`/l/`、`/b/`），會轉到完整頁面。已安裝 App 時，同一條連結經 universal links（iOS，`ios.associatedDomains`）和 App Links（Android，`android.intentFilters`）直接打開 App；`public/.well-known` 的兩個驗證檔案要填入 Apple Team ID 和簽署憑證的 SHA256（`eas credentials -p android`）。
 
 **網頁託管**：`npx expo export --platform web` 輸出 `dist/`，`public/_redirects` 令所有路徑回到網頁版（單頁輸出），`public/_headers` 令 Apple 驗證檔以 JSON 送出（Netlify／Cloudflare Pages 格式）。
 

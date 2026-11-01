@@ -1,5 +1,5 @@
 # A maker adds an app icon, screenshots and an App Store link to a launch (§39)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - addMedia:
     - "assets/icon.png"

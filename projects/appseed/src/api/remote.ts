@@ -123,9 +123,9 @@ export function remoteApi(sb: SupabaseClient, demo: Api) {
   const catalogue = catalogueApi(sb);
   const { templatesBy: _templatesBy, ...catalogueReads } = catalogue;
 
-  /** Native OAuth: the provider's page in an auth session, back to appseed://auth-callback with a PKCE code. */
+  /** Native OAuth: the provider's page in an auth session, back to vcseed://auth-callback with a PKCE code. */
   const nativeOAuth = async (provider: "apple" | "google"): Promise<AuthResult> => {
-    const callback = "appseed://auth-callback";
+    const callback = "vcseed://auth-callback";
     const r = await sb.auth.signInWithOAuth({ provider, options: { redirectTo: callback, skipBrowserRedirect: true } });
     if (r.error || !r.data.url) throw new Error(provider === "apple" ? "appleUnavailable" : "googleUnavailable");
     const result = await WebBrowser.openAuthSessionAsync(r.data.url, callback);

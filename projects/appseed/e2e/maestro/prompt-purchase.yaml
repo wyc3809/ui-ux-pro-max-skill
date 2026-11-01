@@ -1,5 +1,5 @@
 # Prompt: locked preview → buy (sandbox) → full text unlocks → copy filled prompt (§22.3)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

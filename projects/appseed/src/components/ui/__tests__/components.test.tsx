@@ -46,7 +46,7 @@ describe("LaunchMark", () => {
     for (const locale of ["zh-Hant", "en"] as const) {
       useSettings.setState({ locale });
       await wrap(<LaunchMark />);
-      expect(screen.getByText("AppSeed")).toBeTruthy();
+      expect(screen.getByText("VCseed")).toBeTruthy();
       expect(screen.getByText("Vibe coding incubator")).toBeTruthy();
     }
   });

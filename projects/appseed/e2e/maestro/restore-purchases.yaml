@@ -1,5 +1,5 @@
 # A buyer on a new device restores purchases from Me and finds them in Library (App Review 3.1.1)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

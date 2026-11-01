@@ -3,7 +3,7 @@
 # reach with psql (PG* environment variables or the defaults); the database is dropped afterwards.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-DB="appseed_test_$$"
+DB="vcseed_test_$$"
 createdb "$DB"
 trap 'dropdb --if-exists "$DB"' EXIT
 psql -q -v ON_ERROR_STOP=1 -d "$DB" -f tests/supabase_stub.sql

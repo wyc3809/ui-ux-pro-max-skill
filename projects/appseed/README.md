@@ -1,4 +1,4 @@
-# AppSeed · Vibe coding incubator
+# VCseed · Vibe coding incubator
 
 依照 [`docs/DESIGN.md`](docs/DESIGN.md) 實作的 Expo（SDK 58）App：iOS、Android、Web 同一份程式碼。
 目前是**前端第一版**：資料來自 `src/api/mockServer.ts` 的虛構模板，付款為模擬流程，尚未接上 Supabase／RevenueCat／Stripe。
@@ -116,7 +116,7 @@ npm test             # 249 個測試（App 和後台）
 npm run test:sql     # 用本機 Postgres 測試資料庫結構、RLS 和結算函數
 npm run typecheck    # App 和 Edge Functions
 npm run web          # 瀏覽器預覽
-npm run preview:pack # 打包成單一 HTML 預覽頁（dist/appseed-preview.html）
+npm run preview:pack # 打包成單一 HTML 預覽頁（dist/vcseed-preview.html）
 npx expo run:ios     # development build（MMKV、IAP 需要原生模組，不支援 Expo Go）
 ```
 

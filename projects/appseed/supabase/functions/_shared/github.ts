@@ -22,7 +22,7 @@ export async function appJwt(appId: string, pkcs8Pem: string, nowSec = Math.floo
 
 export function githubApi(cfg: { appId: string; privateKey: string; clientId: string; clientSecret: string }, fetcher: typeof fetch = fetch): StudioDeps["github"] {
   const gh = async (path: string, token: string, accept = "application/vnd.github+json") => {
-    const res = await fetcher(`https://api.github.com${path}`, { headers: { Authorization: `Bearer ${token}`, Accept: accept, "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "appseed" } });
+    const res = await fetcher(`https://api.github.com${path}`, { headers: { Authorization: `Bearer ${token}`, Accept: accept, "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "vcseed" } });
     if (!res.ok) throw new Error(`github ${res.status} ${path}`);
     return res;
   };
@@ -43,7 +43,7 @@ export function githubApi(cfg: { appId: string; privateKey: string; clientId: st
     async token(installationId) {
       const res = await fetcher(`https://api.github.com/app/installations/${installationId}/access_tokens`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${await appJwt(cfg.appId, cfg.privateKey)}`, Accept: "application/vnd.github+json", "User-Agent": "appseed" },
+        headers: { Authorization: `Bearer ${await appJwt(cfg.appId, cfg.privateKey)}`, Accept: "application/vnd.github+json", "User-Agent": "vcseed" },
       });
       const json = (await res.json()) as { token?: string };
       if (!json.token) throw new Error("githubTokenFailed");
@@ -61,7 +61,7 @@ export function githubApi(cfg: { appId: string; privateKey: string; clientId: st
     },
     async file(token, repo, ref, path) {
       const res = await fetcher(`https://api.github.com/repos/${repoPath(repo)}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(ref)}`, {
-        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw+json", "User-Agent": "appseed" },
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.raw+json", "User-Agent": "vcseed" },
       });
       return res.ok ? res.text() : null;
     },

@@ -1,5 +1,5 @@
 # Buyout: open listing → offer below the minimum is rejected → valid offer → appears under Library › 報價 (§22.2)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

@@ -3,7 +3,7 @@ import { CheckoutError, createCheckout, type CheckoutDb } from "../functions/_sh
 import { handleConnect, stateOf, type ConnectDb } from "../functions/_shared/connect.ts";
 import { safeReturn, stripeClient, type StripePost } from "../functions/_shared/stripeApi.ts";
 
-const SITE = "https://appseed.example";
+const SITE = "https://vcseed.example";
 const fakeStripe = (reply: (path: string) => Record<string, unknown>) => {
   const calls: { path: string; params: Record<string, string>; key?: string }[] = [];
   const post: StripePost = async (path, params, key) => (calls.push({ path, params, key }), reply(path));
@@ -12,7 +12,7 @@ const fakeStripe = (reply: (path: string) => Record<string, unknown>) => {
 
 describe("return URLs", () => {
   it("only sends people back to our own site", () => {
-    expect(safeReturn("https://appseed.example/template/x", SITE)).toBe("https://appseed.example/template/x");
+    expect(safeReturn("https://vcseed.example/template/x", SITE)).toBe("https://vcseed.example/template/x");
     expect(safeReturn("https://evil.example/phish", SITE)).toBe(SITE);
     expect(safeReturn("javascript:alert(1)", SITE)).toBe(SITE);
     expect(safeReturn(42, SITE)).toBe(SITE);

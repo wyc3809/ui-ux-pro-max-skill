@@ -24,7 +24,7 @@ function sdk(): Purchases | null {
 
 export const iapAvailable = () => sdk() != null;
 
-/** Ties store purchases to the AppSeed account, so the webhook's app_user_id is the buyer's user id. */
+/** Ties store purchases to the VCseed account, so the webhook's app_user_id is the buyer's user id. */
 export async function iapLogIn(userId: string) {
   await sdk()?.logIn(userId);
 }

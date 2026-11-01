@@ -1,5 +1,5 @@
 {
-  "name": "appseed",
+  "name": "vcseed",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
@@ -62,7 +62,7 @@
     "test": "jest",
     "typecheck": "tsc --noEmit && tsc --noEmit -p supabase/functions",
     "export:web": "expo export -p web",
-    "preview:pack": "expo export -p web && node scripts/pack-preview.js dist dist/appseed-preview.html",
+    "preview:pack": "expo export -p web && node scripts/pack-preview.js dist dist/vcseed-preview.html",
     "test:sql": "supabase/tests/run-sql.sh"
   },
   "private": true,

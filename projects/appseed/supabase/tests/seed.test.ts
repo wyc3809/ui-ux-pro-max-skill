@@ -14,7 +14,7 @@ const SEED = join(__dirname, "../seed.sql");
 
 /** Stable fake account ids per demo handle (never a real person). */
 export const demoUserId = (handle: string) => {
-  const h = createHash("md5").update(`appseed-demo:${handle}`).digest("hex");
+  const h = createHash("md5").update(`vcseed-demo:${handle}`).digest("hex");
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}`;
 };
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;

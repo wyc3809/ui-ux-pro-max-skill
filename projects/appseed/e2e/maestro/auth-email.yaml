@@ -1,5 +1,5 @@
 # Guest taps save → signs up with an email code → creates a username → the save completes (§23)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

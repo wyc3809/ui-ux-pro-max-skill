@@ -1,13 +1,13 @@
 # Listings show the creator card with social links; a signed-in creator edits their own links (§29)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "模板"
 - tapOn: "Pocket Ledger 記帳本"
 - scrollUntilVisible:
     element: "關於創作者"
-- assertVisible: "開啟 X @appseeddemo_kh"
-- assertVisible: "開啟 GitHub appseed-demo-kaylee"
+- assertVisible: "開啟 X @vcseeddemo_kh"
+- assertVisible: "開啟 GitHub vcseed-demo-kaylee"
 - tapOn: "返回"
 - tapOn: "我的"
 - tapOn: "創作者資料"

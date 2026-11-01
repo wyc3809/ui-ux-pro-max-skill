@@ -44,10 +44,10 @@ describe("Supabase rows to app types", () => {
   });
 
   it("maps profiles to users and creator cards", () => {
-    const p = { id: "u1", handle: "demo-maker", name: "Demo", bio: "Builds", links: { github: "appseed-demo" }, terms_version: 2, created_at: "2026-10-31T01:00:00Z" };
+    const p = { id: "u1", handle: "demo-maker", name: "Demo", bio: "Builds", links: { github: "vcseed-demo" }, terms_version: 2, created_at: "2026-10-31T01:00:00Z" };
     expect(toUser(p, { email: "a@example.com", provider: "apple" })).toEqual({ id: "u1", name: "Demo", handle: "demo-maker", email: "a@example.com", provider: "apple", createdAt: "2026-10-31", termsVersion: 2 });
     expect(toUser(p, { provider: "unknown" }).provider).toBe("email");
-    expect(toCreator({ ...p, avatar_hue: 40 })).toMatchObject({ handle: "demo-maker", avatarHue: 40, totalSales: 0, links: { github: "appseed-demo" } });
+    expect(toCreator({ ...p, avatar_hue: 40 })).toMatchObject({ handle: "demo-maker", avatarHue: 40, totalSales: 0, links: { github: "vcseed-demo" } });
   });
 
   it("shows offers in whole dollars", () => {

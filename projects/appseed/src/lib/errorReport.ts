@@ -37,7 +37,7 @@ export function setErrorSink(s: Sink | null) {
 /** Sends at most 20 reports per session, so a render loop cannot flood the table. */
 export function reportError(error: unknown, route = "") {
   const r = errorReport(error, route);
-  console.error("[appseed]", r.message);
+  console.error("[vcseed]", r.message);
   if (!sink || sent >= 20) return;
   sent++;
   sink(r).catch(() => {});

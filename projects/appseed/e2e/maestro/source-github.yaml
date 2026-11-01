@@ -1,5 +1,5 @@
 # Creator: connect GitHub → repo with a leaked key is blocked → clean repo passes → can continue (§22.6)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

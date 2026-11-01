@@ -42,10 +42,10 @@ describe("content function", () => {
   });
 
   it("stores bare social handles and rejects links that point elsewhere", async () => {
-    const ok = run({ action: "saveProfile", name: "Demo", bio: "Builds things", links: { github: "https://github.com/appseed-demo", website: "https://demo.example" } });
+    const ok = run({ action: "saveProfile", name: "Demo", bio: "Builds things", links: { github: "https://github.com/vcseed-demo", website: "https://demo.example" } });
     await ok.result;
-    expect(ok.calls[0]!.args.p_links).toEqual({ github: "appseed-demo", website: "https://demo.example" });
-    await expect(run({ action: "saveProfile", name: "Demo", bio: "", links: { x: "https://evil.example/appseed" } }).result).rejects.toThrow("wrongSite");
+    expect(ok.calls[0]!.args.p_links).toEqual({ github: "vcseed-demo", website: "https://demo.example" });
+    await expect(run({ action: "saveProfile", name: "Demo", bio: "", links: { x: "https://evil.example/vcseed" } }).result).rejects.toThrow("wrongSite");
     await expect(run({ action: "saveProfile", name: "Demo", bio: "", links: { website: "http://demo.example" } }).result).rejects.toThrow("needsHttps");
     await expect(run({ action: "saveProfile", name: "Demo", bio: "", links: { tiktok: "demo" } as never }).result).rejects.toThrow("invalidHandle");
     await expect(run({ action: "saveProfile", name: "Demo", bio: "x".repeat(161), links: {} }).result).rejects.toThrow("bioTooLong");

@@ -1,5 +1,5 @@
 # Signed-in user likes, saves, copies the link and comments on a template (§24)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "模板"

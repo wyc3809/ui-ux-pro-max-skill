@@ -19,7 +19,7 @@ describe("social links", () => {
 
   it("rejects URLs that are not profile pages instead of storing a wrong handle", () => {
     expect(normalizeSocial("youtube", "https://www.youtube.com/channel/UCabc123")).toEqual({ error: "notProfile" });
-    expect(normalizeSocial("youtube", "https://www.youtube.com/@appseed-demo")).toEqual({ value: "appseed-demo" });
+    expect(normalizeSocial("youtube", "https://www.youtube.com/@vcseed-demo")).toEqual({ value: "vcseed-demo" });
     expect(normalizeSocial("instagram", "https://instagram.com/p/Cxyz")).toEqual({ error: "notProfile" });
     expect(normalizeSocial("github", "https://github.com/orgs/foo")).toEqual({ error: "notProfile" });
     expect(normalizeSocial("x", "https://x.com/i/status/123")).toEqual({ error: "notProfile" });

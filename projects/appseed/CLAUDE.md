@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Product
-AppSeed (subtitle "Vibe coding incubator", same in every language via i18n `brand`): a marketplace for runnable app source code plus "build stories" (prompts,
+VCseed (subtitle "Vibe coding incubator", same in every language via i18n `brand`): a marketplace for runnable app source code plus "build stories" (prompts,
 architecture decisions, pitfalls, launch steps). React Native + Expo for iOS, Android
 and Web. Buyers browse and purchase on mobile, then send the code to their computer.
 Creators upload templates (web recommended), pass review, and get paid via Stripe Connect.
@@ -50,7 +50,7 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 ## Creator profiles (docs/DESIGN.md §29)
 - Every listing shows a CreatorCard with social links. Store bare handles and build URLs with
   lib/socialLinks.ts so a link can only point at its network; websites must be https.
-- Demo data uses fictional handles with an appseed demo prefix.
+- Demo data uses fictional handles with an vcseed demo prefix.
 
 ## Discussion (docs/DESIGN.md §27)
 - Threads-style feed is the second Explore hub. Posting, liking, replying and reposting need sign-in.

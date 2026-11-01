@@ -25,7 +25,7 @@ export function resendIn(sentAt: number, now: number, wait = RESEND_SECONDS): nu
   return Math.max(0, Math.ceil(wait - (now - sentAt) / 1000));
 }
 
-const RESERVED = new Set(["admin", "appseed", "support", "help", "root", "staff", "official", "me", "settings"]);
+const RESERVED = new Set(["admin", "vcseed", "support", "help", "root", "staff", "official", "me", "settings"]);
 
 export type HandleError = "handleShort" | "handleLong" | "handleChars" | "handleReserved";
 

@@ -2,7 +2,7 @@ import { safeReturn, type StripePost } from "./stripeApi.ts";
 
 /**
  * Seller payout setup with Stripe Connect Express (docs/DESIGN.md §32): Stripe collects identity and bank
- * details on its own pages, AppSeed keeps only the account id and whether payouts are enabled (kept current
+ * details on its own pages, VCseed keeps only the account id and whether payouts are enabled (kept current
  * by the account.updated webhook). A seller needs only a bank account, not their own Stripe account.
  */
 export type ConnectState = { state: "none" | "pending" | "ready"; payoutsEnabled: boolean };

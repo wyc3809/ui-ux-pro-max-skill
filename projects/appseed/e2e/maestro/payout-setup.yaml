@@ -1,5 +1,5 @@
 # A creator sets up payouts from the studio; the demo connects at once (Stripe hosts the real pages, §32)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "創作"

@@ -36,7 +36,7 @@ const DAY = 86_400_000;
 const addDays = (iso: string, days: number) => new Date(Date.parse(iso) + days * DAY).toISOString();
 
 /**
- * Splits a sale: the store or card fee first, then AppSeed's share of what is left. Pass the fee the provider
+ * Splits a sale: the store or card fee first, then VCseed's share of what is left. Pass the fee the provider
  * actually charged when it is known (RevenueCat's take-home, Stripe's balance transaction); otherwise the
  * schedule's estimate is used.
  */
@@ -77,7 +77,7 @@ export function refundEntry(order: Order, refund: { id: string; amount: number; 
 
 /**
  * A dispute holds the seller's share while it is open; winning releases it and losing keeps it back. The card
- * network's dispute fee is AppSeed's (terms fee 8) and never reaches the seller's ledger.
+ * network's dispute fee is VCseed's (terms fee 8) and never reaches the seller's ledger.
  */
 export function disputeEntry(order: Order, dispute: { id: string; status: "open" | "won" | "lost"; at: string }): Entry | null {
   if (dispute.status === "lost") return null;

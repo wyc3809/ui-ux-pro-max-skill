@@ -11,7 +11,7 @@ create table public.profiles (
   id uuid primary key references auth.users on delete cascade,
   -- Same rule as src/lib/auth.ts validateHandle; the content function checks reserved words with that code too.
   handle text not null unique check (handle ~ '^[a-z][a-z0-9_-]{2,19}$'
-    and handle not in ('admin', 'appseed', 'support', 'help', 'root', 'staff', 'official', 'me', 'settings')),
+    and handle not in ('admin', 'vcseed', 'support', 'help', 'root', 'staff', 'official', 'me', 'settings')),
   name text not null check (char_length(name) between 1 and 50),
   bio text not null default '' check (char_length(bio) <= 160),
   -- Bare handles per network (src/lib/socialLinks.ts); the app builds the URLs.

@@ -6,7 +6,7 @@ describe("one link for every platform", () => {
     expect(shareLink("template", "pocket-ledger")).toBe(`${ORIGIN}/t/pocket-ledger`);
     expect(shortPath("launch", "ferry-now")).toBe("/l/ferry-now");
     expect(appPath("prompt", "landing-copy")).toBe("/prompt/landing-copy");
-    expect(postLink("p1")).toBe("https://appseed.app/post/p1");
+    expect(postLink("p1")).toBe("https://vcseed.app/post/p1");
   });
 
   it("lists every shared path in the universal link and App Link config", () => {
@@ -18,6 +18,6 @@ describe("one link for every platform", () => {
       expect(androidPaths).toContain(p);
       expect(iosPaths).toContain(p);
     }
-    expect(app.ios.associatedDomains).toEqual(["applinks:appseed.app"]);
+    expect(app.ios.associatedDomains).toEqual(["applinks:vcseed.app"]);
   });
 });

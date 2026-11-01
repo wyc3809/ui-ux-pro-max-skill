@@ -128,7 +128,7 @@ export function studioApi(sb: SupabaseClient) {
         window.location.assign(install);
         return new Promise<never>(() => {});
       }
-      const r = await WebBrowser.openAuthSessionAsync(install, "appseed://github-callback");
+      const r = await WebBrowser.openAuthSessionAsync(install, "vcseed://github-callback");
       if (r.type !== "success") throw new Error("cancelled");
       const q = new URL(r.url).searchParams;
       return linkGithub(q.get("code") ?? "", q.get("installation_id") ?? "");

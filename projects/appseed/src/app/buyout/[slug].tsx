@@ -347,7 +347,7 @@ function Stepper({ icon, label, onPress }: { icon: "plus" | "minus"; label: stri
 function BuyNowSheet({ b, open, onClose }: { b: BuyoutListing; open: boolean; onClose: () => void }) {
   const { c } = useTheme();
   const t = useT();
-  // The escrow provider's fee is the buyer's; AppSeed's commission comes out of the seller's side (§31).
+  // The escrow provider's fee is the buyer's; VCseed's commission comes out of the seller's side (§31).
   const { escrowFee: fee } = buyoutCosts(b.asking);
   // Only the US storefront may link out to pay (§30); elsewhere the sheet explains where to finish.
   const linkOut = canLinkOut(useStorefront());

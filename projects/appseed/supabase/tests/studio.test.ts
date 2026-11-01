@@ -220,11 +220,11 @@ describe("studio function", () => {
 describe("Sign in with Apple revocation", () => {
   it("signs the client secret with the team's ES256 key and revokes the refresh token", async () => {
     const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
-    const cfg = { teamId: "TEAM", keyId: "KEY", clientId: "app.appseed", privateKey: privateKey.export({ type: "pkcs8", format: "pem" }).toString() };
+    const cfg = { teamId: "TEAM", keyId: "KEY", clientId: "app.vcseed", privateKey: privateKey.export({ type: "pkcs8", format: "pem" }).toString() };
     const jwt = await appleClientSecret(cfg, 1_000);
     const [h, b, s] = jwt.split(".");
     expect(JSON.parse(Buffer.from(h!, "base64url").toString())).toEqual({ alg: "ES256", kid: "KEY" });
-    expect(JSON.parse(Buffer.from(b!, "base64url").toString())).toMatchObject({ iss: "TEAM", sub: "app.appseed", aud: "https://appleid.apple.com", exp: 1_300 });
+    expect(JSON.parse(Buffer.from(b!, "base64url").toString())).toMatchObject({ iss: "TEAM", sub: "app.vcseed", aud: "https://appleid.apple.com", exp: 1_300 });
     expect(createVerify("SHA256").update(`${h}.${b}`).verify({ key: publicKey, dsaEncoding: "ieee-p1363" }, Buffer.from(s!, "base64url"))).toBe(true);
 
     const calls: string[] = [];

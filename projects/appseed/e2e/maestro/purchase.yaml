@@ -1,5 +1,5 @@
 # Browse → open template → preview story → buy (sandbox) → owned → send to email (§17)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

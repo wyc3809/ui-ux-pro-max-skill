@@ -1,7 +1,7 @@
 import { buyoutCosts, FEES, payoutAmount, pct, splitSale } from "../fees";
 
 describe("fee schedule", () => {
-  it("splits an in-app sale: store fee first, then AppSeed's share", () => {
+  it("splits an in-app sale: store fee first, then VCseed's share", () => {
     expect(splitSale(158, "ios")).toEqual({ gross: 158, channelFee: 23.7, net: 134.3, platform: 26.86, seller: 107.44 });
     expect(splitSale(158, "android", { largeDeveloper: true }).channelFee).toBe(47.4);
   });

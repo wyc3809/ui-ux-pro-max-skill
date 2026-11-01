@@ -4,13 +4,13 @@ describe("engagement", () => {
   it("keys items like favourites do", () => {
     expect(itemKey("template", "pocket-ledger")).toBe("pocket-ledger");
     expect(itemKey("prompt", "x")).toBe("prompt:x");
-    expect(shareLink("launch", "moodboard-ai")).toBe("https://appseed.app/l/moodboard-ai");
+    expect(shareLink("launch", "moodboard-ai")).toBe("https://vcseed.app/l/moodboard-ai");
   });
   it("builds encoded share intents", () => {
-    const url = "https://appseed.app/t/pocket-ledger";
-    expect(buildShareUrl("x", url, "記帳 & 動畫")).toBe("https://x.com/intent/post?text=%E8%A8%98%E5%B8%B3%20%26%20%E5%8B%95%E7%95%AB&url=https%3A%2F%2Fappseed.app%2Ft%2Fpocket-ledger");
-    expect(buildShareUrl("linkedin", url, "x")).toBe("https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fappseed.app%2Ft%2Fpocket-ledger");
-    expect(buildShareUrl("whatsapp", url, "Hi")).toBe("https://wa.me/?text=Hi%20https%3A%2F%2Fappseed.app%2Ft%2Fpocket-ledger");
+    const url = "https://vcseed.app/t/pocket-ledger";
+    expect(buildShareUrl("x", url, "記帳 & 動畫")).toBe("https://x.com/intent/post?text=%E8%A8%98%E5%B8%B3%20%26%20%E5%8B%95%E7%95%AB&url=https%3A%2F%2Fvcseed.app%2Ft%2Fpocket-ledger");
+    expect(buildShareUrl("linkedin", url, "x")).toBe("https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fvcseed.app%2Ft%2Fpocket-ledger");
+    expect(buildShareUrl("whatsapp", url, "Hi")).toBe("https://wa.me/?text=Hi%20https%3A%2F%2Fvcseed.app%2Ft%2Fpocket-ledger");
     expect(buildShareUrl("threads", url, "Hi")).toContain("threads.net/intent/post?text=Hi%20https");
   });
   it("formats compact counts per locale", () => {

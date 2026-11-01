@@ -125,7 +125,7 @@ function NewBuyout() {
           {asking > 0 && (
             <Reveal style={{ gap: 4 }}>
               <Txt tone="fgMuted">{multiple == null ? t("buyout.preRevenue") : t("buyout.multiple", { x: multiple })}</Txt>
-              {/* What the seller actually receives: asking price less AppSeed's commission (§31). */}
+              {/* What the seller actually receives: asking price less VCseed's commission (§31). */}
               <Txt variant="caption" tone="fgSubtle">
                 {t("buyout.commission")} {formatPrice(buyoutCosts(asking).commission, "HKD", "")}
               </Txt>

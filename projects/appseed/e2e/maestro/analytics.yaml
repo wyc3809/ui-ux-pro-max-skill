@@ -1,5 +1,5 @@
 # Creator opens the analytics report, switches period, metric and listing (§26)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "創作"

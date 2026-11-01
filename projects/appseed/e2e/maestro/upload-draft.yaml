@@ -1,5 +1,5 @@
 # Creator: start a draft → kill the app → draft is still there (§17)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

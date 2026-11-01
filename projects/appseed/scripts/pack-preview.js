@@ -1,5 +1,5 @@
 // Packs `expo export -p web` output into one self-contained HTML page (all JS inlined, fonts/images as data URIs)
-// for sharing as a hosted preview: `npm run preview:pack` → dist/appseed-preview.html
+// for sharing as a hosted preview: `npm run preview:pack` → dist/vcseed-preview.html
 const fs = require("fs"), path = require("path");
 const [dist, out] = process.argv.slice(2);
 const jsDir = path.join(dist, "_expo/static/js/web");
@@ -20,7 +20,7 @@ js = js.replace(/"(\/assets\/[^"]+)"/g, (m, p) => {
   return JSON.stringify(`data:${mime[path.extname(p)]};base64,${fs.readFileSync(file).toString("base64")}`);
 });
 js = js.replace(/<\/script/gi, "<\\/script");
-const html = `<title>AppSeed · Vibe coding incubator</title>
+const html = `<title>VCseed · Vibe coding incubator</title>
 <style>
   :root { --bg: #f5f5f7; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000000; color-scheme: dark } }

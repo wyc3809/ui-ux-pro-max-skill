@@ -1,5 +1,5 @@
 # The app opens on the leaderboard; periods switch, the algorithm is explained, voting updates the row (§28)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp:
     clearState: true

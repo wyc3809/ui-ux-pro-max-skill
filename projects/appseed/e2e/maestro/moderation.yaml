@@ -1,5 +1,5 @@
 # Content safety for App Review 1.2: screening before posting, report with a reason, block, unblock (§30)
-appId: app.appseed.mobile
+appId: app.vcseed.mobile
 ---
 - launchApp
 - tapOn: "討論"

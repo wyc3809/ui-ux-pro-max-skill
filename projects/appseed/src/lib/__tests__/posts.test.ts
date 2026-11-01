@@ -17,11 +17,11 @@ describe("posts", () => {
   });
 
   it("splits text into tags and links", () => {
-    expect(segments("新作 #vibecoding 試玩 https://appseed.app/l/x 完")).toEqual([
+    expect(segments("新作 #vibecoding 試玩 https://vcseed.app/l/x 完")).toEqual([
       { text: "新作 ", kind: "text" },
       { text: "#vibecoding", kind: "tag" },
       { text: " 試玩 ", kind: "text" },
-      { text: "https://appseed.app/l/x", kind: "link" },
+      { text: "https://vcseed.app/l/x", kind: "link" },
       { text: " 完", kind: "text" },
     ]);
     expect(segments("#香港本地")).toEqual([{ text: "#香港本地", kind: "tag" }]);
