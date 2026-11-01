@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: Geist; src: url(../fonts/Geist_700Bold.ttf); font-weight: 700; }
+@font-face { font-family: Geist; src: url(../fonts/Geist_600SemiBold.ttf); font-weight: 600; }
+@font-face { font-family: Geist; src: url(../fonts/Geist_500Medium.ttf); font-weight: 500; }
+html, body { margin: 0; background: transparent; }
+</style></head><body>
+<script src="mark.js"></script>
+<script>
+// Each job draws one brand image on a canvas and returns a PNG data URL (brand/scripts/export.mjs calls these).
+const V = window.VCSEED;
+function canvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return [c, c.getContext("2d")]; }
+/** Draw the mark scaled by k about the canvas centre (k < 1 for safe zones). */
+function scaled(ctx, S, k, draw) { ctx.save(); ctx.translate((S * (1 - k)) / 2, (S * (1 - k)) / 2); ctx.scale(k, k); draw(); ctx.restore(); }
+const JOBS = {
+  icon: (S = 1024) => { const [c, x] = canvas(S, S); V.background(x, S); V.mark(x, S); return c; },
+  // iOS dark / tinted: the system supplies the background.
+  iconDark: (S = 1024) => { const [c, x] = canvas(S, S); V.mark(x, S); return c; },
+  iconTinted: (S = 1024) => { const [c, x] = canvas(S, S); V.mark(x, S, { mono: "#FFFFFF", glow: false }); return c; },
+  // Android adaptive: 108dp canvas, 66dp safe circle → mark at 78%.
+  androidFg: (S = 1024) => { const [c, x] = canvas(S, S); scaled(x, S, 0.78, () => V.mark(x, S)); return c; },
+  androidBg: (S = 1024) => { const [c, x] = canvas(S, S); V.background(x, S); return c; },
+  androidMono: (S = 1024) => { const [c, x] = canvas(S, S); scaled(x, S, 0.78, () => V.mark(x, S, { mono: "#FFFFFF", glow: false })); return c; },
+  splash: (S = 1024) => { const [c, x] = canvas(S, S); V.mark(x, S); return c; },
+  rounded: (S) => { const [c, x] = canvas(S, S); x.beginPath(); x.roundRect(0, 0, S, S, S * 0.2237); x.clip(); V.background(x, S); V.mark(x, S); return c; },
+  layerLeft: (S = 512) => { const [c, x] = canvas(S, S); V.leaf(x, "left", S / 1024); return c; },
+  layerRight: (S = 512) => { const [c, x] = canvas(S, S); V.leaf(x, "right", S / 1024); return c; },
+  layerOverlap: (S = 512) => { const [c, x] = canvas(S, S); V.overlap(x, S / 1024); return c; },
+  frame: (t, S = 1080) => { const [c, x] = canvas(S, S); V.background(x, S); V.markAt(x, S, t); return c; },
+  /** Wide brand art (OG image, Play feature graphic): ink canvas, mark left, wordmark + line right. */
+  wide: (w, h, line, sub) => {
+    const [c, x] = canvas(w, h);
+    x.fillStyle = (() => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, V.BRAND.ink[0]); g.addColorStop(1, V.BRAND.ink[1]); return g; })();
+    x.fillRect(0, 0, w, h);
+    const glow = x.createRadialGradient(w * 0.26, h * 0.5, 0, w * 0.26, h * 0.5, h * 0.9); glow.addColorStop(0, "rgba(91,63,214,0.35)"); glow.addColorStop(1, "rgba(91,63,214,0)"); x.fillStyle = glow; x.fillRect(0, 0, w, h);
+    const m = h * 0.95; x.save(); x.translate(w * 0.26 - m / 2, (h - m) / 2); V.mark(x, m); x.restore();
+    const left = w * 0.47;
+    x.fillStyle = "#FFFFFF"; x.font = `700 ${Math.round(h * 0.2)}px Geist`; x.textBaseline = "alphabetic"; x.fillText("VCseed", left, h * 0.47);
+    x.fillStyle = V.BRAND.mint[0]; x.font = `600 ${Math.round(h * 0.075)}px Geist`; x.fillText(line, left, h * 0.62);
+    if (sub) { x.fillStyle = "rgba(255,255,255,0.62)"; x.font = `500 ${Math.round(h * 0.052)}px Geist`; x.fillText(sub, left, h * 0.73); }
+    return c;
+  },
+};
+window.renderJob = async (name, ...args) => { await document.fonts.load("700 40px Geist"); await document.fonts.load("600 40px Geist"); await document.fonts.load("500 40px Geist"); return JOBS[name](...args).toDataURL("image/png"); };
+document.body.dataset.ready = "1";
+</script></body></html>

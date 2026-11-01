@@ -2,6 +2,7 @@ import createIconSet from "@expo/vector-icons/createIconSet";
 import { useEffect, useRef } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 import Animated, {
+  useReducedMotion,
   Easing,
   ReduceMotion,
   useAnimatedStyle,
@@ -235,7 +236,11 @@ export function Icon({ name, size = 20, color, activeColor, active = false, moti
     }
   }, [trigger, active, kind, scale, rotate, tx, ty]);
 
+  // Looping glyphs stay still under Reduce Motion: a reduced timing finishes at once, so a loop that restarts
+  // from its own completion callback would recurse forever (it blanked the web app before).
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (reduced) return;
     if (loop === "spin") {
       const tick = () => {
         rotate.value = 0;
@@ -252,7 +257,7 @@ export function Icon({ name, size = 20, color, activeColor, active = false, moti
       };
       tick();
     }
-  }, [loop, rotate, scale]);
+  }, [loop, rotate, scale, reduced]);
 
   const wrap = useAnimatedStyle(() => ({
     opacity: opacity.value,

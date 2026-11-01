@@ -8,19 +8,24 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#f5f6f3",
+    "backgroundColor": "#f5f5f7",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.vcseed.mobile",
       "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:vcseed.app"
-      ]
+      ],
+      "icon": {
+        "light": "./assets/icon.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
     },
     "android": {
       "package": "app.vcseed.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#5b3fd6",
+        "backgroundColor": "#08080A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -104,6 +109,18 @@
           "photosPermission": "VCseed uses your photos to add an app icon, screenshots and a preview video to your listing.",
           "cameraPermission": false,
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "backgroundColor": "#f5f5f7",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#000000"
+          }
         }
       ]
     ],

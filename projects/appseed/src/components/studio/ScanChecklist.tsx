@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { View } from "react-native";
-import Animated, { Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { useReducedMotion, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import type { ScanReport } from "@/api/types";
 import { Icon } from "@/components/ui/Icon";
 import { Txt } from "@/components/ui/Txt";
@@ -82,9 +82,11 @@ export function ScanChecklist({ report }: { report: ScanReport | null }) {
 function SweepBar() {
   const { c } = useTheme();
   const x = useSharedValue(0);
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (reduced) return; // stays still under Reduce Motion
     x.value = withRepeat(withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.quad), reduceMotion: ReduceMotion.System }), -1, true);
-  }, [x]);
+  }, [x, reduced]);
   const a = useAnimatedStyle(() => ({ left: `${x.value * 70}%` }));
   return (
     <View style={{ height: 4, borderRadius: 2, backgroundColor: c.bgMuted, overflow: "hidden", marginBottom: 4 }}>

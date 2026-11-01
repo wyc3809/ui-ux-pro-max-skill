@@ -28,9 +28,18 @@ let route = "/";
 installGlobalErrorHandlers(() => route);
 
 /** A screen that crashed: report it (no personal data) and offer a retry instead of a blank app. */
+/** Rendered by the router outside RootLayout, so it brings its own ThemeProvider (Txt and Button need it). */
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
-  const t = useT();
   useEffect(() => reportError(error, route), [error]);
+  return (
+    <ThemeProvider>
+      <CrashScreen retry={retry} />
+    </ThemeProvider>
+  );
+}
+
+function CrashScreen({ retry }: { retry: () => void }) {
+  const t = useT();
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 16, padding: 32, backgroundColor: "#000000" }}>
       <Txt variant="section" style={{ color: "#ffffff", textAlign: "center" }}>{t("common.crashed")}</Txt>
