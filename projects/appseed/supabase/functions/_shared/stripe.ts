@@ -1,5 +1,6 @@
 import type { Transfers } from "./apply.ts";
 import { SCHEDULE } from "./schedule.ts";
+import { STRIPE_API_VERSION } from "./stripeApi.ts";
 
 /**
  * Stripe Connect transfers over the REST API. The idempotency key is the payout id, so retrying a payout an
@@ -14,6 +15,7 @@ export function stripeTransfers(secretKey: string, fetcher: typeof fetch = fetch
           Authorization: `Bearer ${secretKey}`,
           "Content-Type": "application/x-www-form-urlencoded",
           "Idempotency-Key": `payout_${payoutId}`,
+          "Stripe-Version": STRIPE_API_VERSION,
         },
         body: new URLSearchParams({
           amount: String(amount),

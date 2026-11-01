@@ -2,7 +2,7 @@
 import { createHmac } from "node:crypto";
 import { FEES, splitSale as displaySplit } from "../../src/lib/fees";
 import { handleEvent, runSettlement, SettlementError, type Transfers } from "../functions/_shared/apply.ts";
-import { fromRevenueCat, fromStripe, type RcEvent } from "../functions/_shared/events.ts";
+import { fromRevenueCat, fromStripe, fromStripeThin, type RcEvent } from "../functions/_shared/events.ts";
 import { balance, disputeEntry, type Order, planPayout, refundEntry, saleEntry, splitSale } from "../functions/_shared/ledger.ts";
 import { postgresStore } from "../functions/_shared/db.ts";
 import { SCHEDULE } from "../functions/_shared/schedule.ts";
@@ -110,7 +110,24 @@ describe("webhook payloads", () => {
     expect(fromStripe(ev("refund.created", { id: "re_1", amount: 500, payment_intent: "pi_1" }))).toMatchObject({ type: "refund", refundId: "re_1", amount: 500 });
     expect(fromStripe(ev("charge.dispute.closed", { id: "dp_1", status: "lost", payment_intent: "pi_1" }))).toMatchObject({ status: "lost" });
     expect(fromStripe(ev("charge.dispute.closed", { id: "dp_1", status: "warning_closed", payment_intent: "pi_1" }))).toMatchObject({ status: "won" });
-    expect(fromStripe(ev("account.updated", { id: "acct_1", payouts_enabled: true, details_submitted: true }))).toMatchObject({ type: "account", payoutsEnabled: true });
+    // v1 account.updated only says something changed; readiness is read from Accounts v2, not payouts_enabled.
+    expect(fromStripe(ev("account.updated", { id: "acct_1", payouts_enabled: true, details_submitted: true }))).toEqual({ type: "accountChanged", provider: "stripe", eventId: "evt", stripeAccountId: "acct_1" });
+  });
+
+  it("fulfils delayed payment methods only when they succeed", () => {
+    const ev = (type: string, object: Record<string, unknown>) => ({ id: "evt", type, created: 1, data: { object } });
+    const paid = { payment_status: "paid", currency: "hkd", amount_total: 15800, payment_intent: "pi_2", metadata: { listing_id: "l1", buyer_id: "buyer" } };
+    expect(fromStripe(ev("checkout.session.completed", { ...paid, payment_status: "unpaid" })).type).toBe("ignored");
+    expect(fromStripe(ev("checkout.session.async_payment_succeeded", paid))).toMatchObject({ type: "sale", externalId: "pi_2" });
+    expect(fromStripe(ev("checkout.session.async_payment_failed", { ...paid, payment_status: "unpaid" })).type).toBe("ignored");
+  });
+
+  it("reads Accounts v2 thin events as account change notices", () => {
+    const thin = (type: string, related: Record<string, string>) => ({ id: "evt_t", object: "v2.core.event" as const, type, related_object: related });
+    expect(fromStripeThin(thin("v2.core.account[configuration.recipient].capability_status_updated", { id: "acct_1", type: "v2.core.account" }))).toEqual({ type: "accountChanged", provider: "stripe", eventId: "evt_t", stripeAccountId: "acct_1" });
+    expect(fromStripeThin(thin("v2.core.account[requirements].updated", { id: "acct_1", type: "v2.core.account" })).type).toBe("accountChanged");
+    expect(fromStripeThin(thin("v1.billing.meter.error_report_triggered", { id: "mtr_1", type: "billing.meter" })).type).toBe("ignored");
+    expect(() => fromStripeThin({ id: "x", type: "checkout.session.completed" } as never)).toThrow("notThinEvent");
   });
 });
 

@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 });
   }
   const store = postgresStore(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"));
-  const report = await runSettlement(store, stripeTransfers(env("STRIPE_SECRET_KEY")), new Date().toISOString());
+  const report = await runSettlement(store, stripeTransfers(env("STRIPE_TRANSFERS_KEY") || env("STRIPE_SECRET_KEY")) /* restricted key: Transfers (write) */, new Date().toISOString());
   console.log("settlement", JSON.stringify({ period: report.period, paid: report.paid.length, skipped: report.skipped.length, failed: report.failed.length }));
   return new Response(JSON.stringify(report), { headers: { "Content-Type": "application/json" } });
 });

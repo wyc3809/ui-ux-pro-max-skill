@@ -23,6 +23,8 @@ export type PaymentEvent =
   | { type: "refund"; provider: Channel; eventId: string; externalId: string; refundId: string; amount?: number; at: string }
   | { type: "dispute"; provider: Channel; eventId: string; externalId: string; disputeId: string; status: "open" | "won" | "lost"; at: string }
   | { type: "account"; provider: Channel; eventId: string; stripeAccountId: string; payoutsEnabled: boolean; detailsSubmitted: boolean }
+  /** Accounts v2 thin event: only the account id; the webhook reads the account's current state from Stripe. */
+  | { type: "accountChanged"; provider: Channel; eventId: string; stripeAccountId: string }
   | { type: "ignored"; provider: Channel; eventId: string };
 
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -77,13 +79,29 @@ export function fromRevenueCat(body: { event: RcEvent }, hkdPerUsd: number): Pay
 }
 
 type StripeEvent = { id: string; type: string; created: number; data: { object: Record<string, unknown> } };
+type ThinEvent = { id: string; object: "v2.core.event"; type: string; related_object?: { id?: string; type?: string } };
+
+/**
+ * Thin events (an event destination on Accounts v2): v2.core.account[...] updates, e.g. requirements or the
+ * recipient capability's status, carry only the account id.
+ */
+export function fromStripeThin(body: ThinEvent): PaymentEvent {
+  const base = { provider: "stripe" as const, eventId: body.id };
+  if (body.object !== "v2.core.event") throw new Error("notThinEvent");
+  if (body.type.startsWith("v2.core.account") && body.related_object?.type === "v2.core.account" && body.related_object.id) {
+    return { type: "accountChanged", ...base, stripeAccountId: body.related_object.id };
+  }
+  return { type: "ignored", ...base };
+}
 
 export function fromStripe(body: StripeEvent): PaymentEvent {
   const o = body.data.object;
   const base = { provider: "stripe" as const, eventId: body.id };
   const at = iso(((o.created as number | undefined) ?? body.created) * 1000);
   switch (body.type) {
-    case "checkout.session.completed": {
+    // Fulfil on completion, or later for delayed payment methods (completed arrives while still unpaid).
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded": {
       if (o.payment_status !== "paid") return { type: "ignored", ...base };
       if (String(o.currency).toUpperCase() !== SCHEDULE.currency) throw new Error("unsupportedCurrency");
       const meta = (o.metadata ?? {}) as Record<string, string>;
@@ -97,8 +115,10 @@ export function fromStripe(body: StripeEvent): PaymentEvent {
       const status = body.type === "charge.dispute.created" ? "open" : o.status === "lost" ? "lost" : "won";
       return { type: "dispute", ...base, externalId: String(o.payment_intent), disputeId: String(o.id), status, at };
     }
+    // v1 account.updated still fires for Accounts v2 accounts; its payouts_enabled is a v1 field, so read the
+    // account's v2 recipient capability instead.
     case "account.updated":
-      return { type: "account", ...base, stripeAccountId: String(o.id), payoutsEnabled: o.payouts_enabled === true, detailsSubmitted: o.details_submitted === true };
+      return { type: "accountChanged", ...base, stripeAccountId: String(o.id) };
     default:
       return { type: "ignored", ...base };
   }

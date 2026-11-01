@@ -12,7 +12,14 @@ export interface CheckoutDb {
 
 export class CheckoutError extends Error {}
 
-export async function createCheckout(db: CheckoutDb, stripe: StripePost, userId: string, body: { slug?: unknown; returnUrl?: unknown }, site: string) {
+/** Tags VCseed's listing checkout in the Dashboard (fixed label + 8 random letters, generated once). */
+export const INTEGRATION_ID = "vcseed_listing_checkout_qhzmtkpa";
+
+/**
+ * `invoices`: also email the buyer an invoice PDF after payment (Stripe Invoicing, billed per invoice), for buyers
+ * who expense their purchase. Off unless STRIPE_INVOICES=1.
+ */
+export async function createCheckout(db: CheckoutDb, stripe: StripePost, userId: string, body: { slug?: unknown; returnUrl?: unknown }, site: string, opts: { invoices?: boolean } = {}) {
   const slug = typeof body.slug === "string" ? body.slug : "";
   const listing = await db.price(slug);
   if (!listing) throw new CheckoutError("notFound");
@@ -33,6 +40,8 @@ export async function createCheckout(db: CheckoutDb, stripe: StripePost, userId:
     "metadata[buyer_id]": userId,
     "payment_intent_data[metadata][listing_id]": slug,
     "payment_intent_data[metadata][buyer_id]": userId,
+    integration_identifier: INTEGRATION_ID,
+    ...(opts.invoices ? { "invoice_creation[enabled]": "true", "invoice_creation[invoice_data][metadata][listing_id]": slug } : null),
   });
   return { url: String(session.url) };
 }

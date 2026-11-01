@@ -6,7 +6,8 @@ import { stripeClient } from "../_shared/stripeApi.ts";
 
 const env = (k: string) => Deno.env.get(k) ?? "";
 const rest = serviceRest(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"));
-const stripe = stripeClient(env("STRIPE_SECRET_KEY"));
+// Restricted key with Checkout Sessions (write) only.
+const stripe = stripeClient(env("STRIPE_CHECKOUT_KEY") || env("STRIPE_SECRET_KEY"));
 
 const endpoint = signedInEndpoint("checkout", [CheckoutError], (userId, body) =>
   createCheckout(
@@ -22,6 +23,7 @@ const endpoint = signedInEndpoint("checkout", [CheckoutError], (userId, body) =>
     userId,
     body,
     env("SITE_URL"),
+    { invoices: env("STRIPE_INVOICES") === "1" },
   ),
 );
 Deno.serve((req) => endpoint(req, env));

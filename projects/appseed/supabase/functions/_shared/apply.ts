@@ -62,6 +62,8 @@ export async function handleEvent(store: Store, ev: PaymentEvent): Promise<"appl
 
 async function apply(store: Store, ev: Exclude<PaymentEvent, { type: "ignored" }>) {
   if (ev.type === "account") return store.setAccount(ev.stripeAccountId, ev.payoutsEnabled, ev.detailsSubmitted);
+  // The webhook reads the account (connect.ts accountEvent) before applying; an unread notice is retried.
+  if (ev.type === "accountChanged") throw new Error("accountNotRead");
 
   if (ev.type === "sale") {
     const listing = ev.listingId ? await store.listingSeller(ev.listingId) : ev.productId ? await store.matchIntent(ev.buyerId, ev.productId, ev.externalId) : null;

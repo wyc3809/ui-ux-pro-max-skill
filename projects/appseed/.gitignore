@@ -40,3 +40,6 @@ yarn-error.*
 /ios
 /android
 brand/out/
+
+# Stripe agent skills are symlinked here by `npx skills add https://docs.stripe.com`; the real files live in .agents/skills
+.claude/skills/

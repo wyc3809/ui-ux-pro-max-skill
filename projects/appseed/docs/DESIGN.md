@@ -823,7 +823,23 @@ Creators upload templates (web recommended), pass review, and get paid via Strip
 
 銷售收入在成交 30 日後才計入可提取餘額；退款和拒付即時扣除，不足的金額成為負數，從之後的收入扣回。
 
-**部署前要設定的 secrets**：`STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET`、`REVENUECAT_WEBHOOK_SECRET`、`SETTLEMENT_CRON_SECRET`、`HKD_PER_USD`（預設 7.8）。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 由 Supabase 提供。
+**部署前要設定的 secrets**：`STRIPE_WEBHOOK_SECRET`、`STRIPE_THIN_WEBHOOK_SECRET`、`REVENUECAT_WEBHOOK_SECRET`、`SETTLEMENT_CRON_SECRET`、`HKD_PER_USD`（預設 7.8），以及每個函數各自的 Stripe 受限金鑰（`rk_`，只開所需權限；未設定時退回 `STRIPE_SECRET_KEY`）：
+
+| Secret | 函數 | 權限 |
+|---|---|---|
+| `STRIPE_CHECKOUT_KEY` | checkout | Checkout Sessions：寫入 |
+| `STRIPE_CONNECT_KEY` | connect | Connect（Accounts v2、account links、login links）：寫入 |
+| `STRIPE_CONNECT_READ_KEY` | payments-webhook | Connect accounts：讀取 |
+| `STRIPE_TRANSFERS_KEY` | settlement | Transfers：寫入 |
+
+`STRIPE_INVOICES=1` 會在網頁版付款後寄發票 PDF 給買家（Stripe Invoicing 按張收費），預設關閉。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 由 Supabase 提供。
+
+**Stripe 設定（§32.1）**
+- 先在 [sandbox](https://docs.stripe.com/sandboxes.md) 開發和測試，正式環境用另一組金鑰；所有呼叫固定 API 版本 `2026-10-28.endive`（`STRIPE_API_VERSION`）。
+- Webhook：一個 snapshot 目的地指向 `/payments-webhook/stripe`，訂閱 `checkout.session.completed`、`checkout.session.async_payment_succeeded`、`checkout.session.async_payment_failed`、`refund.created`、`charge.dispute.created`、`charge.dispute.closed`、`account.updated`；另一個 thin 目的地指向 `/payments-webhook/stripe-thin`，訂閱 `v2.core.account[requirements].updated` 和 `v2.core.account[configuration.recipient].capability_status_updated`。兩者都驗證簽名；付款後的開通只在 webhook 做，不靠返回頁。
+- Connect：平台模式是 marketplace（VCseed 是賣方、收款後按月轉帳，即 separate charges and transfers，收費以少轉帳方式扣除，不用 `application_fee_amount`）。創作者帳戶用 Accounts v2：`recipient` 配置、`stripe_balance.stripe_transfers`、Express dashboard、`fees_collector` 和 `losses_collector` 都是 `application`（需要在 Stripe Dashboard 確認平台承擔負結餘）。是否可轉帳只看 `stripe_transfers.status === "active"`，不看 v1 的 `payouts_enabled`。
+- 付款方式交由 Dashboard 的動態付款方式決定，代碼不指定 `payment_method_types`；Checkout 加上 `integration_identifier` 方便在 Dashboard 追蹤。
+- 稅：香港沒有銷售稅，但網頁版賣給海外買家的數碼產品可能要在當地登記 VAT/GST。先用 Stripe Tax 監察門檻；在有登記之前不要開 `automatic_tax`。
 
 **之後已完成**（§33–§36）：Stripe Connect 開戶流程（`connect`）、網頁 Checkout（`checkout`）、買家已購和退款後收回（`my_purchases()`）、審核批准時寫入 `listing_prices`。
 
